@@ -104,7 +104,9 @@ class SettingsController extends Controller
             $user->status = $request->input('status');
             $user->chave_pix = $request->input('chave_pix');
     		$user->email = $request->input('email');
-    		$user->password = Hash::make($request->input('password'));
+            if(!empty(trim($request->input('password')))) {
+                $user->password = Hash::make(trim($request->input('password')));
+            }
     		$user->save();
 
         return redirect()->route('settings');
