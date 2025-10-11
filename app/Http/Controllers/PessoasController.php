@@ -14,6 +14,7 @@ class PessoasController extends Controller
 
     public function index(Request $request)
     {
+
         $id = !empty($request->input('id')) ? ($request->input('id')) : ( !empty($id) ? $id : false );
 
         $pessoas = new User();
@@ -104,39 +105,54 @@ class PessoasController extends Controller
     public function salva($request) {
 
 
+        // dd($request->input());
         $documento = preg_replace("/[^0-9]/", "", $request->input('documento'));
         if($request->input('id')) {
 
             $pessoas = User::where('id', $request->input('id'))->first();
         }
 
-        if (!$pessoas) {
-            $pessoas = new User();
-        }
+            // $table->string('nome',100);
+            // $table->string('nome_pai',100)->nullable();
+            // $table->string('nome_mae',100)->nullable();
+            // $table->string('documento',20)->nullable();
+            // $table->date('data_nascimento')->nullable();
+            // $table->string('estado_civil', 100)->nullable();
+            // $table->string('nome_conjuge', 100)->nullable();
+            // $table->date('data_casamento')->nullable();
+            // $table->string('endereco', 200)->nullable();
+            // $table->string('numero', 10)->nullable();
+            // $table->string('cep', 9)->nullable();
+            // $table->string('bairro', 150)->nullable();
+            // $table->string('cidade', 150)->nullable();
+            // $table->string('estado', 150)->nullable();
+            // $table->string('telefone', 11)->nullable();
+            // $table->boolean('batismo_aguas')->default(false)->nullable();
+            // $table->date('data_batismo_aguas')->nullable();
+            // $table->string('cargo_eclesiastico', 100)->nullable();
+            // $table->longText('observacoes')->nullable();
 
-        // Associar o pessoas à clínica selecionada na sessão
-        $clinica_id = session('clinica_id');
-        if ($clinica_id) {
-            $pessoas->clinica_id = $clinica_id;
-        }
-
-
-        $pessoas->name = $request->input('nome');
-        $pessoas->telefone = preg_replace("/[^0-9]/", "", $request->input('telefone'));
+        $pessoas->nome = $request->input('nome');
+        $pessoas->nome_pai = $request->input('nome_pai');
+        $pessoas->nome_mae = $request->input('nome_mae');
         $pessoas->documento = $documento;
         $pessoas->data_nascimento = $request->input('data_nascimento');
-        $pessoas->genero = $request->input('genero');
         $pessoas->numero = $request->input('numero');
         $pessoas->complemento = $request->input('complemento');
-        $pessoas->telefone = preg_replace("/[^0-9]/", "", $request->input('telefone'));
         $pessoas->cep = $request->input('cep');
         $pessoas->endereco = $request->input('endereco');
         $pessoas->bairro = $request->input('bairro');
         $pessoas->cidade = $request->input('cidade');
         $pessoas->email = $request->input('email');
         $pessoas->estado = $request->input('estado');
+        $pessoas->telefone = preg_replace("/[^0-9]/", "", $request->input('telefone'));
+        $pessoas->estado_civil = $request->input('estado_civil');
+        $pessoas->nome_conjuge = $request->input('nome_conjuge');
+        $pessoas->data_casamento = $request->input('data_casamento');
+        $pessoas->batismo_aguas = $request->input('batismo_aguas') == '1' ? true : false;
+        $pessoas->data_batismo_aguas = $request->input('data_batismo_aguas');
+        $pessoas->cargo_eclesiastico = $request->input('cargo_eclesiastico');
         $pessoas->status = $request->input('status');
-        $pessoas->chave_pix = $request->input('chave_pix');
 
         $pessoas->save();
 

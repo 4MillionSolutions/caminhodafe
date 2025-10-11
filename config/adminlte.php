@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'OftalClass',
+    'title' => 'Projearte',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -63,12 +63,12 @@ return [
     |
     */
 
-    'logo' => '<b>Oftal</b>Class',
+    'logo' => '<b>Projearte</b> Engenharia',
     'logo_img' => 'img/img_logo.png',
     'logo_img_class' => 'text-black brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'OftalClass',
+    'logo_img_alt' => 'Projearte Engenharia',
 
     /*
     |--------------------------------------------------------------------------
@@ -110,7 +110,7 @@ return [
         'enabled' => true,
         'img' => [
             'path' => 'img/img_logo.png',
-            'alt' => 'OftalClass',
+            'alt' => 'Projearte Engenharia',
             'effect' => 'animation__shake',
             'width' => 60,
             'height' => 60,
@@ -311,7 +311,7 @@ return [
         //     'url'  => 'admin/blog',
         //     'can'  => 'manage-blog',
         // ],
-        
+
         // [
         //     'text'    => 'multilevel',
         //     'icon'    => 'fas fa-fw fa-share',

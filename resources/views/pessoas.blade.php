@@ -71,9 +71,7 @@
                       <th>ID</th>
                       <th>Nome</th>
                       <th>Telefone</th>
-                      <th>Email</th>
                       <th>Nascimento</th>
-                      <th>Manutenção</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -109,12 +107,11 @@
             <div class="row row-cols-md-3 g-3">
                 <div class="col-md-4">
                     <label for="pessoa" class="form-label">Nome*</label>
-                    <input type="text" class="form-control" id="nome" name="nome" maxlength="200" required value="{{ $pessoas[0]->name ?? '' }}">
+                    <input type="text" class="form-control" id="nome" name="nome" maxlength="200" required value="{{ $pessoas[0]->nome ?? '' }}">
                 </div>
                 <div class="col-md-4">
-                    <label for="documento" class="form-label">CPF*</label>
-                    <input type="text" class="form-control mask_cpf_cnpj" id="documento" name="documento" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required placeholder="000.000.000-00" value="{{ $pessoas[0]->documento ?? '' }}" >
-                    <small id="cpf-error" class="text-danger" style="display:none;">CPF inválido</small>
+                    <label for="documento" class="form-label">RG/CPF*</label>
+                    <input type="text" class="form-control" id="documento" name="documento" maxlength="14" value="{{ $pessoas[0]->documento ?? '' }}" >
                 </div>
                 <div class="col-md-4">
                     <label for="telefone" class="form-label">Telefone</label>
@@ -123,29 +120,78 @@
             </div>
             <div class="row row-cols-md-3 g-3 mt-2">
                 <div class="col-md-4">
-                    <label for="chave_pix" class="form-label" title="Seu pix para depósitos de cashback">Seu pix</label>
-                    <input type="text" class="form-control" id="chave_pix" name="chave_pix" maxlength="100" value="{{ $pessoas[0]->chave_pix ?? '' }}">
+                    <label for="nome_pai" class="form-label" >Nome do Pai</label>
+                    <input type="text" class="form-control" id="nome_pai" name="nome_pai" maxlength="100" value="{{ $pessoas[0]->nome_pai ?? '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="nome_mae" class="form-label" >Nome da Mãe</label>
+                    <input type="text" class="form-control" id="nome_mae" name="nome_mae" maxlength="100" value="{{ $pessoas[0]->nome_mae ?? '' }}">
                 </div>
                 <div class="col-md-2">
                     <label for="data_nascimento" class="form-label">Data de Nascimento</label>
                     <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="{{ $pessoas[0]->data_nascimento ?? '' }}">
                 </div>
-                <div class="col-md-2">
-                    <label for="genero" class="form-label">Gênero</label>
-                    <select class="form-control" id="genero" name="genero">
-                        <option value="" {{ !isset($pessoas[0]->genero) ? 'selected' : '' }}>Selecione</option>
-                        <option value="0" {{ isset($pessoas[0]->genero) && $pessoas[0]->genero == '0' ? 'selected' : '' }}>Masculino</option>
-                        <option value="1" {{ isset($pessoas[0]->genero) && $pessoas[0]->genero == '1' ? 'selected' : '' }}>Feminino</option>
-                        <option value="2" {{ isset($pessoas[0]->genero) && $pessoas[0]->genero == '2' ? 'selected' : '' }}>Outro</option>
+            </div>
+
+            {{-- /**
+            $table->string('nome',100);
+            $table->string('nome_pai',100)->nullable();
+            $table->string('nome_mae',100)->nullable();
+            $table->string('documento',20)->nullable();
+            $table->date('data_nascimento')->nullable();
+            $table->string('estado_civil', 100)->nullable();
+            $table->string('nome_conjuge', 100)->nullable();
+            $table->date('data_casamento')->nullable();
+            $table->string('endereco', 200)->nullable();
+            $table->string('numero', 10)->nullable();
+            $table->string('cep', 9)->nullable();
+            $table->string('bairro', 150)->nullable();
+            $table->string('cidade', 150)->nullable();
+            $table->string('estado', 150)->nullable();
+            $table->string('telefone', 11)->nullable();
+            $table->boolean('batismo_aguas')->default(false)->nullable();
+            $table->date('data_batismo_aguas')->nullable();
+            $table->string('cargo_eclesiastico', 100)->nullable();
+            $table->longText('observacoes')->nullable();
+            **/ --}}
+            <div class="row row-cols-md-3 g-3 mt-2">
+                <div class="col-md-4">
+                    <label for="estado_civil" class="form-label">Estado Civil</label>
+                    <select class="form-control" id="estado_civil" name="estado_civil">
+                        <option value="0" {{ isset($pessoas[0]->estado_civil) && $pessoas[0]->estado_civil == '' ? 'selected' : '' }}>Selecione</option>
+                        <option value="0" {{ isset($pessoas[0]->estado_civil) && $pessoas[0]->estado_civil == '0' ? 'selected' : '' }}>Solteiro</option>
+                        <option value="1" {{ isset($pessoas[0]->estado_civil) && $pessoas[0]->estado_civil == '1' ? 'selected' : '' }}>Casado</option>
+                        <option value="2" {{ isset($pessoas[0]->estado_civil) && $pessoas[0]->estado_civil == '2' ? 'selected' : '' }}>Divorciado</option>
+                        <option value="3" {{ isset($pessoas[0]->estado_civil) && $pessoas[0]->estado_civil == '3' ? 'selected' : '' }}>Viuvo</option>
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" maxlength="200" placeholder="Digite um email válido" value="{{ $pessoas[0]->email ?? '' }}">
+                    <label for="nome_conjuge" class="form-label" >Nome do Cônjuge</label>
+                    <input type="text" class="form-control" id="nome_conjuge" name="nome_conjuge" maxlength="100" value="{{ $pessoas[0]->nome_conjuge ?? '' }}">
                 </div>
-
+                <div class="col-md-2">
+                    <label for="data_casamento" class="form-label">Data de Casamento</label>
+                    <input type="date" class="form-control" id="data_casamento" name="data_casamento" value="{{ $pessoas[0]->data_casamento ?? '' }}">
+                </div>
             </div>
 
+            <div class="row row-cols-md-3 g-3 mt-2">
+                <div class="col-md-4">
+                    <label for="cargo_eclesiastico" class="form-label">Cargo Eclesiástico</label>
+                    <input type="text" class="form-control" id="cargo_eclesiastico" name="cargo_eclesiastico" maxlength="100" value="{{ $pessoas[0]->cargo_eclesiastico ?? '' }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="batismo_aguas" class="form-label">Batismo nas Águas</label>
+                    <select class="form-control" id="batismo_aguas" name="batismo_aguas">
+                        <option value="0" {{ isset($pessoas[0]->batismo_aguas) && $pessoas[0]->batismo_aguas == '0' ? 'selected' : '' }}>Não</option>
+                        <option value="1" {{ isset($pessoas[0]->batismo_aguas) && $pessoas[0]->batismo_aguas == '1' ? 'selected' : '' }}>Sim</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="data_batismo_aguas" class="form-label">Data do Batismo</label>
+                    <input type="date" class="form-control" id="data_batismo_aguas" name="data_batismo_aguas" value="{{ $pessoas[0]->data_batismo_aguas ?? '' }}">
+                </div>
+            </div>
             <div class="row row-cols-md-3 g-3 mt-2">
 
                 <div class="col-md-8">

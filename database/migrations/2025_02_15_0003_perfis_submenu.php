@@ -24,12 +24,11 @@ return new class extends Migration
         DB::table('perfil_submenu')->insert(
             [
                 //Lançamentos
-                
+
                 ['id'=> '1', 'perfil_id'=>'1', 'submenu_id'=>'1'],
                 ['id'=> '3', 'perfil_id'=>'1', 'submenu_id'=>'3'],
                 ['id'=> '4', 'perfil_id'=>'1', 'submenu_id'=>'4'],
-                ['id'=> '5', 'perfil_id'=>'1', 'submenu_id'=>'5'],
-               
+
 
             ]
         );

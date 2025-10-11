@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(Dispatcher $events)
     {
-        
+
         $events->Listen(BuildingMenu::class, function (BuildingMenu $event) {
 
             $categorias = app(CategoriaMenus::class)::where('id', '>', '0')->get()->sortBy('id')->map(function (CategoriaMenus $categoriaMenus) {
@@ -55,6 +55,10 @@ class AppServiceProvider extends ServiceProvider
 
 
             $perfis_menu = (new ValidaPermissaoAcessoController())->GetSubMenuLiberado();
+
+            if(!is_array($perfis_menu)) {
+                $perfis_menu = [];
+            }
 
             $submenus = app(SubMenus::class)::where('id', '>', '0')->get()->sortBy('id')->map(function (SubMenus $submenus) use(&$event, $perfis_menu) {
 

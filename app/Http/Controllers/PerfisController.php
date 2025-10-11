@@ -30,6 +30,7 @@ class PerfisController extends Controller
      */
     public function index(Request $request)
     {
+
         $perfis = new Perfis();
 
         $id = !empty($request->input('id')) ? ($request->input('id')) : ( !empty($id) ? $id : false );
@@ -82,7 +83,6 @@ class PerfisController extends Controller
 				'tela' => $tela,
                 'nome_tela' => 'perfis',
                 'telas' => $telas,
-                // 'dashboards' => $dashboards,
 				'request' => $request,
 				'rotaIncluir' => 'incluir-perfis',
 				'rotaAlterar' => 'alterar-perfis'
@@ -137,7 +137,6 @@ class PerfisController extends Controller
 				'tela' => $tela,
                 'nome_tela' => 'perfis',
                 'telas' => $telas,
-                // 'dashboards' => $dashboards,
 				'perfis'=> $perfis,
 				'request' => $request,
 				'rotaIncluir' => 'incluir-perfis',

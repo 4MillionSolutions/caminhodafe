@@ -34,8 +34,6 @@ return new class extends Migration
                 ['id'=> '1', 'menu_id'=>'1', 'label'=>'', 'nome'=> 'Cadastro de pessoas', 'rota'=> 'pessoas', 'icon' => 'fa fa-fw fa-angle-right', 'icon_color' => 'grey'],
                 ['id'=> '3', 'menu_id'=>'1', 'label'=>'', 'nome'=> 'Cadastro de Perfis', 'rota'=> 'perfis', 'icon' => 'fa fa-fw fa-angle-right', 'icon_color' => 'grey'],
                 ['id'=> '4', 'menu_id'=>'3', 'label'=>'', 'nome'=> 'Conta', 'rota'=> 'admin/settings', 'icon' => 'fa fa-fw fa-angle-right', 'icon_color' => 'grey'],
-                ['id'=> '5', 'menu_id'=>'2', 'label'=>'', 'nome'=> 'Indicações', 'rota'=> 'indicacoes', 'icon' => 'fa fa-fw fa-angle-right', 'icon_color' => 'grey'],
-                ['id'=> '6', 'menu_id'=>'2', 'label'=>'', 'nome'=> 'Controle de Indicações', 'rota'=> 'indicacoes-controle', 'icon' => 'fa fa-fw fa-angle-right', 'icon_color' => 'grey'],
             ]
         );
     }

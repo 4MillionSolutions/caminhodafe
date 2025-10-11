@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'OftalClass')
+@section('title', 'Membro da igreja')
 
 <script src="../vendor/jquery/jquery.min.js"></script>
 <script src="js/jquery.mask.js"></script>

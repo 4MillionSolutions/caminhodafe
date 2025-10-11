@@ -15,9 +15,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('site');
+    return view('auth.login');
 });
-Route::get('/site', [App\Http\Controllers\SiteController::class, 'index'])->name('site');
 
 Auth::routes(['register' => true, 'reset' => true]);
 
@@ -33,11 +32,3 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/pessoas', [App\Http\Controllers\PessoasController::class, 'index'])->name('pessoas')->middleware('afterAuth:pessoas');
 Route::match(['get', 'post'],'/alterar-pessoas', [App\Http\Controllers\PessoasController::class, 'alterar'])->name('alterar-pessoas')->middleware('afterAuth:pessoas');
 Route::match(['get', 'post'],'/incluir-pessoas', [App\Http\Controllers\PessoasController::class, 'incluir'])->name('incluir-pessoas')->middleware('afterAuth:pessoas');
-
-Route::get('/indicacoes', [App\Http\Controllers\IndicacoesController::class, 'index'])->name('indicacoes')->middleware('afterAuth:indicacoes');
-Route::match(['get', 'post'],'/alterar-indicacoes', [App\Http\Controllers\IndicacoesController::class, 'alterar'])->name('alterar-indicacoes')->middleware('afterAuth:indicacoes');
-Route::match(['get', 'post'],'/incluir-indicacoes', [App\Http\Controllers\IndicacoesController::class, 'incluir'])->name('incluir-indicacoes')->middleware('afterAuth:indicacoes');
-
-Route::get('/indicacoes-controle', [App\Http\Controllers\IndicacoesControleController::class, 'index'])->name('indicacoes-controle')->middleware('afterAuth:indicacoes-controle');
-Route::match(['get', 'post'],'/alterar-indicacoes-controle', [App\Http\Controllers\IndicacoesControleController::class, 'alterar'])->name('alterar-indicacoes-controle')->middleware('afterAuth:indicacoes-controle');
-Route::match(['get', 'post'],'/incluir-indicacoes-controle', [App\Http\Controllers\IndicacoesControleController::class, 'incluir'])->name('incluir-indicacoes-controle')->middleware('afterAuth:indicacoes-controle');
