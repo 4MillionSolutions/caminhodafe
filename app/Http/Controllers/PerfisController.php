@@ -76,7 +76,7 @@ class PerfisController extends Controller
 
 
         $telas = new SubMenus();
-        $telas = $telas->where('status', '=', 'A')->get();
+        $telas = $telas->where('ativo', '=', 1)->get();
 
         $tela = 'incluir';
     	$data = array(
@@ -117,7 +117,7 @@ class PerfisController extends Controller
     	}
 
         $telas = new SubMenus();
-        $telas = $telas->where('status', '=', 'A')->get();
+        $telas = $telas->where('ativo', '=', 1)->get();
 
         $PerfilSubmenus = new PerfilSubmenus();
         $PerfilSubmenus = $PerfilSubmenus->where('perfil_id', '=', $request->input('id'))->get()->toArray();

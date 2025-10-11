@@ -14,15 +14,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('categoria_menus', function (Blueprint $table) {
+        Schema::create('motivos_chamados', function (Blueprint $table) {
             $table->id();
             $table->string('nome',100);
             $table->boolean('ativo')->default(true);
+            $table->timestamps();
         });
 
-        DB::table('categoria_menus')->insert(
+        DB::table('motivos_chamados')->insert(
             [
-                ['id'=> '1', 'nome'=>''],
+                ['id'=> '1', 'nome'=>'Avaliação'],
+                ['id'=> '2', 'nome'=>'Reavaliação'],
             ]
             );
     }
@@ -35,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categoria_menus');
+        Schema::dropIfExists('motivos_chamados');
     }
 };

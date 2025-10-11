@@ -14,17 +14,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('categoria_menus', function (Blueprint $table) {
+        Schema::create('tecnicos', function (Blueprint $table) {
             $table->id();
             $table->string('nome',100);
+            $table->string('crea_cau',100);
             $table->boolean('ativo')->default(true);
+            $table->timestamps();
         });
 
-        DB::table('categoria_menus')->insert(
-            [
-                ['id'=> '1', 'nome'=>''],
-            ]
-            );
     }
 
 
@@ -35,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categoria_menus');
+        Schema::dropIfExists('tecnicos');
     }
 };

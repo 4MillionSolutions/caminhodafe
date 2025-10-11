@@ -18,6 +18,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('perfil_id')->constrained('perfis')->onDelete('cascade');
             $table->foreignId('submenu_id')->constrained('submenus')->onDelete('cascade');
+            $table->boolean('ativo')->default(true);
             $table->timestamps();
         });
 
@@ -26,8 +27,13 @@ return new class extends Migration
                 //Lançamentos
 
                 ['id'=> '1', 'perfil_id'=>'1', 'submenu_id'=>'1'],
+                ['id'=> '2', 'perfil_id'=>'1', 'submenu_id'=>'2'],
                 ['id'=> '3', 'perfil_id'=>'1', 'submenu_id'=>'3'],
                 ['id'=> '4', 'perfil_id'=>'1', 'submenu_id'=>'4'],
+                ['id'=> '5', 'perfil_id'=>'1', 'submenu_id'=>'5'],
+                ['id'=> '6', 'perfil_id'=>'1', 'submenu_id'=>'6'],
+                ['id'=> '7', 'perfil_id'=>'1', 'submenu_id'=>'7'],
+                ['id'=> '8', 'perfil_id'=>'1', 'submenu_id'=>'8'],
 
 
             ]

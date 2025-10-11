@@ -14,15 +14,23 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('categoria_menus', function (Blueprint $table) {
+        Schema::create('operacoes', function (Blueprint $table) {
             $table->id();
             $table->string('nome',100);
             $table->boolean('ativo')->default(true);
+            $table->timestamps();
         });
 
-        DB::table('categoria_menus')->insert(
+        DB::table('operacoes')->insert(
             [
-                ['id'=> '1', 'nome'=>''],
+                ['id'=> '1', 'nome'=>'Consórcio'],
+                ['id'=> '2', 'nome'=>'CGI'],
+                ['id'=> '3', 'nome'=>'Normal'],
+                ['id'=> '4', 'nome'=>'CETIP Vencendo'],
+                ['id'=> '5', 'nome'=>'Somente Vistoria'],
+                ['id'=> '6', 'nome'=>'Piloto'],
+                ['id'=> '7', 'nome'=>'Repasse'],
+                ['id'=> '8', 'nome'=>'Particular'],
             ]
             );
     }
@@ -35,6 +43,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categoria_menus');
+        Schema::dropIfExists('operacoes');
     }
 };

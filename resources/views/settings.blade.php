@@ -12,7 +12,7 @@
     <script src="../js/jquery.mask.js"></script>
     <script src="../js/bootstrap.4.6.2.js"></script>
     <script src="../js/main_custom.js"></script>
-    <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    {{-- <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script> --}}
 
 @stop
 
@@ -31,105 +31,13 @@
                 @csrf
                 <input type="hidden" name="id" value="{{ $user->id ?? '' }}">
                 <div class="container">
-                    @if(!empty($user->chave_pix))
-                        <div class="row row-cols-md-3 g-3">
-                            <div class="col-md-4">
-                                <label for="link" class="col-form-label  text-right">Link de indicação</label>
-                                <input type="text" id="link" name="link" class="form-control col-md-12 col-xs-12" readonly="true" value="@if (isset($user->link)){{$user->link}}@else{{''}}@endif">
-                            </div>
 
-                            <div class="col-sm-4">
-                                <label for="codigo_indicacao" class="col-form-label  text-right">Código de indicação</label>
-                                <input type="text" id="codigo_indicacao" name="codigo_indicacao" class="form-control col-md-7 col-xs-12" readonly="true" value="@if (isset($user->codigo_indicacao)){{$user->codigo_indicacao}}@else{{''}}@endif">
-                            </div>
-
-                            <div class="col-sm-4">
-                                <label for="compartilhar" class="col-form-label text-right">Compartilhe com seu amigos e familiares</label>
-                                <button type="button" class="btn btn-success" id="compartilhar" onclick="compartilharLink()">
-                                    <i class="fas fa-share"></i> Compartilhar
-                                </button>
-                            </div>
-                        </div>
-                    @endif
                     <div class="row row-cols-md-3 g-3">
                         <div class="col-md-4">
                             <label for="pessoa" class="form-label">Nome*</label>
                             <input type="text" class="form-control" id="nome" name="nome" maxlength="200" required value="{{ $user->name ?? '' }}">
                         </div>
-                        <div class="col-md-4">
-                            <label for="documento" class="form-label">CPF*</label>
-                            <input type="text" class="form-control mask_cpf_cnpj" id="documento" name="documento" maxlength="14" required placeholder="000.000.000-00" value="{{ $user->documento ?? '' }}" >
-                            <small id="cpf-error" class="text-danger" style="display:none;">CPF inválido</small>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="telefone" class="form-label">Telefone</label>
-                            <input type="text" class="form-control mask_phone" id="telefone" name="telefone" maxlength="11" value="{{ $user->telefone ?? '' }}">
-                        </div>
                     </div>
-                    <div class="row row-cols-md-3 g-3 mt-2">
-                        <div class="col-md-4">
-                            <label for="chave_pix" class="form-label text-danger" title="Seu pix para depósitos de cashback">Seu pix</label>
-                            <input type="text" class="form-control" id="chave_pix" name="chave_pix" maxlength="100" value="{{ $user->chave_pix ?? '' }}">
-                        </div>
-                        <div class="col-md-2">
-                            <label for="data_nascimento" class="form-label">Data de Nascimento</label>
-                            <input type="date" class="form-control" id="data_nascimento" name="data_nascimento" value="{{ $user->data_nascimento ?? '' }}">
-                        </div>
-                        <div class="col-md-2">
-                            <label for="genero" class="form-label">Gênero</label>
-                            <select class="form-control" id="genero" name="genero">
-                                <option value="" {{ !isset($user->genero) ? 'selected' : '' }}>Selecione</option>
-                                <option value="0" {{ isset($user->genero) && $user->genero == '0' ? 'selected' : '' }}>Masculino</option>
-                                <option value="1" {{ isset($user->genero) && $user->genero == '1' ? 'selected' : '' }}>Feminino</option>
-                                <option value="2" {{ isset($user->genero) && $user->genero == '2' ? 'selected' : '' }}>Outro</option>
-                            </select>
-                        </div>
-
-
-
-                    </div>
-
-                    <div class="row row-cols-md-3 g-3 mt-2">
-
-                        <div class="col-md-8">
-                            <label for="endereco" class="form-label">Endereço</label>
-                            <input type="text" class="form-control " id="endereco" name="endereco" maxlength="500" value="{{ $user->endereco ?? '' }}">
-                        </div>
-                        <div class="col-md-1">
-                            <label for="numero" class="form-label">Número</label>
-                            <input type="text" class="form-control " id="numero" name="numero" maxlength="20" value="{{ $user->numero ?? '' }}">
-                        </div>
-                        <div class="col-md-2">
-                            <label for="complemento" class="form-label">Complemento</label>
-                            <input type="text" class="form-control " id="complemento" name="complemento" maxlength="100" value="{{ $user->complemento ?? '' }}">
-                        </div>
-                    </div>
-                    <div class="row row-cols-md-3 g-3 mt-2">
-                        <div class="col-md-4">
-                            <label for="bairro" class="form-label">Bairro</label>
-                            <input type="text" class="form-control " id="bairro" name="bairro" maxlength="100" value="{{ $user->bairro ?? '' }}">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="cidade" class="form-label">Cidade</label>
-                            <input type="text" class="form-control" id="cidade" name="cidade" maxlength="150" value="{{ $user->cidade ?? '' }}">
-                        </div>
-                    </div>
-                    <div class="row row-cols-md-3 g-3 mt-2">
-                        <div class="col-md-4">
-                            <label for="estado" class="form-label">Estado</label>
-                            <select class="form-control" id="estado" name="estado">
-                                <option value="0" {{ isset($user->estado) && $user->estado == '' ? 'selected' : '' }}>Selecione</option>
-                                @foreach ($estados as $estado)
-                                    <option value="{{ $estado['id'] }}" {{ isset($user->estado) && $user->estado == $estado['id'] ? 'selected' : '' }}>{{ $estado['estado'] }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="cep" class="form-label">CEP</label>
-                            <input type="text" class="form-control cep" id="cep" name="cep" maxlength="8" value="{{ $user->cep ?? '' }}">
-                        </div>
-                    </div>
-
                     <div class="row mt-1">
                         <div class="col-md-2">
                             <label for="status" class="form-label">Status</label>

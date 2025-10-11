@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
+use App\Models\Clientes;
 
-class PessoasController extends Controller
+class ClientesController extends Controller
 {
     public function __construct()
     {
@@ -17,40 +17,40 @@ class PessoasController extends Controller
 
         $id = !empty($request->input('id')) ? ($request->input('id')) : ( !empty($id) ? $id : false );
 
-        $pessoas = new User();
+        $clientes = new Clientes();
 
         if ($id) {
-            $pessoas = $pessoas->where('id', '=', $id);
+            $clientes = $clientes->where('id', '=', $id);
         }
 
-        if (!empty($request->input('status'))){
-            $pessoas = $pessoas->where('status', '=', $request->input('status'));
+        if (!empty($request->input('ativo'))){
+            $clientes = $clientes->where('ativo', '=', $request->input('ativo'));
         } else {
-            $pessoas = $pessoas->where('status', '=', 'A');
+            $clientes = $clientes->where('ativo', '=', '1');
         }
 
         if (!empty($request->input('documento'))) {
             $documento = preg_replace("/[^0-9]/", "", $request->input('documento'));
-            $pessoas = $pessoas->where('documento', '=', $documento);
+            $clientes = $clientes->where('documento', '=', $documento);
         }
 
         if (!empty($request->input('nome'))) {
-            $pessoas = $pessoas->where('nome', 'like', '%'.$request->input('nome').'%');
+            $clientes = $clientes->where('nome', 'like', '%'.$request->input('nome').'%');
         }
 
-        $pessoas = $pessoas->get();
+        $clientes = $clientes->get();
         $tela = 'pesquisa';
         $data = array(
             'tela' => $tela,
-            'nome_tela' => 'pessoas',
+            'nome_tela' => 'clientes',
             'estados' => collect($this->getEstados())->toBase(),
-            'pessoas'=> $pessoas,
+            'clientes'=> $clientes,
             'request' => $request,
-            'rotaIncluir' => 'incluir-pessoas',
-            'rotaAlterar' => 'alterar-pessoas'
+            'rotaIncluir' => 'incluir-clientes',
+            'rotaAlterar' => 'alterar-clientes'
         );
 
-        return view('pessoas', $data);
+        return view('clientes', $data);
     }
 
     public function incluir(Request $request)
@@ -58,105 +58,76 @@ class PessoasController extends Controller
         $metodo = $request->method();
 
         if ($metodo == 'POST') {
-            $pessoas_id = $this->salva($request);
-            return redirect()->route('pessoas', [ 'id' => $pessoas_id ] );
+            $clientes_id = $this->salva($request);
+            return redirect()->route('clientes', [ 'id' => $clientes_id ] );
         }
 
         $tela = 'incluir';
         $data = array(
             'tela' => $tela,
-            'nome_tela' => 'pessoas',
+            'nome_tela' => 'clientes',
             'estados' => collect($this->getEstados())->toBase(),
             'request' => $request,
-            'rotaIncluir' => 'incluir-pessoas',
-            'rotaAlterar' => 'alterar-pessoas'
+            'rotaIncluir' => 'incluir-clientes',
+            'rotaAlterar' => 'alterar-clientes'
         );
 
-        return view('pessoas', $data);
+        return view('clientes', $data);
     }
 
     public function alterar(Request $request)
     {
-        $pessoas = new User();
-        $pessoas = $pessoas->where('id', '=', $request->input('id'));
+        $clientes = new Clientes();
+        $clientes = $clientes->where('id', '=', $request->input('id'));
 
         $metodo = $request->method();
         if ($metodo == 'POST') {
-            $pessoas_id = $this->salva($request);
-            return redirect()->route('pessoas', [ 'id' => $pessoas_id ] );
+            $clientes_id = $this->salva($request);
+            return redirect()->route('clientes', [ 'id' => $clientes_id ] );
         }
 
-        $pessoas = $pessoas->get();
-        // dd($pessoas);
+        $clientes = $clientes->get();
+        // dd($clientes);
         $tela = 'alterar';
         $data = array(
             'tela' => $tela,
-            'nome_tela' => 'pessoas',
-            'pessoas'=> $pessoas,
+            'nome_tela' => 'clientes',
+            'clientes'=> $clientes,
             'estados' => collect($this->getEstados())->toBase(),
             'request' => $request,
-            'rotaIncluir' => 'incluir-pessoas',
-            'rotaAlterar' => 'alterar-pessoas'
+            'rotaIncluir' => 'incluir-clientes',
+            'rotaAlterar' => 'alterar-clientes'
         );
 
-        return view('pessoas', $data);
+        return view('clientes', $data);
     }
 
     public function salva($request) {
 
 
-        // dd($request->input());
         $documento = preg_replace("/[^0-9]/", "", $request->input('documento'));
         if($request->input('id')) {
 
-            $pessoas = User::where('id', $request->input('id'))->first();
+            $clientes = Clientes::where('id', $request->input('id'))->first();
         }
 
-            // $table->string('nome',100);
-            // $table->string('nome_pai',100)->nullable();
-            // $table->string('nome_mae',100)->nullable();
-            // $table->string('documento',20)->nullable();
-            // $table->date('data_nascimento')->nullable();
-            // $table->string('estado_civil', 100)->nullable();
-            // $table->string('nome_conjuge', 100)->nullable();
-            // $table->date('data_casamento')->nullable();
-            // $table->string('endereco', 200)->nullable();
-            // $table->string('numero', 10)->nullable();
-            // $table->string('cep', 9)->nullable();
-            // $table->string('bairro', 150)->nullable();
-            // $table->string('cidade', 150)->nullable();
-            // $table->string('estado', 150)->nullable();
-            // $table->string('telefone', 11)->nullable();
-            // $table->boolean('batismo_aguas')->default(false)->nullable();
-            // $table->date('data_batismo_aguas')->nullable();
-            // $table->string('cargo_eclesiastico', 100)->nullable();
-            // $table->longText('observacoes')->nullable();
 
-        $pessoas->nome = $request->input('nome');
-        $pessoas->nome_pai = $request->input('nome_pai');
-        $pessoas->nome_mae = $request->input('nome_mae');
-        $pessoas->documento = $documento;
-        $pessoas->data_nascimento = $request->input('data_nascimento');
-        $pessoas->numero = $request->input('numero');
-        $pessoas->complemento = $request->input('complemento');
-        $pessoas->cep = $request->input('cep');
-        $pessoas->endereco = $request->input('endereco');
-        $pessoas->bairro = $request->input('bairro');
-        $pessoas->cidade = $request->input('cidade');
-        $pessoas->email = $request->input('email');
-        $pessoas->estado = $request->input('estado');
-        $pessoas->telefone = preg_replace("/[^0-9]/", "", $request->input('telefone'));
-        $pessoas->estado_civil = $request->input('estado_civil');
-        $pessoas->nome_conjuge = $request->input('nome_conjuge');
-        $pessoas->data_casamento = $request->input('data_casamento');
-        $pessoas->batismo_aguas = $request->input('batismo_aguas') == '1' ? true : false;
-        $pessoas->data_batismo_aguas = $request->input('data_batismo_aguas');
-        $pessoas->cargo_eclesiastico = $request->input('cargo_eclesiastico');
-        $pessoas->status = $request->input('status');
+        $clientes->nome = $request->input('nome');
+        $clientes->documento = $documento;
+        $clientes->numero = $request->input('numero');
+        $clientes->complemento = $request->input('complemento');
+        $clientes->cep = $request->input('cep');
+        $clientes->endereco = $request->input('endereco');
+        $clientes->bairro = $request->input('bairro');
+        $clientes->cidade = $request->input('cidade');
+        $clientes->email = $request->input('email');
+        $clientes->estado = $request->input('estado');
+        $clientes->telefone = preg_replace("/[^0-9]/", "", $request->input('telefone'));
+        $clientes->ativo = $request->input('ativo');
 
-        $pessoas->save();
+        $clientes->save();
 
-        return $pessoas->id;
+        return $clientes->id;
     }
 
     public function getEstados() {
@@ -273,9 +244,9 @@ class PessoasController extends Controller
         ];
     }
 
-    public function getAllUser() {
-        $pessoas = new User();
-        $query = $pessoas->where('status', '=', 'A');
+    public function getAllClientes() {
+        $clientes = new Clientes();
+        $query = $clientes->where('ativo', '=', 'A');
 
         return $query->get();
     }

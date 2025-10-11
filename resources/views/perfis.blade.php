@@ -1,13 +1,13 @@
 @extends('adminlte::page')
 
-@section('title', 'Membro da igreja')
+@section('title', 'CRM Projearte')
 
 <script src="../vendor/jquery/jquery.min.js"></script>
 <script src="js/jquery.mask.js"></script>
 <script src="js/bootstrap.4.6.2.js"></script>
 <script src="js/select2.min.js"></script>
 <script src="js/main_custom.js"></script>
-    <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    {{-- <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script> --}}
 
 @section('adminlte_css')
     <link rel="stylesheet" href="{{ asset('css/adminlte-custom.css') }}">
@@ -40,10 +40,10 @@
                 <div class="col-sm-3">
                     <input type="text" id="nome" name="nome" class="form-control" value="@if (isset($request) && trim($request->input('nome')) != ''){{$request->input('nome')}}@else @endif">
                 </div>
-                <label for="status" class="col-sm-1 col-form-label text-right">Situação</label>
-                <select class="form-control col-md-1" id="status" name="status">
-                    <option value="A" @if (isset($request) && $request->input('status') == 'A'){{ ' selected '}}@else @endif>Ativo</option>
-                    <option value="I" @if (isset($request) && $request->input('status')  == 'I'){{ ' selected '}}@else @endif>Inativo</option>
+                <label for="ativo" class="col-sm-1 col-form-label text-right">Situação</label>
+                <select class="form-control col-md-1" id="ativo" name="ativo">
+                    <option value="A" @if (isset($request) && $request->input('ativo') == 'A'){{ ' selected '}}@else @endif>Ativo</option>
+                    <option value="I" @if (isset($request) && $request->input('ativo')  == 'I'){{ ' selected '}}@else @endif>Inativo</option>
                 </select>
             </div>
             <div class="form-group row">
@@ -96,9 +96,8 @@
             @stop
             <form id="alterar" action="{{$rotaAlterar}}" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="" method="post">
             <div class="form-group row">
-                <label for="codigo" class="col-sm-2 col-form-label  text-right">Id</label>
                 <div class="col-sm-2">
-                <input type="text" id="id" name="id" class="form-control col-md-7 col-xs-12" readonly="true" value="@if (isset($perfis[0]->id)){{$perfis[0]->id}}@else{{''}}@endif">
+                <input type="hidden" id="id" name="id" class="form-control col-md-7 col-xs-12" readonly="true" value="@if (isset($perfis[0]->id)){{$perfis[0]->id}}@else{{''}}@endif">
                 </div>
             </div>
         @else
@@ -129,11 +128,14 @@
                 </div>
             </div>
 
-                <label for="status" class="col-sm-2 col-form-label"></label>
-                <select class="form-control col-md-1" id="status" name="status">
-                    <option value="A" @if (isset($perfis[0]->status) && $perfis[0]->status == 'A'){{ ' selected '}}@else @endif>Ativo</option>
-                    <option value="I" @if (isset($perfis[0]->status) && $perfis[0]->status =='I'){{ ' selected '}}@else @endif>Inativo</option>
-                </select>
+            <div class="row mt-1">
+                <div class="col-md-2">
+                    <label for="ativo" class="form-label">Situação</label>
+                    <select class="form-control" id="ativo" name="ativo">
+                        <option value="0" {{ isset($motivos[0]->ativo) && $motivos[0]->ativo == '0' ? 'selected' : '' }}>Inativo</option>
+                        <option value="1" {{ isset($motivos[0]->ativo) && $motivos[0]->ativo == '1' ? 'selected' : '' }}>Ativo</option>
+                    </select>
+                </div>
             </div>
             <div class="form-group row">
                 <div class="col-sm-5">

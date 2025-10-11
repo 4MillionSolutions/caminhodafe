@@ -13,16 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('pessoas', function (Blueprint $table) {
+        Schema::create('clientes', function (Blueprint $table) {
             $table->id();
             $table->string('nome',100);
-            $table->string('nome_pai',100)->nullable();
-            $table->string('nome_mae',100)->nullable();
             $table->string('documento',20)->nullable();
-            $table->date('data_nascimento')->nullable();
-            $table->string('estado_civil', 100)->nullable();
-            $table->string('nome_conjuge', 100)->nullable();
-            $table->date('data_casamento')->nullable();
             $table->string('endereco', 200)->nullable();
             $table->string('numero', 10)->nullable();
             $table->string('cep', 9)->nullable();
@@ -30,12 +24,8 @@ return new class extends Migration
             $table->string('cidade', 150)->nullable();
             $table->string('estado', 150)->nullable();
             $table->string('telefone', 11)->nullable();
-            $table->boolean('batismo_aguas')->default(false)->nullable();
-            $table->date('data_batismo_aguas')->nullable();
-            $table->string('cargo_eclesiastico', 100)->nullable();
             $table->longText('observacoes')->nullable();
-
-            $table->boolean('status');
+            $table->boolean('ativo')->default(true);
             $table->timestamps();
         });
     }

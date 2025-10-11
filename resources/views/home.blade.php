@@ -1,12 +1,12 @@
 @extends('adminlte::page')
 
-@section('title', 'Membro da igreja')
+@section('title', 'CRM Projearte')
 
 <script src="../vendor/jquery/jquery.min.js"></script>
 <script src="js/jquery.mask.js"></script>
 <script src="js/bootstrap.4.6.2.js"></script>
 <script src="js/main_custom.js"></script>
-    <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    {{-- <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script> --}}
 
 @section('adminlte_css')
     <link rel="stylesheet" href="{{ asset('css/adminlte-custom.css') }}">

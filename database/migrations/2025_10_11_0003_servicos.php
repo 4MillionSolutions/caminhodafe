@@ -14,15 +14,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('categoria_menus', function (Blueprint $table) {
+        Schema::create('servicos', function (Blueprint $table) {
             $table->id();
             $table->string('nome',100);
             $table->boolean('ativo')->default(true);
+            $table->timestamps();
         });
 
-        DB::table('categoria_menus')->insert(
+        DB::table('servicos')->insert(
             [
-                ['id'=> '1', 'nome'=>''],
+                ['id'=> '1', 'nome'=>'Vistoria Bancária'],
+                ['id'=> '2', 'nome'=>'Vistoria Particular'],
+                ['id'=> '3', 'nome'=>'Vistoria de Obra'],
             ]
             );
     }
@@ -35,6 +38,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categoria_menus');
+        Schema::dropIfExists('servicos');
     }
 };
