@@ -35,11 +35,11 @@ class GoogleDriveService
         $client->setAccessType('offline');
 
         // Pega token salvo
-        if (!\Storage::exists('google_tokens.json')) {
+        if (!Storage::exists('google_tokens.json')) {
             throw new \Exception('Arquivo google_tokens.json não encontrado.');
         }
 
-        $token = json_decode(\Storage::get('google_tokens.json'), true);
+        $token = json_decode(Storage::get('google_tokens.json'), true);
         $client->setAccessToken($token);
 
         // Se expirou, renova
@@ -57,7 +57,7 @@ class GoogleDriveService
                 $newToken['refresh_token'] = $refreshToken;
 
                 // Salva o token atualizado
-                \Storage::put('google_tokens.json', json_encode($newToken));
+                Storage::put('google_tokens.json', json_encode($newToken));
             } else {
                 throw new \Exception('Refresh token ausente no arquivo google_tokens.json.');
             }
