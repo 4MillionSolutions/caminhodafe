@@ -49,6 +49,5 @@ Route::get('/operacoes', [App\Http\Controllers\OperacoesController::class, 'inde
 Route::match(['get', 'post'],'/alterar-operacoes', [App\Http\Controllers\OperacoesController::class, 'alterar'])->name('alterar-operacoes')->middleware('afterAuth:operacoes');
 Route::match(['get', 'post'],'/incluir-operacoes', [App\Http\Controllers\OperacoesController::class, 'incluir'])->name('incluir-operacoes')->middleware('afterAuth:operacoes');
 
-Route::get('/controle-entregas-laudos', [App\Http\Controllers\ControleEntregasLaudosController::class, 'index'])->name('controle-entregas-laudos')->middleware('afterAuth:controle-entregas-laudos');
-Route::match(['get', 'post'],'/alterar-controle-entregas-laudos', [App\Http\Controllers\ControleEntregasLaudosController::class, 'alterar'])->name('alterar-controle-entregas-laudos')->middleware('afterAuth:controle-entregas-laudos');
-Route::match(['get', 'post'],'/incluir-controle-entregas-laudos', [App\Http\Controllers\ControleEntregasLaudosController::class, 'incluir'])->name('incluir-controle-entregas-laudos')->middleware('afterAuth:controle-entregas-laudos');
+Route::resource('controle-laudos', App\Http\Controllers\ControleLaudosController::class)->middleware('auth');
+Route::get('/controle-laudos/exportar', [App\Http\Controllers\ControleLaudosController::class, 'exportar'])->name('controle-laudos.exportar')->middleware('auth');

@@ -28,7 +28,6 @@ return new class extends Migration
             $table->boolean('ativo')->default(true);
             $table->timestamps();
         });
-        // Inserção de dados de exemplo na tabela submenus
         DB::table('submenus')->insert(
 
 
@@ -47,7 +46,7 @@ return new class extends Migration
                 [ 'menu_id'=>'1', 'label'=>'', 'nome'=> 'Cadastro de servicos', 'rota'=> 'servicos', 'icon' => 'fa fa-fw fa-angle-right', 'icon_color' => 'grey'],
                 [ 'menu_id'=>'1', 'label'=>'', 'nome'=> 'Cadastro de Perfis', 'rota'=> 'perfis', 'icon' => 'fa fa-fw fa-angle-right', 'icon_color' => 'grey'],
                 [ 'menu_id'=>'1', 'label'=>'', 'nome'=> 'Cadastro de operacoes', 'rota'=> 'operacoes', 'icon' => 'fa fa-fw fa-angle-right', 'icon_color' => 'grey'],
-                [ 'menu_id'=>'2', 'label'=>'', 'nome'=> 'Entregas e laudos', 'rota'=> 'controle-entregas-laudos', 'icon' => 'fa fa-fw fa-angle-right', 'icon_color' => 'grey'],
+                [ 'menu_id'=>'2', 'label'=>'', 'nome'=> 'Controle de Laudos', 'rota'=> 'controle-laudos', 'icon' => 'fa fa-fw fa-angle-right', 'icon_color' => 'grey'],
                 [ 'menu_id'=>'3', 'label'=>'', 'nome'=> 'Conta', 'rota'=> 'admin/settings', 'icon' => 'fa fa-fw fa-angle-right', 'icon_color' => 'grey'],
 
             ]
