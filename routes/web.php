@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Google\Client as GoogleClient;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +21,39 @@ Route::get('/', function () {
 });
 
 Auth::routes(['register' => true, 'reset' => true]);
+
+
+Route::get('/google/auth', function () {
+    $client = new GoogleClient();
+    $client->setClientId(config('services.google.client_id'));
+    $client->setClientSecret(config('services.google.client_secret'));
+    $client->setRedirectUri(route('google.callback'));
+    $client->addScope(Google\Service\Drive::DRIVE); // acesso apenas aos arquivos do usuário
+    $client->setAccessType('offline'); // para pegar refresh token
+    $client->setPrompt('consent'); // garante que o refresh token seja retornado
+
+    return redirect($client->createAuthUrl());
+})->name('google.auth');
+
+Route::get('/google/callback', function (\Illuminate\Http\Request $request) {
+    $client = new GoogleClient();
+    $client->setClientId(config('services.google.client_id'));
+    $client->setClientSecret(config('services.google.client_secret'));
+    $client->setRedirectUri(route('google.callback'));
+
+    $token = $client->fetchAccessTokenWithAuthCode($request->code);
+
+    // Salvar tokens em database ou arquivo seguro
+    Storage::put('google_tokens.json', json_encode($token));
+
+    return "Autorização concluída!";
+})->name('google.callback');
+
+Route::get('/drive', [App\Http\Controllers\DriveController::class, 'listFiles'])->name('drive.index');
+Route::post('/drive/upload', [App\Http\Controllers\DriveController::class, 'upload'])->name('drive.upload');
+Route::get('/drive/download/{id}', [App\Http\Controllers\DriveController::class, 'download'])->name('drive.download.id');
+Route::get('/drive/download/{id}/{name}', [App\Http\Controllers\DriveController::class, 'download'])->name('drive.download.name');
+Route::delete('/drive/delete/{id}', [App\Http\Controllers\DriveController::class, 'delete'])->name('drive.delete');
 
 Route::match(['get', 'post'],'/perfis', [App\Http\Controllers\PerfisController::class, 'index'])->name('perfis')->middleware('afterAuth:perfis');
 Route::match(['get', 'post'],'/alterar-perfis', [App\Http\Controllers\PerfisController::class, 'alterar'])->name('alterar-perfis')->middleware('afterAuth:perfis');

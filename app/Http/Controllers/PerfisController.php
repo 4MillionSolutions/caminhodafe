@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Auth\ValidaPermissaoAcessoController;
-use App\Models\Dashboards;
 use App\Models\PerfilSubmenus;
 use App\Models\Perfis;
-use App\Models\PerfisDashboards;
 use App\Models\SubMenus;
 use Illuminate\Http\Request;
 
