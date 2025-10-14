@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Http\Controllers\Auth;
-use App\Http\Controllers\PessoasController;
 use App\Http\Requests\StoreSettingsRequest;
 use App\Http\Requests\UpdateSettingsRequest;
 use Illuminate\Support\Facades\Hash;
