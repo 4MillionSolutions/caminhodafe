@@ -64,6 +64,18 @@ Route::get('admin/settings', [App\Http\Controllers\SettingsController::class, 'i
 Route::post('admin/alterar-senha', [App\Http\Controllers\SettingsController::class, 'edit'])->name('alterar-senha');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+Route::get('/cadastros/{aba?}/{id?}', [App\Http\Controllers\CadastrosController::class, 'index'])->name('cadastros.id'); //->middleware('afterAuth:cadastros');
+Route::post('/cadastros/{aba}/{acao}', [App\Http\Controllers\CadastrosController::class, 'acao'])->name('cadastros.acao'); //->middleware('afterAuth:cadastros');
+Route::post('/cadastros/{aba}/{acao}/{id}', [App\Http\Controllers\CadastrosController::class, 'acao'])->name('cadastros.buscar'); //->middleware('afterAuth:cadastros');
+
+Route::get('/ajax/clientes', [App\Http\Controllers\ClientesController::class, 'getData'])->name('clientes.data');
+Route::get('/ajax/tecnicos', [App\Http\Controllers\TecnicosController::class, 'getData'])->name('tecnicos.data');
+Route::get('/ajax/servicos', [App\Http\Controllers\ServicosController::class, 'getData'])->name('servicos.data');
+Route::get('/ajax/operacoes', [App\Http\Controllers\OperacoesController::class, 'getData'])->name('operacoes.data');
+Route::get('/ajax/imoveis', [App\Http\Controllers\ImoveisController::class, 'getData'])->name('imoveis.data');
+Route::get('/ajax/prestadores', [App\Http\Controllers\PrestadoresController::class, 'getData'])->name('prestadores.data');
+
+
 Route::get('/clientes', [App\Http\Controllers\ClientesController::class, 'index'])->name('clientes')->middleware('afterAuth:clientes');
 Route::match(['get', 'post'],'/alterar-clientes', [App\Http\Controllers\ClientesController::class, 'alterar'])->name('alterar-clientes')->middleware('afterAuth:clientes');
 Route::match(['get', 'post'],'/incluir-clientes', [App\Http\Controllers\ClientesController::class, 'incluir'])->name('incluir-clientes')->middleware('afterAuth:clientes');

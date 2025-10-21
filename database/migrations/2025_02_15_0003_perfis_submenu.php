@@ -30,10 +30,6 @@ return new class extends Migration
                 ['id'=> '2', 'perfil_id'=>'1', 'submenu_id'=>'2'],
                 ['id'=> '3', 'perfil_id'=>'1', 'submenu_id'=>'3'],
                 ['id'=> '4', 'perfil_id'=>'1', 'submenu_id'=>'4'],
-                ['id'=> '5', 'perfil_id'=>'1', 'submenu_id'=>'5'],
-                ['id'=> '6', 'perfil_id'=>'1', 'submenu_id'=>'6'],
-                ['id'=> '7', 'perfil_id'=>'1', 'submenu_id'=>'7'],
-                ['id'=> '8', 'perfil_id'=>'1', 'submenu_id'=>'8'],
 
 
             ]

@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\DateHelpers;
 use App\Models\Clientes;
+use App\Models\Tecnicos;
+use Yajra\DataTables\Facades\DataTables; // se usar o pacote yajra/laravel-datatables
+
 
 class ClientesController extends Controller
 {
@@ -14,6 +18,7 @@ class ClientesController extends Controller
 
     public function index(Request $request)
     {
+
 
         $id = !empty($request->input('id')) ? ($request->input('id')) : ( !empty($id) ? $id : false );
 
@@ -29,50 +34,71 @@ class ClientesController extends Controller
             $clientes = $clientes->where('ativo', '=', '1');
         }
 
-        if (!empty($request->input('documento'))) {
-            $documento = preg_replace("/[^0-9]/", "", $request->input('documento'));
-            $clientes = $clientes->where('documento', '=', $documento);
-        }
-
         if (!empty($request->input('nome'))) {
             $clientes = $clientes->where('nome', 'like', '%'.$request->input('nome').'%');
         }
 
         $clientes = $clientes->get();
+
         $tela = 'pesquisa';
         $data = array(
             'tela' => $tela,
             'nome_tela' => 'clientes',
-            'estados' => collect($this->getEstados())->toBase(),
             'clientes'=> $clientes,
+            'estados'=> (new DateHelpers())->getEstados(),
             'request' => $request,
             'rotaIncluir' => 'incluir-clientes',
             'rotaAlterar' => 'alterar-clientes'
         );
 
+        if (request()->ajax()) {
+            return response()->json($data);
+        }
+
         return view('clientes', $data);
     }
+
+    public function getData(Request $request)
+    {
+        $clientes = new Clientes();
+
+        $clientes = $clientes::select(['id', 'nome', 'ativo'])
+                            ->where('ativo', '=', '1');
+
+        return DataTables::of($clientes)
+            ->filter(function ($query) use ($request) {
+                if ($search = $request->get('search')['value'] ?? null) {
+                    $query->where(function($q) use ($search) {
+                        $q->where('nome', 'like', "%{$search}%")
+                        ->orWhere('ativo', 'like', "%{$search}%");
+                    });
+                }
+            })
+            ->setRowId(function($row) {
+                return 'cliente_' . $row->id;
+            })
+            ->editColumn('ativo', function ($row) {
+                return $row->ativo ? 'Ativo' : 'Inativo';
+            })
+            ->addColumn('acoes', function ($row) {
+                return '<i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_clientes pointer"></i>'.
+                        '<i data-id="'.$row->id.'" id="excluir" title="Excluir" class="fa fa-solid fa-trash pointer ml-3"></i>';
+            })
+            ->rawColumns(['acoes'])
+            ->make(true);
+    }
+
+
 
     public function incluir(Request $request)
     {
         $metodo = $request->method();
 
         if ($metodo == 'POST') {
-            $clientes_id = $this->salva($request);
-            return redirect()->route('clientes', [ 'id' => $clientes_id ] );
+            $clientes = $this->salva($request);
         }
+        return response()->json($clientes->toArray());
 
-        $tela = 'incluir';
-        $data = array(
-            'tela' => $tela,
-            'nome_tela' => 'clientes',
-            'estados' => collect($this->getEstados())->toBase(),
-            'request' => $request,
-            'rotaIncluir' => 'incluir-clientes',
-            'rotaAlterar' => 'alterar-clientes'
-        );
-
-        return view('clientes', $data);
     }
 
     public function alterar(Request $request)
@@ -82,171 +108,37 @@ class ClientesController extends Controller
 
         $metodo = $request->method();
         if ($metodo == 'POST') {
-            $clientes_id = $this->salva($request);
-            return redirect()->route('clientes', [ 'id' => $clientes_id ] );
+            $clientes = $this->salva($request);
         }
 
-        $clientes = $clientes->get();
-        // dd($clientes);
-        $tela = 'alterar';
-        $data = array(
-            'tela' => $tela,
-            'nome_tela' => 'clientes',
-            'clientes'=> $clientes,
-            'estados' => collect($this->getEstados())->toBase(),
-            'request' => $request,
-            'rotaIncluir' => 'incluir-clientes',
-            'rotaAlterar' => 'alterar-clientes'
-        );
-
-        return view('clientes', $data);
+        $data = [
+            "id" => $clientes->id,
+            "nome" => $clientes->nome,
+            "ativo" => $clientes->ativo,
+            "acao" => '<button class="btn btn-sm btn-primary alterar_clientes" data-id="'.$clientes->id.'" data-toggle="modal" data-target="#modal_alteracao">Editar</button>'
+        ];
+        return response()->json($data);
     }
 
     public function salva($request) {
 
-
-        $documento = preg_replace("/[^0-9]/", "", $request->input('documento'));
+        $clientes = new Clientes();
         if($request->input('id')) {
-
-            $clientes = Clientes::where('id', $request->input('id'))->first();
+            $clientes = $clientes::where('id', $request->input('id'))->first();
         }
 
-
         $clientes->nome = $request->input('nome');
-        $clientes->documento = $documento;
-        $clientes->numero = $request->input('numero');
-        $clientes->complemento = $request->input('complemento');
-        $clientes->cep = $request->input('cep');
-        $clientes->endereco = $request->input('endereco');
-        $clientes->bairro = $request->input('bairro');
-        $clientes->cidade = $request->input('cidade');
-        $clientes->email = $request->input('email');
-        $clientes->estado = $request->input('estado');
-        $clientes->telefone = preg_replace("/[^0-9]/", "", $request->input('telefone'));
-        $clientes->ativo = $request->input('ativo');
-
+        $clientes->ativo = !empty($request->input('ativo')) ? $request->input('ativo') : 1;
         $clientes->save();
 
-        return $clientes->id;
+        return $clientes;
     }
 
-    public function getEstados() {
-       return [
-            ['id' =>1,
-            'sigla'=>'AC',
-             'estado'=>'Acre',
-       ],
-            ['id' =>2,
-            'sigla'=>'AL',
-             'estado'=>'Alagoas',
-       ],
-            ['id' =>3,
-            'sigla'=>'AP',
-             'estado'=>'Amapá',
-       ],
-            ['id' =>4,
-            'sigla'=>'AM',
-             'estado'=>'Amazonas',
-       ],
-            ['id' =>5,
-            'sigla'=>'BA',
-             'estado'=>'Bahia',
-       ],
-            ['id' =>6,
-            'sigla'=>'CE',
-             'estado'=>'Ceará',
-       ],
-            ['id' =>7,
-            'sigla'=>'DF',
-             'estado'=>'Distrito Federal',
-       ],
-            ['id' =>8,
-            'sigla'=>'ES',
-             'estado'=>'Espírito Santo',
-       ],
-            ['id' =>9,
-            'sigla'=>'GO',
-             'estado'=>'Goiás',
-       ],
-            ['id' =>10,
-            'sigla'=>'MA',
-             'estado'=>'Maranhão',
-       ],
-       [
-            'id' =>11,
-            'sigla'=>'MT',
-             'estado'=>'Mato Grosso',
-       ],
-            ['id' =>12,
-            'sigla'=>'MS',
-             'estado'=>'Mato Grosso do Sul',
-       ],
-            ['id' =>13,
-            'sigla'=>'MG',
-             'estado'=>'Minas Gerais',
-       ],
-            ['id' =>14,
-            'sigla'=>'PA',
-             'estado'=>'Pará',
-       ],
-            ['id' =>15,
-            'sigla'=>'PB',
-             'estado'=>'Paraíba',
-       ],
-            ['id' =>16,
-            'sigla'=>'PR',
-             'estado'=>'Paraná',
-       ],
-            ['id' =>17,
-            'sigla'=>'PE',
-             'estado'=>'Pernambuco',
-       ],
-            ['id' =>18,
-            'sigla'=>'PI',
-             'estado'=>'Piauí',
-       ],
-            ['id' =>19,
-            'sigla'=>'RJ',
-             'estado'=>'Rio de Janeiro',
-       ],
-            ['id' =>20,
-            'sigla'=>'RN',
-             'estado'=>'Rio Grande do Norte',
-       ],
-            ['id' =>21,
-            'sigla'=>'RS',
-             'estado'=>'Rio Grande do Sul',
-       ],
-            ['id' =>22,
-            'sigla'=>'RO',
-             'estado'=>'Rondônia',
-       ],
-            ['id' =>23,
-            'sigla'=>'RR',
-             'estado'=>'Roraima',
-       ],
-            ['id' =>24,
-            'sigla'=>'SC',
-             'estado'=>'Santa Catarina',
-       ],
-            ['id' =>25,
-            'sigla'=>'SP',
-             'estado'=>'São Paulo',
-       ],
-            ['id' =>26,
-            'sigla'=>'SE',
-             'estado'=>'Sergipe',
-       ],
-           [  'id' =>27,
-           'sigla'=>'TO',
-           'estado'=> 	'Tocantins'
-           ]
-        ];
-    }
+
 
     public function getAllClientes() {
         $clientes = new Clientes();
-        $query = $clientes->where('ativo', '=', 'A');
+        $query = $clientes->where('ativo', '=', '1');
 
         return $query->get();
     }

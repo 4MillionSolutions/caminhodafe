@@ -56,6 +56,23 @@ $(function ($) {
     $('.mask_valor').mask("000.000.000,00", {reverse: true});
     $('.mask_date').mask('00/00/0000');
     $('.mask_data_hora').mask('00/00/0000 00:00:00');
+    $('.cpf').mask('000.000.000-00', {reverse: true});
+    $('.cnpj').mask('00.000.000/0000-00', {reverse: true});
+
+    $(document).on('click', '.tipo_pessoa', function() {
+
+        console.log($(this).val());
+
+        if($(this).val() === 'F') {
+            $('.label_documento').text('CPF');
+            $('#documento').removeClass('cnpj').addClass('cpf');
+            $('#documento').mask('000.000.000-00', {reverse: true});
+        } else {
+            $('.label_documento').text('CNPJ');
+            $('#documento').removeClass('cpf').addClass('cnpj');
+            $('#documento').mask('00.000.000/0000-00', {reverse: true});
+        }
+    });
 
     var behavior = function (val) {
         return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
