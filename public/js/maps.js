@@ -1,17 +1,21 @@
     let map;
     let marker = null;
     let circle = null;
+    let geocoder;
 
     function initMap() {
-        // Local padrão (Brasil)
-        const defaultLocation = { lat: -14.2350, lng: -51.9253 };
+        const defaultLocation = { lat: -22.1576, lng: -48.9814 };
 
+        // inicializa mapa
         map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 4,
+            zoom: 8,
             center: defaultLocation,
         });
 
-        // Quando o usuário clicar no mapa
+        // inicializa o geocoder
+        geocoder = new google.maps.Geocoder();
+
+        // clique no mapa
         map.addListener("click", function (event) {
             const latitude = event.latLng.lat();
             const longitude = event.latLng.lng();
@@ -20,7 +24,7 @@
             document.getElementById("latitude").value = latitude;
             document.getElementById("longitude").value = longitude;
 
-            // Remove o marcador anterior
+            // Remove marcador anterior
             if (marker) marker.setMap(null);
 
             // Adiciona novo marcador
@@ -29,11 +33,14 @@
                 map: map,
             });
 
-            // Atualiza o círculo de raio
+            // Atualiza círculo
             drawCircle(event.latLng);
+
+            // Busca cidade
+            buscarCidade(latitude, longitude);
         });
 
-        // Atualiza o raio quando o campo for alterado
+        // Atualiza o raio quando mudar o campo
         document.getElementById("raio").addEventListener("input", function () {
             if (marker) {
                 drawCircle(marker.getPosition());
@@ -44,10 +51,8 @@
     function drawCircle(location) {
         const raioKm = parseFloat(document.getElementById("raio").value || 0);
 
-        // Remove o círculo anterior
         if (circle) circle.setMap(null);
 
-        // Cria o novo círculo com base no raio informado
         circle = new google.maps.Circle({
             strokeColor: "#007BFF",
             strokeOpacity: 0.8,
@@ -56,9 +61,42 @@
             fillOpacity: 0.2,
             map: map,
             center: location,
-            radius: raioKm * 1000, // km → metros
+            radius: raioKm * 1000,
         });
 
-        // Centraliza o mapa no local clicado
         map.panTo(location);
     }
+
+    // 🔍 Função para buscar cidade a partir da coordenada
+    function buscarCidade(lat, lng) {
+        const latlng = { lat: parseFloat(lat), lng: parseFloat(lng) };
+
+        geocoder.geocode({ location: latlng }, function (results, status) {
+            if (status === "OK") {
+                if (results[0]) {
+                    let cidade = "";
+                    // percorre os componentes do endereço
+                    for (const componente of results[0].address_components) {
+                        if (componente.types.includes("administrative_area_level_2")) {
+                            cidade = componente.long_name;
+                            break;
+                        }
+                        if (componente.types.includes("locality")) {
+                            cidade = componente.long_name;
+                            break;
+                        }
+                    }
+
+                    document.getElementById("cidade_regiao").value = cidade || "Cidade não encontrada";
+                } else {
+                    document.getElementById("cidade_regiao").value = "Nenhum resultado encontrado";
+                }
+            } else {
+                console.error("Erro ao buscar cidade:", status);
+                document.getElementById("cidade_regiao").value = "Erro ao buscar cidade";
+            }
+        });
+    }
+
+    // torna global para o callback do script
+    window.initMap = initMap;

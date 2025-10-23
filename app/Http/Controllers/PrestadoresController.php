@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\DateHelpers;
 use App\Models\Prestadores;
+use App\Models\Servicos;
 use Yajra\DataTables\Facades\DataTables; // se usar o pacote yajra/laravel-datatables
 
 
@@ -45,6 +46,7 @@ class PrestadoresController extends Controller
             'nome_tela' => 'prestadores',
             'prestadores'=> $prestadores,
             'estados'=> (new DateHelpers())->getEstados(),
+            'servicos' => (new Servicos())->all(),
             'request' => $request,
             'rotaIncluir' => 'incluir-prestadores',
             'rotaAlterar' => 'alterar-prestadores'

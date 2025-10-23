@@ -158,4 +158,21 @@ $(function ($) {
         });
 
     });
-});
+
+    $(document).on('click', '#adicionar_regiao', function() {
+        $estado = $('#estado').val();
+        $cidade = $('#cidade_regiao').val();
+        $raio = $('#raio').val();
+        $servico = $('#servico').val();
+        $valor = $('#valor').val();
+
+        $('#table_regioes tbody').append('<tr><td>'+ $estado +'</td><td>'+ $cidade +'</td><td>'+ $raio +'</td><td>'+ $servico +'</td><td>'+ $valor +'</td></tr>').
+
+
+
+
+        $('#servico').val('');
+        $('#valor').val('');
+    })
+
+}); // fecha function($)

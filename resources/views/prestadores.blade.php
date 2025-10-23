@@ -124,14 +124,11 @@
                                         <li class="nav-item">
                                             <a class="nav-link modal_nave" href="#dados_bancarios">Dados bancários</a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link modal_nave" href="#valor_servicos">Valores de serviços</a>
-                                        </li>
                                     </ul>
                                 </div>
                                 <div id="dados_prestadores" class="row col-md-12 dados" style="display:block;">
                                     <div class="row mt-2">
-                                        <div class="col-md-8">
+                                        <div class="col-md-4">
                                             <label for="nome" class="form-label">Nome</label>
                                             <input type="text" class="form-control " id="nome"
                                                 name="nome" maxlength="180" value="">
@@ -168,6 +165,9 @@
                                             <input type="text" class="form-control " id="numero"
                                                 name="numero" maxlength="20" value="">
                                         </div>
+                                    </div>
+                                    <div class="row mt-2">
+
                                         <div class="col-md-3">
                                             <label for="bairro" class="form-label">Bairro</label>
                                             <input type="text" class="form-control " id="bairro"
@@ -178,15 +178,12 @@
                                             <input type="text" class="form-control " id="complemento"
                                                 name="complemento" maxlength="100" value="">
                                         </div>
-                                    </div>
-                                    <div class="row mt-2">
-
                                         <div class="col-md-4">
                                             <label for="cidade" class="form-label">Cidade</label>
                                             <input type="text" class="form-control" id="cidade" name="cidade"
                                                 maxlength="150" value="">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label for="estado" class="form-label">Estado</label>
                                             <select class="form-control" id="estado" name="estado">
                                                 <option value="0" selected>
@@ -197,10 +194,10 @@
                                                 @endforeach
                                             </select>
                                         </div>
-
                                     </div>
                                     <div class="row mt-2">
-
+                                        <label for="observacao" class="form-label">Observação</label>
+                                        <textarea class="form-control" id="observacao" name="observacao" rows="2"></textarea>
 
                                     </div>
                                     <div class="row mt-2">
@@ -212,40 +209,48 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div id="dados_bancarios" class="row col-md-12 dados" style="display:none;">
+
+                                <div id="regioes_atendimentos" class="row col-md-12 dados" style="display:none;">
+                                    <div class="col-md-8">
+                                        <label for="maps" class="form-label">Maps</label>
+                                        <div id="map" style="width: 100%; height: 400px; border-radius: 10px;"></div>
+                                    </div>
+
                                     <div class="col-md-4">
                                         <label for="estado" class="form-label">Estado</label>
                                         <select class="form-control" id="estado" name="estado">
-                                            <option value="0" {{ isset($prestadores[0]->estado) && $prestadores[0]->estado == '' ? 'selected' : '' }}>Selecione</option>
+                                            <option value="0" >Selecione</option>
                                             @foreach ($estados as $estado)
-                                                <option value="{{ $estado['id'] }}" {{ isset($prestadores[0]->estado) && $prestadores[0]->estado == $estado['id'] ? 'selected' : '' }}>{{ $estado['estado'] }}</option>
+                                                <option value="{{ $estado['id'] }}" >{{ $estado['estado'] }}</option>
                                             @endforeach
                                         </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="raio" class="form-label">Raio (km)</label>
-                                        <input type="number" class="form-control" id="raio" name="raio" value="5" min="1" max="100">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="cidades" class="form-label">Cidades</label>
-                                        <input type="text" class="form-control" id="cidades" name="cidades"
-                                            value="">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="maps" class="form-label">Maps</label>
-                                        <div id="map" style="width: 100%; height: 300px; border-radius: 10px;"></div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="observacoes" class="form-label">Observações</label>
-                                        <textarea class="form-control" id="observacoes" name="observacoes">{{ isset($prestadores[0]->observacoes) ? $prestadores[0]->observacoes : '' }}</textarea>
-                                    </div>
-                                    <input type="text" class="form-control" id="latitude" name="latitude"
-                                        value="">
-                                    <input type="text" class="form-control" id="longitude"
-                                        name="longitude" value="">
 
+                                        <label for="raio" class="form-label">Raio (km)</label>
+                                        <input type="number" class="form-control col-md-4" id="raio" name="raio" value="50" min="1" max="100">
+
+                                        <label for="cidade_regiao"  class="form-label">Cidade</label>
+                                        <input type="text" class="form-control" id="cidade_regiao" name="cidade_regiao" value="">
+
+                                        <label for="servico"  class="form-label">Serviço</label>
+                                        <select class="form-control" multiple id="servico" name="servico">
+                                            <option value="0" >Selecione</option>
+                                            @foreach ($servicos as $servico)
+                                                <option value="{{ $servico['id'] }}">{{ $servico['nome'] }}</option>
+                                            @endforeach
+                                        </select>
+
+                                        <label for="valor"  class="form-label">Valor</label>
+                                        <input type="text" class="form-control col-md-4 mask_valor " id="valor" name="valor" value="">
+
+                                        <div class="col-md-12 p-2 text-right">
+                                            <button type="button" class="btn btn-success" id="adicionar_regiao">Adicionar</button>
+                                        </div>
+
+                                    </div>
+                                    <input type="hidden" class="form-control" id="latitude" name="latitude" value="">
+                                    <input type="hidden" class="form-control" id="longitude" name="longitude" value="">
                                     <div class="col-md-12">
-                                        <table class="table">
+                                        <table class="table table-striped " id='table_regioes'>
                                             <thead>
                                                 <tr>
                                                     <th scope="col">UF</th>
@@ -266,11 +271,10 @@
                                                     </tr>
                                                 @endforeach
                                             </tbody>
-
-
-
-
+                                        </table>
+                                    </div>
                                 </div>
+
                                 <div id="dados_bancarios" class="row col-md-12 dados" style="display:none;">
                                     <div class="col-md-4">
                                         <label for="limite_credito" class="form-label">Nome</label>
