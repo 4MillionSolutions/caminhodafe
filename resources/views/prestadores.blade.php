@@ -216,15 +216,15 @@
                                     <div class="col-md-4">
                                         <label for="estado" class="form-label">Estado</label>
                                         <select class="form-control" id="estado" name="estado">
-                                            <option value="0" {{ isset($imoveis[0]->estado) && $imoveis[0]->estado == '' ? 'selected' : '' }}>Selecione</option>
+                                            <option value="0" {{ isset($prestadores[0]->estado) && $prestadores[0]->estado == '' ? 'selected' : '' }}>Selecione</option>
                                             @foreach ($estados as $estado)
-                                                <option value="{{ $estado['id'] }}" {{ isset($imoveis[0]->estado) && $imoveis[0]->estado == $estado['id'] ? 'selected' : '' }}>{{ $estado['estado'] }}</option>
+                                                <option value="{{ $estado['id'] }}" {{ isset($prestadores[0]->estado) && $prestadores[0]->estado == $estado['id'] ? 'selected' : '' }}>{{ $estado['estado'] }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label for="raio" class="form-label">Raio</label>
-                                        <input type="text" class="form-control" id="raio" name="raio"value="">
+                                        <label for="raio" class="form-label">Raio (km)</label>
+                                        <input type="number" class="form-control" id="raio" name="raio" value="5" min="1" max="100">
                                     </div>
                                     <div class="col-md-4">
                                         <label for="cidades" class="form-label">Cidades</label>
@@ -233,12 +233,11 @@
                                     </div>
                                     <div class="col-md-4">
                                         <label for="maps" class="form-label">Maps</label>
-                                        {{-- carregar maps do google --}}
-
+                                        <div id="map" style="width: 100%; height: 300px; border-radius: 10px;"></div>
                                     </div>
                                     <div class="col-md-4">
                                         <label for="observacoes" class="form-label">Observações</label>
-                                        <textarea class="form-control" id="observacoes" name="observacoes">{{ isset($imoveis[0]->observacoes) ? $imoveis[0]->observacoes : '' }}</textarea>
+                                        <textarea class="form-control" id="observacoes" name="observacoes">{{ isset($prestadores[0]->observacoes) ? $prestadores[0]->observacoes : '' }}</textarea>
                                     </div>
                                     <input type="text" class="form-control" id="latitude" name="latitude"
                                         value="">
@@ -257,7 +256,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($imoveis as $imovel)
+                                                @foreach ($prestadores as $imovel)
                                                     <tr>
                                                         <td>{{ $imovel->estado }}</td>
                                                         <td>{{ $imovel->cidades }}</td>

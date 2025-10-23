@@ -62,4 +62,9 @@
     <script src="{{ asset('DataTables/datatables.min.js') }}"></script>
     <script src="{{ asset('js/acoes.js') }}?v={{ time() }}"></script>
     <script src="{{ asset('js/dataTableAcoes.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/maps.js') }}?v={{ time() }}"></script>
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxrTRxwlRJODloZQ47_FOXBKnByI9s5p4&callback=initMap">
+    </script>
+
 @endsection
