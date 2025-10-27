@@ -61,16 +61,23 @@ $(function ($) {
 
     $(document).on('click', '.tipo_pessoa', function() {
 
-        console.log($(this).val());
-
         if($(this).val() === 'F') {
             $('.label_documento').text('CPF');
-            $('#documento').removeClass('cnpj').addClass('cpf');
-            $('#documento').mask('000.000.000-00', {reverse: true});
+            $('#modal_alteracao #modal_documento').removeClass('cnpj').addClass('cpf');
+            $('#modal_alteracao #modal_documento').unmask();
+            $('#modal_alteracao #modal_documento').mask('000.000.000-00');
+
+            $('#modal_incluir #modal_documento').removeClass('cnpj').addClass('cpf');
+            $('#modal_incluir #modal_documento').unmask();
+            $('#modal_incluir #modal_documento').mask('000.000.000-00');
         } else {
             $('.label_documento').text('CNPJ');
-            $('#documento').removeClass('cpf').addClass('cnpj');
-            $('#documento').mask('00.000.000/0000-00', {reverse: true});
+            $('#modal_alteracao #modal_documento').removeClass('cpf').addClass('cnpj');
+            $('#modal_alteracao #modal_documento').unmask();
+            $('#modal_alteracao #modal_documento').mask('00.000.000/0000-00');
+            $('#modal_incluir #modal_documento').removeClass('cpf').addClass('cnpj');
+            $('#modal_incluir #modal_documento').unmask();
+            $('#modal_incluir #modal_documento').mask('00.000.000/0000-00');
         }
     });
 
@@ -97,8 +104,6 @@ $(function ($) {
             document.querySelector('.select2-search__field').focus();
         });
 
-    } else {
-        console.log("Select2 não está carregado!");
     }
 
     var validacao_cpf_cnpj = function (val) {
@@ -179,9 +184,6 @@ $(function ($) {
             $(this).removeClass('is-invalid');
         }
     });
-
-
-
 });
 
 function compartilharLink() {

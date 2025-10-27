@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('banco', 150)->nullable();
             $table->string('agencia', 150)->nullable();
             $table->string('conta', 150)->nullable();
-            $table->enum('tipo', ['Conta Corrente', 'Conta Poupanca'])->nullable();
+            $table->integer('tipo',)->nullable();
             $table->integer('tipo_chave_pix',)->nullable();
             $table->string('chave_pix', 150)->nullable();
             $table->longText('observacoes')->nullable();

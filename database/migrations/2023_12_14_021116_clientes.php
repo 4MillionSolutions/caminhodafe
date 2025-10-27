@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('nome_empresa',100);
             $table->string('nome',100);
+            $table->string('tipo_pessoa',1);
             $table->string('documento',20)->nullable();
             $table->string('endereco', 200)->nullable();
             $table->string('complemento', 200)->nullable();

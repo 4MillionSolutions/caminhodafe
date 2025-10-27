@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\DateHelpers;
 use App\Models\Clientes;
 use App\Models\Tecnicos;
+use Google\Service\AdExchangeBuyerII\Date;
 use Yajra\DataTables\Facades\DataTables; // se usar o pacote yajra/laravel-datatables
 
 
@@ -35,8 +36,10 @@ class ClientesController extends Controller
         }
 
         if (!empty($request->input('nome'))) {
-            $clientes = $clientes->where('nome', 'like', '%'.$request->input('nome').'%');
+            $clientes = $clientes->where('nome', 'like', '%'.$request->input('nome').'%')
+                                 ->orWhere('nome_empresa', 'like', '%'.$request->input('nome').'%');
         }
+
 
         $clientes = $clientes->get();
 
@@ -113,11 +116,33 @@ class ClientesController extends Controller
 
         $data = [
             "id" => $clientes->id,
-            "nome" => $clientes->nome,
+            "nome" => $clientes->nome_empresa,
             "ativo" => $clientes->ativo,
             "acao" => '<button class="btn btn-sm btn-primary alterar_clientes" data-id="'.$clientes->id.'" data-toggle="modal" data-target="#modal_alteracao">Editar</button>'
         ];
         return response()->json($data);
+    }
+
+     public function excluir(Request $request)
+    {
+        try{
+            $clientes = new Clientes();
+            $clientes = $clientes->where('id', '=', $request->input('id'));
+            $clientes->delete();
+
+            $data = array(
+                'nome_tela' => 'clientes',
+                'clientes'=> $clientes,
+                'request' => $request,
+                'rotaIncluir' => 'incluir-clientes',
+                'rotaAlterar' => 'alterar-clientes'
+            );
+            return view('clientes', $data);
+
+        } catch (\Exception $e){
+            return response(['error' => 'Erro ao excluir técnico: ' . $e->getMessage()], 500);
+        }
+
     }
 
     public function salva($request) {
@@ -127,8 +152,23 @@ class ClientesController extends Controller
             $clientes = $clientes::where('id', $request->input('id'))->first();
         }
 
+        $ativo = ($request->input('status') == 'on') ? true : false;
+        $clientes->nome_empresa = $request->input('nome_empresa');
         $clientes->nome = $request->input('nome');
-        $clientes->ativo = !empty($request->input('ativo')) ? $request->input('ativo') : 1;
+        $clientes->tipo_pessoa = empty($request->input('tipo_fisica')) ? 'J' : 'F';
+        $clientes->documento = DateHelpers::somenteNumeros($request->input('documento'));
+        $clientes->endereco = $request->input('endereco');
+        $clientes->complemento = $request->input('complemento');
+        $clientes->numero = $request->input('numero');
+        $clientes->cep = DateHelpers::somenteNumeros($request->input('cep'));
+        $clientes->bairro = $request->input('bairro');
+        $clientes->cidade = $request->input('cidade');
+        $clientes->estado = $request->input('estado');
+        $clientes->telefone = DateHelpers::somenteNumeros($request->input('telefone'));
+        $clientes->email = $request->input('email');
+        $clientes->observacoes = $request->input('observacoes');
+
+        $clientes->ativo = $ativo;
         $clientes->save();
 
         return $clientes;

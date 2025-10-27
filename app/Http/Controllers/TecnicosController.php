@@ -97,7 +97,6 @@ class TecnicosController extends Controller
 
     public function excluir(Request $request)
     {
-        info('excluir tecnico id: '.$request->input('id'));
         try{
             $tecnicos = new Tecnicos();
             $tecnicos = $tecnicos->where('id', '=', $request->input('id'));

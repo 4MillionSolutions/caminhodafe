@@ -44,6 +44,13 @@ class CadastrosController extends Controller
 
                 break;
 
+            case 'servicos':
+
+                $servicos = new ServicosController();
+                $data = $servicos->index($request)->getData();
+
+                break;
+
             case 'imoveis':
 
                 $Imoveis = new ImoveisController();
@@ -77,10 +84,31 @@ class CadastrosController extends Controller
                 $data = $response->getData();
 
                 break;
+
+            case 'prestadores':
+                $Prestadores = new PrestadoresController();
+                $response = $Prestadores->{$acao}($request);
+                if ($response instanceof \Illuminate\Http\RedirectResponse) {
+                    return $response;
+                }
+                $data = $response->getData();
+
+                break;
             case 'tecnicos':
 
                 $Tecnicos = new TecnicosController();
                 $response = $Tecnicos->{$acao}($request);
+
+                if ($response instanceof \Illuminate\Http\RedirectResponse) {
+                    return $response;
+                }
+                $data = $response->getData();
+
+                break;
+            case 'servicos':
+
+                $servicos = new ServicosController();
+                $response = $servicos->{$acao}($request);
 
                 if ($response instanceof \Illuminate\Http\RedirectResponse) {
                     return $response;

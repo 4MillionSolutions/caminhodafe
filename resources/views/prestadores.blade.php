@@ -64,43 +64,235 @@
     </div>
 
     {{-- MODAL INCLUIR --}}
-    <div class="modal fade" id="modal_incluir" tabindex="-1" role="dialog" aria-labelledby="modal_incluir"
-        aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal fade" id="modal_incluir"  data-acao="incluir"  tabindex="-1" role="dialog" aria-labelledby="modal_incluir"   aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-xl" role="document">
             <form method="POST" action="prestadores/incluir">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Inclusão de prestador</h5>
+                        <h5 class="modal-title">Incluir de prestador</h5>
                     </div>
                     <div class="modal-body">
                         <div class="form-group row">
                             <div class="container">
-                                <input type="hidden" name="modal_id" value="">
                                 @csrf
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label for="prestador" class="form-label">Nome*</label>
-                                        <input type="text" class="form-control" id="modal_nome" name="nome"
-                                            maxlength="200" required value="">
+                                <div class="col-md-12">
+                                    <ul class="nav nav-tabs">
+                                        <li class="nav-item">
+                                            <a class="nav-link active modal_nave dados_incluir" href="#dados_prestadores_incluir">Dados do prestador</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link modal_nave" href="#regioes_atendimentos_incluir">Regiões de atendimentos</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link modal_nave" href="#dados_bancarios_incluir">Dados bancários</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div id="dados_prestadores_incluir" class="row col-md-12 dados" style="display:block;">
+                                    <div class="row mt-2">
+                                        <div class="col-md-4">
+                                            <label for="nome" class="form-label">Nome</label>
+                                            <input type="text" class="form-control " id="modal_nome"
+                                                name="nome" maxlength="180" value="">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="documento" class="form-label label_documento">CPF</label>
+                                            <input type="text" class="form-control cpf" id="modal_documento"
+                                                name="documento" maxlength="11" value="">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="limite_credito" class="form-label">Contato</label>
+                                            <input type="text" class="form-control" id="modal_contato" name="contato"
+                                                value="">
+                                        </div>
                                     </div>
+                                    <div class="row mt-2">
+                                        <div class="col-md-4">
+                                            <label for="limite_credito" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="modal_email" name="email"
+                                                value="">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="cep" class="form-label">CEP</label>
+                                            <input type="text" class="form-control cep" id="modal_cep"
+                                                name="cep" maxlength="8" value="">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="endereco" class="form-label">Endereço</label>
+                                            <input type="text" class="form-control " id="modal_endereco"
+                                                name="endereco" maxlength="500" value="">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label for="numero" class="form-label">Número</label>
+                                            <input type="text" class="form-control " id="modal_numero"
+                                                name="numero" maxlength="20" value="">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+
+                                        <div class="col-md-3">
+                                            <label for="bairro" class="form-label">Bairro</label>
+                                            <input type="text" class="form-control " id="modal_bairro"
+                                                name="bairro" maxlength="100" value="">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="complemento" class="form-label">Complemento</label>
+                                            <input type="text" class="form-control " id="modal_complemento"
+                                                name="complemento" maxlength="100" value="">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="cidade" class="form-label">Cidade</label>
+                                            <input type="text" class="form-control" id="modal_cidade" name="cidade"
+                                                maxlength="150" value="">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="estado" class="form-label">Estado</label>
+                                            <select class="form-control" id="modal_estado" name="estado">
+                                                <option value="0" selected>
+                                                    Selecione</option>
+                                                @foreach ($estados as $estado)
+                                                    <option value="{{ $estado['id'] }}">{{ $estado['estado'] }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <label for="observacao" class="form-label">Observação</label>
+                                        <textarea class="form-control" id="modal_observacoes" name="observacao" rows="2"></textarea>
+                                    </div>
+                                    <div class="row mt-2">
+
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="modal_status"
+                                                name="status" checked>
+                                            <label class="form-check-label" for="status">Ativo</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="regioes_atendimentos_incluir" class="row col-md-12 dados" style="display:none;">
+                                    <div class="col-md-8">
+                                        <label for="maps" class="form-label">Maps</label>
+                                        <div id="div-maps-incluir"  style="width: 100%; height: 400px; border-radius: 10px;"></div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="estado" class="form-label">Estado</label>
+                                        <select class="form-control" id="modal_estado_regiao_incluir" name="estado_regiao">
+                                            <option value="0" >Selecione</option>
+                                            @foreach ($estados as $estado)
+                                                <option value="{{ $estado['id'] }}" >{{ $estado['estado'] }}</option>
+                                            @endforeach
+                                        </select>
+
+                                        <label for="raio" class="form-label">Raio (km)</label>
+                                        <input type="number" class="form-control col-md-4" id="raio_incluir" name="raio" value="50" min="1" max="100">
+
+                                        <label for="cidade_regiao"  class="form-label">Cidade</label>
+                                        <input type="text" class="form-control" id="cidade_regiao_incluir" name="cidade_regiao" value="">
+
+                                        <label for="servico"  class="form-label">Serviço</label>
+                                        <select class="form-control" multiple id="modal_servico_regiao_incluir" name="servico">
+                                            @foreach ($servicos as $servico)
+                                                <option value="{{ $servico['id'] }}">{{ $servico['id'] ."-". $servico['nome'] }}</option>
+                                            @endforeach
+                                        </select>
+
+                                        <label for="valor"  class="form-label">Valor</label>
+                                        <input type="text" class="form-control col-md-4 mask_valor " id="modal_valor_incluir" name="valor" value="">
+
+                                        <div class="col-md-12 p-2 text-right">
+                                            <button type="button" class="btn btn-success" id="adicionar_regiao">Adicionar</button>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-12">
+                                        <table class="table table-striped " id='table_regioes'>
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">UF</th>
+                                                    <th scope="col">Cidades</th>
+                                                    <th scope="col">Raio(km)</th>
+                                                    <th scope="col">Serviços habilitados</th>
+                                                    <th scope="col">valor deslocamento</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div id="dados_bancarios_incluir" class="row col-md-12 dados" style="display:none;">
+
+                                    <div class="col-md-4">
+                                        <label for="banco" class="form-label">Banco</label>
+                                        <select class="form-control" id="modal_banco" name="banco">
+                                            <option value="0" >Selecione</option>
+                                            @foreach ($bancos as $banco)
+                                                <option value="{{ $banco['id'] }}" >{{ $banco['nome'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="agencia" class="form-label">Agencia</label>
+                                        <input type="text" class="form-control" id="modal_agencia" name="agencia" value="">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="conta" class="form-label">Conta</label>
+                                        <input type="text" class="form-control" id="modal_conta" name="conta" value="">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="conta" class="form-label">Tipo conta</label>
+                                        <select class="form-control" id="modal_tipo" name="tipo">
+                                            <option value="0" >Selecione</option>
+                                            <option value="1" >Corrente</option>
+                                            <option value="2" >Poupanca</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="tipo chave pix" class="form-label">Tipo chave pix</label>
+                                        <select class="form-control" id="modal_tipo_chave_pix" name="tipo_chave_pix">
+                                            <option value="0" >Selecione</option>
+                                            <option value="1" >CPF</option>
+                                            <option value="2" >CNPJ</option>
+                                            <option value="3" >Email</option>
+                                            <option value="4" >Aleatória</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="chave_pix" class="form-label">Chave Pix</label>
+                                        <input type="text" class="form-control" id="modal_chave_pix" name="chave_pix" value="">
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer col-md-12">
                         <button type="button" class="btn btn-secondary" id="fechar_modal_incluir"
                             data-dismiss="modal">Fechar</button>
-                        <button type="button" id="salvar_prestadores_incluir" class="btn btn-primary">Confirmar</button>
+                        <button type="submit" id="salvar_prestadores_incluir"
+                            class="btn btn-primary">Confirmar</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
+    <input type="hidden" class="form-control" id="modal_tabela_latitude" name="latitude" value="">
+    <input type="hidden" class="form-control" id="modal_tabela_longitude" name="longitude" value="">
+
     {{-- MODAL ALTERAÇÃO --}}
-    <div class="modal fade" id="modal_alteracao" tabindex="-1" role="dialog" aria-labelledby="modal_alteracao"
-        aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal fade" id="modal_alteracao" data-acao="alterar" tabindex="-1" role="dialog" aria-labelledby="modal_alteracao" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-xl" role="document">
             <form method="POST" action="prestadores/alterar">
                 @csrf
@@ -116,7 +308,7 @@
                                 <div class="col-md-12">
                                     <ul class="nav nav-tabs">
                                         <li class="nav-item">
-                                            <a class="nav-link active modal_nave" href="#dados_prestadores">Dados do prestador</a>
+                                            <a class="nav-link active modal_nave dados_alterar" href="#dados_prestadores">Dados do prestador</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link modal_nave" href="#regioes_atendimentos">Regiões de atendimentos</a>
@@ -130,39 +322,39 @@
                                     <div class="row mt-2">
                                         <div class="col-md-4">
                                             <label for="nome" class="form-label">Nome</label>
-                                            <input type="text" class="form-control " id="nome"
+                                            <input type="text" class="form-control " id="modal_nome"
                                                 name="nome" maxlength="180" value="">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="documento" class="form-label label_documento">CPF</label>
-                                            <input type="text" class="form-control cpf" id="documento"
+                                            <input type="text" class="form-control cpf" id="modal_documento"
                                                 name="documento" maxlength="11" value="">
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="limite_credito" class="form-label">Contato</label>
-                                            <input type="text" class="form-control" id="contato" name="contato"
+                                            <label for="modal_telefone" class="form-label">Contato</label>
+                                            <input type="text" class="form-control" id="modal_telefone" name="modal_telefone"
                                                 value="">
                                         </div>
                                     </div>
                                     <div class="row mt-2">
                                         <div class="col-md-4">
                                             <label for="limite_credito" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" name="email"
+                                            <input type="email" class="form-control" id="modal_email" name="email"
                                                 value="">
                                         </div>
                                         <div class="col-md-2">
                                             <label for="cep" class="form-label">CEP</label>
-                                            <input type="text" class="form-control cep" id="cep"
+                                            <input type="text" class="form-control cep" id="modal_cep"
                                                 name="cep" maxlength="8" value="{{ $cientes[0]->cep ?? '' }}">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="endereco" class="form-label">Endereço</label>
-                                            <input type="text" class="form-control " id="endereco"
+                                            <input type="text" class="form-control " id="modal_endereco"
                                                 name="endereco" maxlength="500" value="">
                                         </div>
                                         <div class="col-md-1">
                                             <label for="numero" class="form-label">Número</label>
-                                            <input type="text" class="form-control " id="numero"
+                                            <input type="text" class="form-control " id="modal_numero"
                                                 name="numero" maxlength="20" value="">
                                         </div>
                                     </div>
@@ -170,22 +362,22 @@
 
                                         <div class="col-md-3">
                                             <label for="bairro" class="form-label">Bairro</label>
-                                            <input type="text" class="form-control " id="bairro"
+                                            <input type="text" class="form-control " id="modal_bairro"
                                                 name="bairro" maxlength="100" value="">
                                         </div>
                                         <div class="col-md-2">
                                             <label for="complemento" class="form-label">Complemento</label>
-                                            <input type="text" class="form-control " id="complemento"
+                                            <input type="text" class="form-control " id="modal_complemento"
                                                 name="complemento" maxlength="100" value="">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="cidade" class="form-label">Cidade</label>
-                                            <input type="text" class="form-control" id="cidade" name="cidade"
+                                            <input type="text" class="form-control" id="modal_cidade" name="cidade"
                                                 maxlength="150" value="">
                                         </div>
                                         <div class="col-md-3">
                                             <label for="estado" class="form-label">Estado</label>
-                                            <select class="form-control" id="estado" name="estado">
+                                            <select class="form-control" id="modal_estado" name="estado">
                                                 <option value="0" selected>
                                                     Selecione</option>
                                                 @foreach ($estados as $estado)
@@ -197,13 +389,11 @@
                                     </div>
                                     <div class="row mt-2">
                                         <label for="observacao" class="form-label">Observação</label>
-                                        <textarea class="form-control" id="observacao" name="observacao" rows="2"></textarea>
-
+                                        <textarea class="form-control" id="modal_observacoes" name="observacao" rows="2"></textarea>
                                     </div>
                                     <div class="row mt-2">
-
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="status"
+                                            <input class="form-check-input" type="checkbox" id="modal_status"
                                                 name="status" checked>
                                             <label class="form-check-label" for="status">Ativo</label>
                                         </div>
@@ -213,12 +403,12 @@
                                 <div id="regioes_atendimentos" class="row col-md-12 dados" style="display:none;">
                                     <div class="col-md-8">
                                         <label for="maps" class="form-label">Maps</label>
-                                        <div id="map" style="width: 100%; height: 400px; border-radius: 10px;"></div>
+                                        <div id="div-maps-alterar" style="width: 100%; height: 400px; border-radius: 10px;"></div>
                                     </div>
 
                                     <div class="col-md-4">
                                         <label for="estado" class="form-label">Estado</label>
-                                        <select class="form-control" id="estado" name="estado">
+                                        <select class="form-control" id="modal_estado_regiao_alterar" name="estado_regiao">
                                             <option value="0" >Selecione</option>
                                             @foreach ($estados as $estado)
                                                 <option value="{{ $estado['id'] }}" >{{ $estado['estado'] }}</option>
@@ -226,29 +416,26 @@
                                         </select>
 
                                         <label for="raio" class="form-label">Raio (km)</label>
-                                        <input type="number" class="form-control col-md-4" id="raio" name="raio" value="50" min="1" max="100">
+                                        <input type="number" class="form-control col-md-4 raio" id="raio_alterar" name="raio" value="50" min="1" max="100">
 
                                         <label for="cidade_regiao"  class="form-label">Cidade</label>
-                                        <input type="text" class="form-control" id="cidade_regiao" name="cidade_regiao" value="">
+                                        <input type="text" class="form-control" id="cidade_regiao_alterar" name="cidade_regiao" value="">
 
                                         <label for="servico"  class="form-label">Serviço</label>
-                                        <select class="form-control" multiple id="servico" name="servico">
-                                            <option value="0" >Selecione</option>
+                                        <select class="form-control" multiple id="modal_servico_regiao_alterar" name="servico">
                                             @foreach ($servicos as $servico)
-                                                <option value="{{ $servico['id'] }}">{{ $servico['nome'] }}</option>
+                                                <option value="{{ $servico['id'] }}">{{ $servico['id'] ."-". $servico['nome'] }}</option>
                                             @endforeach
                                         </select>
 
                                         <label for="valor"  class="form-label">Valor</label>
-                                        <input type="text" class="form-control col-md-4 mask_valor " id="valor" name="valor" value="">
+                                        <input type="text" class="form-control col-md-4 mask_valor " id="modal_valor_alterar" name="valor" value="">
 
                                         <div class="col-md-12 p-2 text-right">
                                             <button type="button" class="btn btn-success" id="adicionar_regiao">Adicionar</button>
                                         </div>
 
                                     </div>
-                                    <input type="hidden" class="form-control" id="latitude" name="latitude" value="">
-                                    <input type="hidden" class="form-control" id="longitude" name="longitude" value="">
                                     <div class="col-md-12">
                                         <table class="table table-striped " id='table_regioes'>
                                             <thead>
@@ -261,38 +448,66 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($prestadores as $imovel)
-                                                    <tr>
-                                                        <td>{{ $imovel->estado }}</td>
-                                                        <td>{{ $imovel->cidades }}</td>
-                                                        <td>{{ $imovel->raio }}</td>
-                                                        <td>{{ $imovel->servicos_habilitados }}</td>
-                                                        <td>{{ $imovel->valor_deslocamento }}</td>
-                                                    </tr>
-                                                @endforeach
+
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
 
                                 <div id="dados_bancarios" class="row col-md-12 dados" style="display:none;">
+
                                     <div class="col-md-4">
-                                        <label for="limite_credito" class="form-label">Nome</label>
-                                        <input type="text" class="form-control mask_phone" id="telefone"
-                                            name="telefone" maxlength="11" value="">
+                                        <label for="banco" class="form-label">Banco</label>
+                                        <select class="form-control" id="modal_banco" name="banco">
+                                            <option value="0" >Selecione</option>
+                                            @foreach ($bancos as $banco)
+                                                <option value="{{ $banco['id'] }}" >{{ $banco['nome'] }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
 
+                                    <div class="col-md-4">
+                                        <label for="agencia" class="form-label">Agencia</label>
+                                        <input type="text" class="form-control" id="modal_agencia" name="agencia" value="">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="conta" class="form-label">Conta</label>
+                                        <input type="text" class="form-control" id="modal_conta" name="conta" value="">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="conta" class="form-label">Tipo conta</label>
+                                        <select class="form-control" id="modal_tipo" name="tipo">
+                                            <option value="0" >Selecione</option>
+                                            <option value="1" >Corrente</option>
+                                            <option value="2" >Poupanca</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="tipo chave pix" class="form-label">Tipo chave pix</label>
+                                        <select class="form-control" id="modal_tipo_chave_pix" name="tipo_chave_pix">
+                                            <option value="0" >Selecione</option>
+                                            <option value="1" >CPF</option>
+                                            <option value="2" >CNPJ</option>
+                                            <option value="3" >Email</option>
+                                            <option value="4" >Aleatória</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="chave_pix" class="form-label">Chave Pix</label>
+                                        <input type="text" class="form-control" id="modal_chave_pix" name="chave_pix" value="">
+                                    </div>
                                 </div>
-
-                            </div>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" id="fechar_modal_alteracao"
-                                    data-dismiss="modal">Fechar</button>
-                                <button type="button" id="salvar_prestadores_alterar"
-                                    class="btn btn-primary">Confirmar</button>
                             </div>
                         </div>
+                    </div>
+                    <div class="modal-footer col-md-12">
+                        <button type="button" class="btn btn-secondary" id="fechar_modal_alteracao"
+                            data-dismiss="modal">Fechar</button>
+                        <button type="submit" id="salvar_prestadores_alterar"
+                            class="btn btn-primary">Confirmar</button>
                     </div>
                 </div>
             </form>

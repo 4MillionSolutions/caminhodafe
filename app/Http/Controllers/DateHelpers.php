@@ -182,4 +182,15 @@ class DateHelpers
         ];
     }
 
+
+/**
+ * Limpa caracteres que não são números de uma string que representa um telefone.
+ *
+ * @param string $telefone
+ * @return string
+ */
+    public static function somenteNumeros($telefone)
+    {
+        return preg_replace('/\D+/', '', $telefone);
+    }
 }
