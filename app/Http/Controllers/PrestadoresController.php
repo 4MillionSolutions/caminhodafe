@@ -236,18 +236,19 @@ class PrestadoresController extends Controller
             }
 
             $ativo = ($request->input('status') == 'on') ? true : false;
-
+            info($request->all());
             $prestadores->nome = $request->input('nome');
-            $prestadores->documento = $request->input('documento');
+            $prestadores->tipo_pessoa = !empty($request->input('tipo_pessoa')) ? $request->input('tipo_pessoa') : 'F';
+            $prestadores->documento = DateHelpers::somenteNumeros($request->input('documento'));
             $prestadores->profissao = $request->input('profissao');
             $prestadores->endereco = $request->input('endereco');
             $prestadores->complemento = $request->input('complemento');
             $prestadores->numero = $request->input('numero');
-            $prestadores->cep = $request->input('cep');
+            $prestadores->cep = DateHelpers::somenteNumeros($request->input('cep'));
             $prestadores->bairro = $request->input('bairro');
             $prestadores->cidade = $request->input('cidade');
             $prestadores->estado = $request->input('estado');
-            $prestadores->telefone = $request->input('telefone');
+            $prestadores->telefone = DateHelpers::somenteNumeros($request->input('telefone'));
             $prestadores->email = $request->input('email');
             $prestadores->banco = $request->input('banco');
             $prestadores->agencia = $request->input('agencia');

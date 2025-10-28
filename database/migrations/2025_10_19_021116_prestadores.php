@@ -17,6 +17,7 @@ return new class extends Migration
         Schema::create('prestadores', function (Blueprint $table) {
             $table->id();
             $table->string('nome',100);
+            $table->string('tipo_pessoa',1);
             $table->string('documento',20)->nullable();
             $table->string('profissao',20)->nullable();
             $table->string('endereco', 200)->nullable();
@@ -44,7 +45,8 @@ return new class extends Migration
         DB::table('prestadores')->insert([
             [
                 'id' => 1,
-                'documento' => '00000000000',
+                'tipo_pessoa' => 'J',
+                'documento' => '96099811000165',
                 'nome' => 'Prestador de Teste',
             ]
         ]);

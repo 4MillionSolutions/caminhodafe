@@ -90,6 +90,13 @@
                                     </ul>
                                 </div>
                                 <div id="dados_prestadores_incluir" class="row col-md-12 dados" style="display:block;">
+                                    <div class="col-md-12">
+                                        <label for="Tipo pessoa" class="form-label">Tipo</label>
+                                        <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
+                                            name="tipo" value="F"> Pessoa física
+                                        <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
+                                            name="tipo" value="J"> Pessoa jurídica
+                                    </div>
                                     <div class="row mt-2">
                                         <div class="col-md-4">
                                             <label for="nome" class="form-label">Nome</label>
@@ -97,13 +104,13 @@
                                                 name="nome" maxlength="180" value="">
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="documento" class="form-label label_documento">CPF</label>
-                                            <input type="text" class="form-control cpf" id="modal_documento"
-                                                name="documento" maxlength="11" value="">
+                                            <label for="documento" class="form-label label_documento">CNPJ</label>
+                                            <input type="text" class="form-control cnpj" id="modal_documento"
+                                                name="documento" maxlength="14" value="">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="limite_credito" class="form-label">Contato</label>
-                                            <input type="text" class="form-control" id="modal_contato" name="contato"
+                                            <input type="text" class="form-control mask_phone" id="modal_contato" name="contato"
                                                 value="">
                                         </div>
                                     </div>
@@ -319,6 +326,13 @@
                                     </ul>
                                 </div>
                                 <div id="dados_prestadores" class="row col-md-12 dados" style="display:block;">
+                                    <div class="col-md-12">
+                                        <label for="Tipo pessoa" class="form-label">Tipo</label>
+                                        <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
+                                            name="tipo" value="F"> Pessoa física
+                                        <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
+                                            name="tipo" value="J"> Pessoa jurídica
+                                    </div>
                                     <div class="row mt-2">
                                         <div class="col-md-4">
                                             <label for="nome" class="form-label">Nome</label>
@@ -326,13 +340,13 @@
                                                 name="nome" maxlength="180" value="">
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="documento" class="form-label label_documento">CPF</label>
-                                            <input type="text" class="form-control cpf" id="modal_documento"
-                                                name="documento" maxlength="11" value="">
+                                            <label for="documento" class="form-label label_documento">CNPJ</label>
+                                            <input type="text" class="form-control cnpj" id="modal_documento"
+                                                name="documento" maxlength="14" value="">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="modal_telefone" class="form-label">Contato</label>
-                                            <input type="text" class="form-control" id="modal_telefone" name="modal_telefone"
+                                            <input type="text" class="form-control mask_phone" id="modal_telefone" name="modal_telefone"
                                                 value="">
                                         </div>
                                     </div>

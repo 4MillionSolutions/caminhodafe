@@ -31,9 +31,9 @@ return new class extends Migration
         DB::table('prestadores_regioes')->insert([
             [
                 'prestadores_id' => 1,
-                'uf' => 'RS',
+                'uf' => '25',
                 'raio' => '50',
-                'cidade' => '1',
+                'cidade' => 'Arealva',
             ]
         ]);
 

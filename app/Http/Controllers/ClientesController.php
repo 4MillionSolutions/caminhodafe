@@ -65,7 +65,7 @@ class ClientesController extends Controller
     {
         $clientes = new Clientes();
 
-        $clientes = $clientes::select(['id', 'nome', 'ativo'])
+        $clientes = $clientes::select(['id', 'nome_empresa as nome', 'ativo'])
                             ->where('ativo', '=', '1');
 
         return DataTables::of($clientes)
@@ -155,7 +155,7 @@ class ClientesController extends Controller
         $ativo = ($request->input('status') == 'on') ? true : false;
         $clientes->nome_empresa = $request->input('nome_empresa');
         $clientes->nome = $request->input('nome');
-        $clientes->tipo_pessoa = empty($request->input('tipo_fisica')) ? 'J' : 'F';
+        $clientes->tipo_pessoa = !empty($request->input('tipo_pessoa')) ? $request->input('tipo_pessoa') : 'F';
         $clientes->documento = DateHelpers::somenteNumeros($request->input('documento'));
         $clientes->endereco = $request->input('endereco');
         $clientes->complemento = $request->input('complemento');

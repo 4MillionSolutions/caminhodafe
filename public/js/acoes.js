@@ -117,11 +117,26 @@ $(function ($) {
             }
             // expected shape: data[resource][0]
             var obj = (data[resource] && data[resource][0]) || {};
-            // populate modal_alteracao fields that exist
-            Object.keys(obj).forEach(function (key) {
-                var $el = $('#modal_alteracao #modal_' + key);
-                if ($el.length) $el.val(obj[key]);
-            });
+
+            setTimeout(function() {
+                // populate modal_alteracao fields that exist
+                Object.keys(obj).forEach(function (key) {
+                    var $el = $('#modal_alteracao #modal_' + key);
+
+                    if ('radio' === $el.attr('type') || 'checkbox' === $el.attr('type')) {
+
+                        $el.filter('[value="' + obj[key] + '"]').prop('checked', true);
+
+
+                    } else {
+                        if ($el.length) {
+                            $el.val(obj[key]);
+                        }
+                    }
+
+
+                });
+            }, 500);
 
             $('#modal_alteracao #table_regioes tbody').empty();
             $('#modal_alteracao #table_regioes tbody').append(obj.tabela_regioes);
@@ -181,7 +196,7 @@ $(function ($) {
                     }
                 };
                 $('#modal_alteracao  .mask_phone').mask(behavior, options);
-            }, 500);
+            }, 1000);
 
 
         });

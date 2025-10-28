@@ -94,9 +94,9 @@
 
                                         <div class="col-md-12">
                                             <label for="Tipo pessoa" class="form-label">Tipo</label>
-                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_fisica"
-                                                name="tipo" value="F" checked> Pessoa física
-                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_juridica"
+                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
+                                                name="tipo" value="F"> Pessoa física
+                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
                                                 name="tipo" value="J"> Pessoa jurídica
                                         </div>
                                         <div class="col-md-8">
@@ -105,8 +105,8 @@
                                                 name="nome_empresa" maxlength="180" value="">
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="documento" class="form-label label_documento">CPF</label>
-                                            <input type="text" class="form-control cpf" id="modal_documento"
+                                            <label for="documento" class="form-label label_documento">CNPJ</label>
+                                            <input type="text" class="form-control cnpj" id="modal_documento"
                                                 name="documento" maxlength="14" value="">
                                         </div>
                                         <div class="col-md-2">
@@ -231,9 +231,9 @@
 
                                         <div class="col-md-12">
                                             <label for="Tipo pessoa" class="form-label">Tipo</label>
-                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_fisica"
-                                                name="tipo_pessoa" value="F" checked> Pessoa física
-                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_juridica"
+                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
+                                                name="tipo_pessoa" value="F"> Pessoa física
+                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
                                                 name="tipo_pessoa" value="J"> Pessoa jurídica
                                         </div>
                                         <div class="col-md-8">
@@ -242,8 +242,8 @@
                                                 name="nome_empresa" maxlength="180" value="">
                                         </div>
                                         <div class="col-md-4">
-                                            <label for="documento" class="form-label label_documento">CPF</label>
-                                            <input type="text" class="form-control cpf" id="modal_documento"
+                                            <label for="documento" class="form-label label_documento">CNPJ</label>
+                                            <input type="text" class="form-control cnpj" id="modal_documento"
                                                 name="documento" maxlength="14" value="">
                                         </div>
                                         <div class="col-md-2">
