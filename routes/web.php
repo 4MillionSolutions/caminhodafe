@@ -74,6 +74,7 @@ Route::get('/ajax/servicos', [App\Http\Controllers\ServicosController::class, 'g
 Route::get('/ajax/operacoes', [App\Http\Controllers\OperacoesController::class, 'getData'])->name('operacoes.data');
 Route::get('/ajax/imoveis', [App\Http\Controllers\ImoveisController::class, 'getData'])->name('imoveis.data');
 Route::get('/ajax/prestadores', [App\Http\Controllers\PrestadoresController::class, 'getData'])->name('prestadores.data');
+Route::get('/ajax/agendamentos', [App\Http\Controllers\AgendamentosController::class, 'ajax'])->name('agendamentos.data')->middleware('auth');
 
 
 Route::get('/clientes', [App\Http\Controllers\ClientesController::class, 'index'])->name('clientes')->middleware('afterAuth:clientes');
@@ -95,6 +96,16 @@ Route::match(['get', 'post'],'/incluir-servicos', [App\Http\Controllers\Servicos
 Route::get('/operacoes', [App\Http\Controllers\OperacoesController::class, 'index'])->name('operacoes')->middleware('afterAuth:operacoes');
 Route::match(['get', 'post'],'/alterar-operacoes', [App\Http\Controllers\OperacoesController::class, 'alterar'])->name('alterar-operacoes')->middleware('afterAuth:operacoes');
 Route::match(['get', 'post'],'/incluir-operacoes', [App\Http\Controllers\OperacoesController::class, 'incluir'])->name('incluir-operacoes')->middleware('afterAuth:operacoes');
+
+Route::get('/agendamentos', [App\Http\Controllers\AgendamentosController::class, 'index'])->name('agendamentos')->middleware('auth');
+Route::post('/agendamentos/salva', [App\Http\Controllers\AgendamentosController::class, 'salva'])->name('agendamentos.salva')->middleware('auth');
+Route::post('/agendamentos/deletar', [App\Http\Controllers\AgendamentosController::class, 'deletaAgendamento'])->name('agendamentos.deletar')->middleware('auth');
+Route::get('/agendamentos/{id}', [App\Http\Controllers\AgendamentosController::class, 'getAgendamento'])->name('agendamentos.get')->middleware('auth');
+Route::post('/imoveis/salva', [App\Http\Controllers\AgendamentosController::class, 'salvaImovel'])->name('imoveis.salva')->middleware('auth');
+Route::post('/imoveis/deletar', [App\Http\Controllers\AgendamentosController::class, 'deletaImovel'])->name('imoveis.deletar')->middleware('auth');
+Route::get('/imoveis/{id}', [App\Http\Controllers\AgendamentosController::class, 'getImovel'])->name('imoveis.get')->middleware('auth');
+Route::get('/api/imoveis-cliente/{clienteId}', [App\Http\Controllers\AgendamentosController::class, 'getImovelsByCliente'])->name('api.imoveis-cliente')->middleware('auth');
+Route::get('/ajax/imoveis', [App\Http\Controllers\AgendamentosController::class, 'ajaxImoveis'])->name('ajax.imoveis')->middleware('auth');
 
 Route::resource('controle-laudos', App\Http\Controllers\ControleLaudosController::class)->middleware('auth');
 Route::get('/controle-laudos/exportar', [App\Http\Controllers\ControleLaudosController::class, 'exportar'])->name('controle-laudos.exportar')->middleware('auth');
