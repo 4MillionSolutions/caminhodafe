@@ -7,157 +7,103 @@
         <h6 class="text-dark col-sm-8 col-form-label">Agendamentos</h6>
         <div class="col-sm-4">
             <p>
-                <button id="btn_pesquisar" class="btn btn-outline-primary" type="button">Pesquisar</button>
-                <button id="btn_adicionar_aba" class="btn btn-outline-success" type="button">Adicionar</button>
+                <button class="btn btn-outline-primary" type="button" data-toggle="collapse" data-target="#div_pesquisa" aria-expanded="false" aria-controls="div_pesquisa">Pesquisar</button>
+                <button class="btn btn-outline-success acao_abrir_modal_incluir" type="button" data-toggle="modal" data-target="#modal_incluir" aria-expanded="false" aria-controls="modal_incluir">Adicionar</button>
             </p>
         </div>
     </div>
 @stop
 
-@section('content')
-    <div class="right_col" role="main">
-        <!-- Abas -->
-        <div class="form-group row">
-            <ul class="nav nav-tabs">
-                <li class="nav-item">
-                    <a class="nav-link active aba-nav" href="#tab_agendamentos" role="tab">
-                        <i class="fas fa-calendar"></i> Agendamentos
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link aba-nav" href="#tab_imoveis" role="tab">
-                        <i class="fas fa-home"></i> Imóveis
-                    </a>
-                </li>
-            </ul>
-        </div>
+@section('adminlte_css')
+    <link rel="stylesheet" href="{{ asset('css/adminlte-custom.css') }}">
+    <link  rel="stylesheet" href="{{ asset('DataTables/datatables.min.css') }}">
+    <style>
+        .nav-tabs .nav-link {
+            color: #495057;
+            border: 1px solid transparent;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-tabs .nav-link.active {
+            color: #0056b3;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-bottom-color: #fff;
+            font-weight: 600;
+        }
+        .nav-tabs .nav-link:hover {
+            border-color: #e9ecef #e9ecef #dee2e6;
+        }
+    </style>
+@stop
 
-        <!-- Conteúdo das Abas -->
-        <div class="tab-content">
-            <!-- ABA 1: AGENDAMENTOS -->
-            <div class="aba-conteudo" id="tab_agendamentos" style="display:block;">
-                <div class="row">
-                    <div class="col">
-                        <div class="collapse" id="div_pesquisa">
-                            <div class="border p-3 mb-3">
-                                <h6>Pesquisa de Agendamentos</h6>
-                                <form id="filtro" action="/agendamentos" method="get">
+@section('content_top_nav_left')
+    @include('layouts.navbar_left')
+@stop
+
+@section('content')
+    {{-- Bloco de pesquisa --}}
+    <div class="agendamentos">
+        <div class="right_col" role="main">
+            <div class="row">
+                <div class="col">
+                    <div class="collapse multi-collapse border mx-auto p-3" id="div_pesquisa">
+                        <div class="form-group row">
+                            <h6>Pesquisa</h6>
+                            <form id="filtro" action="/agendamentos" method="get" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="">
+                                <div class="container">
                                     @csrf
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <label>Nº Sequencial</label>
-                                            <input type="text" name="numero_sequencial" class="form-control" placeholder="Digite o número">
+                                            <label for="numero_sequencial" class="col-sm-1 col-form-label">Nº Sequencial</label>
+                                            <input type="text" id="numero_sequencial" name="numero_sequencial" class="form-control" value="{{ $request->input('numero_sequencial') ?? '' }}">
                                         </div>
                                         <div class="col-md-4">
-                                            <label>Cliente</label>
-                                            <select name="cliente_id" class="form-control">
+                                            <label for="cliente_id" class="col-sm-1 col-form-label">Cliente</label>
+                                            <select class="form-control" id="cliente_id" name="cliente_id">
                                                 <option value="">Todos</option>
                                                 @foreach($clientes as $cliente)
-                                                    <option value="{{ $cliente->id }}">{{ $cliente->nome }}</option>
+                                                    <option value="{{ $cliente->id }}" {{ $request->input('cliente_id') == $cliente->id ? 'selected' : '' }}>{{ $cliente->nome ?? $cliente->nome_empresa }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label>Status</label>
-                                            <select name="ativo" class="form-control">
-                                                <option value="">Todos</option>
-                                                <option value="1">Ativo</option>
-                                                <option value="0">Inativo</option>
-                                            </select>
-                                        </div>
                                         <div class="col-md-1">
-                                            <label>&nbsp;</label>
+                                            <label class="col-sm-1 col-form-label">&nbsp;</label>
                                             <button type="submit" class="btn btn-success">Buscar</button>
                                         </div>
                                     </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-12">
-                        <div class="x_panel">
-                            <div class="x_content">
-                                <table id='table_agendamentos' class="table table-striped text-center">
-                                    <thead>
-                                        <tr>
-                                            <th>OS</th>
-                                            <th>Cliente</th>
-                                            <th>Imóvel</th>
-                                            <th>Endereço</th>
-                                            <th>Data</th>
-                                            <th>Hora</th>
-                                            <th>Técnico</th>
-                                            <th>Status</th>
-                                            <th>Ação</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- ABA 2: IMÓVEIS -->
-            <div class="aba-conteudo" id="tab_imoveis" style="display:none;">
-                <div class="row">
-                    <div class="col">
-                        <div class="collapse" id="div_pesquisa_imovel">
-                            <div class="border p-3 mb-3">
-                                <h6>Pesquisa de Imóveis</h6>
-                                <form id="filtro_imovel" action="/agendamentos" method="get">
-                                    @csrf
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label>Nome do Imóvel</label>
-                                            <input type="text" name="nome" class="form-control" placeholder="Digite o nome">
-                                        </div>
-                                        <div class="col-md-5">
-                                            <label>Cliente</label>
-                                            <select name="cliente_id" class="form-control">
-                                                <option value="">Todos</option>
-                                                @foreach($clientes as $cliente)
-                                                    <option value="{{ $cliente->id }}">{{ $cliente->nome }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="col-md-1">
-                                            <label>&nbsp;</label>
-                                            <button type="submit" class="btn btn-success">Buscar</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-md-3 col-sm-3 col-xs-12" for=""></label>
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h6>Encontrados</h6>
+                        <div class="clearfix"></div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-12">
-                        <div class="x_panel">
-                            <div class="x_content">
-                                <table id='table_imoveis' class="table table-striped text-center">
-                                    <thead>
-                                        <tr>
-                                            <th>Endereço</th>
-                                            <th>Comp</th>
-                                            <th>Bairro</th>
-                                            <th>Cidade</th>
-                                            <th>UF</th>
-                                            <th>Tipo</th>
-                                            <th>Telefone</th>
-                                            <th>Contato</th>
-                                            <th>Ação</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
+                    <div class="x_content">
+                        <table id='table_agendamentos' class="table table-striped text-center">
+                            <thead>
+                                <tr>
+                                    <th>OS</th>
+                                    <th>Cliente</th>
+                                    <th>Imóvel</th>
+                                    <th>Endereço</th>
+                                    <th>Data</th>
+                                    <th>Hora</th>
+                                    <th>Técnico</th>
+                                    <th>Status</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -176,130 +122,203 @@
                 </div>
                 <form id="form_incluir" action="/agendamentos/salva" method="POST" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="id" id="modal_id" value="">
+                    <input type="hidden" name="imovel_id" id="modal_imovel_id" value="">
+                    
                     <div class="modal-body">
-                        <input type="hidden" name="id" id="modal_id" value="">
-                        
-                        <!-- SEÇÃO: DADOS DO CLIENTE -->
-                        <h6 class="text-info mb-3"><strong>Dados do Cliente</strong></h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Cliente *</label>
-                                    <select name="cliente_id" id="modal_cliente_id" class="form-control" required>
-                                        <option value="">Selecione</option>
-                                        @foreach($clientes as $cliente)
-                                            <option value="{{ $cliente->id }}">{{ $cliente->nome }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Imóvel *</label>
-                                    <select name="imovel_id" id="modal_imovel_id" class="form-control" required>
-                                        <option value="">Selecione</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- ABAS -->
+                        <ul class="nav nav-tabs mb-3" style="border-bottom: 2px solid #dee2e6;">
+                            <li class="nav-item">
+                                <a class="nav-link active modal_nave" href="#dados_agendamento_incluir" style="font-weight: 500; font-size: 15px;">Dados do Agendamento</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link modal_nave" href="#dados_imovel_incluir" style="font-weight: 500; font-size: 15px;">Dados do Imóvel</a>
+                            </li>
+                        </ul>
 
-                        <!-- SEÇÃO: DADOS DO AGENDAMENTO -->
-                        <h6 class="text-info mb-3 mt-3"><strong>Dados do Agendamento</strong></h6>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>OS (Sequencial) *</label>
-                                    <input type="text" name="os" id="modal_os" class="form-control" required readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Data *</label>
-                                    <input type="date" name="data" id="modal_data" class="form-control" required>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label>Hora Início *</label>
-                                    <input type="time" name="hora_inicio" id="modal_hora_inicio" class="form-control" required>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label>Hora Fim</label>
-                                    <input type="time" name="hora_fim" id="modal_hora_fim" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Técnico Responsável (Prestador) *</label>
-                                    <select name="prestador_id" id="modal_prestador_id" class="form-control" required>
-                                        <option value="">Selecione</option>
-                                        @if(isset($prestadores))
-                                            @foreach($prestadores as $prestador)
-                                                <option value="{{ $prestador->id }}">{{ $prestador->nome }}</option>
+                        <!-- ABA 1: DADOS DO AGENDAMENTO -->
+                        <div id="dados_agendamento_incluir" class="dados" style="display:block;">
+                            <!-- DADOS DO CLIENTE -->
+                            <div class="row">
+                                <h6 class="text-info mb-3 col-md-12"><strong>Dados do Cliente</strong></h6>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Cliente *</label>
+                                        <select name="cliente_id" id="modal_cliente_id" class="form-control" required>
+                                            <option value="">Selecione</option>
+                                            @foreach($clientes as $cliente)
+                                                <option value="{{ $cliente->id }}">{{ $cliente->nome ?? $cliente->nome_empresa }}</option>
                                             @endforeach
-                                        @endif
-                                    </select>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Tipo de Demanda</label>
-                                    <select name="tipo_demanda" id="modal_tipo_demanda" class="form-control">
-                                        <option value="">Selecione</option>
-                                        <option value="vistoria">Vistoria</option>
-                                        <option value="manutencao">Manutenção</option>
-                                        <option value="reparo">Reparo</option>
-                                        <option value="outro">Outro</option>
-                                    </select>
+
+                            <!-- DADOS DO AGENDAMENTO -->
+                            <div class="row">
+                                <h6 class="text-info mb-3 col-md-12"><strong>Dados do Agendamento</strong></h6>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>OS (Sequencial) *</label>
+                                        <input type="text" name="os" id="modal_os" class="form-control" required readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>Data *</label>
+                                        <input type="date" name="data" id="modal_data" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>Hora Início *</label>
+                                        <input type="time" name="hora_inicio" id="modal_hora_inicio" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label>Hora Fim</label>
+                                        <input type="time" name="hora_fim" id="modal_hora_fim" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Técnico Responsável (Prestador) *</label>
+                                        <select name="prestador_id" id="modal_prestador_id" class="form-control" required>
+                                            <option value="">Selecione</option>
+                                            @if(isset($prestadores))
+                                                @foreach($prestadores as $prestador)
+                                                    <option value="{{ $prestador->id }}">{{ $prestador->nome }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Tipo de Demanda</label>
+                                        <select name="tipo_demanda" id="modal_tipo_demanda" class="form-control">
+                                            <option value="">Selecione</option>
+                                            <option value="vistoria">Vistoria</option>
+                                            <option value="manutencao">Manutenção</option>
+                                            <option value="reparo">Reparo</option>
+                                            <option value="outro">Outro</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CONTATO E PROPOSTA -->
+                            <div class="row">
+                                <h6 class="text-info mb-3 col-md-12"><strong>Contato e Proposta</strong></h6>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Número do Contato</label>
+                                        <input type="text" name="numero_contato" id="modal_numero_contato" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Número da Proposta</label>
+                                        <input type="text" name="numero_proposta" id="modal_numero_proposta" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DOCUMENTOS DE APOIO -->
+                            <div class="row">
+                                <h6 class="text-info mb-3 col-md-12"><strong>Documentos de Apoio</strong></h6>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Matrícula</label>
+                                        <input type="file" name="matricula" id="modal_matricula" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>IPTU</label>
+                                        <input type="file" name="iptu" id="modal_iptu" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label>Observações</label>
+                                        <textarea name="observacoes" id="modal_observacoes" class="form-control" rows="2"></textarea>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- SEÇÃO: CONTATO E PROPOSTA -->
-                        <h6 class="text-info mb-3 mt-3"><strong>Contato e Proposta</strong></h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Número do Contato</label>
-                                    <input type="text" name="numero_contato" id="modal_numero_contato" class="form-control">
+                        <!-- ABA 2: DADOS DO IMÓVEL -->
+                        <div id="dados_imovel_incluir" class="dados" style="display:none;">
+                            <form id="form_imovel_inline">
+                                <!-- LOCALIZAÇÃO -->
+                                <div class="row">
+                                    <h6 class="text-info mb-3 col-md-12"><strong>Localização</strong></h6>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Endereço *</label>
+                                            <input type="text" name="endereco" id="form_imovel_inline_endereco" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Complemento</label>
+                                            <input type="text" name="complemento" id="form_imovel_inline_complemento" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Bairro</label>
+                                            <input type="text" name="bairro" id="form_imovel_inline_bairro" class="form-control">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Número da Proposta</label>
-                                    <input type="text" name="numero_proposta" id="modal_numero_proposta" class="form-control">
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- SEÇÃO: DOCUMENTOS DE APOIO -->
-                        <h6 class="text-info mb-3 mt-3"><strong>Documentos de Apoio</strong></h6>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Matrícula</label>
-                                    <input type="file" name="matricula" id="modal_matricula" class="form-control">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Cidade</label>
+                                            <input type="text" name="cidade" id="form_imovel_inline_cidade" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label>UF</label>
+                                            <input type="text" name="uf" id="form_imovel_inline_uf" class="form-control" maxlength="2">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Tipo</label>
+                                            <input type="text" name="tipo" id="form_imovel_inline_tipo" class="form-control">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>IPTU</label>
-                                    <input type="file" name="iptu" id="modal_iptu" class="form-control">
+
+                                <!-- CONTATO -->
+                                <div class="row">
+                                    <h6 class="text-info mb-3 col-md-12"><strong>Contato</strong></h6>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Telefone</label>
+                                            <input type="text" name="telefone" id="form_imovel_inline_telefone" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Responsável</label>
+                                            <input type="text" name="responsavel" id="form_imovel_inline_responsavel" class="form-control">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Observações</label>
-                                    <textarea name="observacoes" id="modal_observacoes" class="form-control" rows="2"></textarea>
-                                </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                         <button type="button" id="btn_salvar_agendamento" class="btn btn-primary">Salvar</button>
@@ -392,35 +411,31 @@
 @stop
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.mask.js') }}"></script>
+    <script src="{{ asset('js/main_custom.js') }}?v={{ time() }}"></script>
+    <script src="{{ asset('js/acoes.js') }}?v={{ time() }}"></script>
     <script src="{{ asset('DataTables/datatables.min.js') }}"></script>
+    <script src="{{ asset('js/dataTableAcoes.js') }}?v={{ time() }}"></script>
     <script>
-        var currentTab = 'agendamentos';
-        var tableAgendamentos, tableImoveis;
+        $(document).ready(function() {
+            // Controlar abas do modal
+            $('.modal_nave').click(function(e) {
+                e.preventDefault();
+                let target = $(this).attr('href');
+                
+                // Remove active de todas as abas
+                $('.modal_nave').removeClass('active');
+                // Adiciona active a aba clicada
+                $(this).addClass('active');
+                
+                // Esconde todos os conteúdos
+                $('.dados').hide();
+                // Mostra o conteúdo da aba clicada
+                $(target).fadeIn();
+            });
 
-        // Controlar abas
-        $(document).on('click', '.aba-nav', function (e) {
-            e.preventDefault();
-            console.log('Clicou na aba');
-            $('.aba-nav').removeClass('active');
-            $(this).addClass('active');
-            $('.aba-conteudo').hide();
-
-            var target = $(this).attr('href');
-            $(target).show();
-            
-            if (target === '#tab_agendamentos') {
-                currentTab = 'agendamentos';
-            } else if (target === '#tab_imoveis') {
-                currentTab = 'imoveis';
-            }
-            console.log('CurrentTab agora é:', currentTab);
-        });
-
-        function initializeApp() {
-            console.log('Script iniciado');
-            
-            tableAgendamentos = $('#table_agendamentos').DataTable({
+            let tableAgendamentos = $('#table_agendamentos').DataTable({
                 ajax: '/ajax/agendamentos',
                 columns: [
                     {data: 'numero_sequencial'},
@@ -438,139 +453,97 @@
                 }
             });
 
-            tableImoveis = $('#table_imoveis').DataTable({
-                ajax: '/ajax/imoveis',
-                columns: [
-                    {data: 'endereco'},
-                    {data: 'complemento'},
-                    {data: 'bairro'},
-                    {data: 'cidade'},
-                    {data: 'uf'},
-                    {data: 'tipo'},
-                    {data: 'telefone'},
-                    {data: 'contato'},
-                    {data: 'acoes', orderable: false}
-                ],
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Portuguese-Brasil.json'
-                }
+            // Abrir modal para novo agendamento
+            $('.acao_abrir_modal_incluir').click(function() {
+                $('#form_incluir')[0].reset();
+                $('#modal_id').val('');
+                // Garantir que a primeira aba está ativa
+                $('.modal_nave').removeClass('active');
+                $('.modal_nave:first').addClass('active');
+                $('.dados').hide();
+                $('#dados_agendamento_incluir').show();
             });
 
-            $('#btn_pesquisar').click(function(e) {
-                e.preventDefault();
-                console.log('Pesquisar clicado. Tab atual:', currentTab);
-                if(currentTab === 'agendamentos') {
-                    $('#div_pesquisa').slideToggle();
-                } else if(currentTab === 'imoveis') {
-                    $('#div_pesquisa_imovel').slideToggle();
-                }
-            });
-
-            $('#btn_adicionar_aba').click(function(e) {
-                e.preventDefault();
-                console.log('Adicionar clicado. Tab atual:', currentTab);
-                
-                if(currentTab === 'agendamentos') {
-                    console.log('Abrindo modal de AGENDAMENTO');
-                    $('#form_incluir')[0].reset();
-                    $('#modal_id').val('');
-                    var modal = new bootstrap.Modal(document.getElementById('modal_incluir'));
-                    modal.show();
-                } else if(currentTab === 'imoveis') {
-                    console.log('Abrindo modal de IMÓVEL');
-                    $('#form_imovel')[0].reset();
-                    $('#modal_imovel_hidden').val('');
-                    var modal = new bootstrap.Modal(document.getElementById('modal_imovel'));
-                    modal.show();
-                }
-            });
-
+            // Carregar imóveis ao selecionar cliente
             $('#modal_cliente_id').on('change', function() {
-                var clienteId = $(this).val();
-                console.log('Cliente selecionado:', clienteId);
+                let clienteId = $(this).val();
                 if (!clienteId) {
-                    $('#modal_imovel_id').html('<option value="">Selecione</option>');
+                    // Limpar dados do imóvel
+                    $('#form_imovel_inline_endereco, #form_imovel_inline_complemento, #form_imovel_inline_bairro, #form_imovel_inline_cidade, #form_imovel_inline_uf, #form_imovel_inline_tipo, #form_imovel_inline_telefone, #form_imovel_inline_responsavel').val('');
                     return;
                 }
-                $.get('/api/imoveis-cliente/' + clienteId, function(res) {
-                    console.log('Resposta de imóveis:', res);
-                    var html = '<option value="">Selecione</option>';
-                    if (res.data && Array.isArray(res.data)) {
-                        res.data.forEach(function(im) {
-                            html += '<option value="' + im.id + '">' + im.nome + '</option>';
-                        });
-                    }
-                    $('#modal_imovel_id').html(html);
-                });
+                // Limpar campos para novo cadastro (se existe o formulário)
+                let inputs = $('#dados_imovel_incluir input[type="text"]');
+                inputs.val('');
             });
 
-            $('#btn_salvar_agendamento').click(function(e) {
+            // Salvar agendamento (que incluirá o imóvel)
+            $('#btn_salvar_agendamento').on('click', function(e) {
                 e.preventDefault();
-                console.log('Salvando agendamento');
-                $.post('/agendamentos/salva', $('#form_incluir').serialize(), function(res) {
-                    console.log('Resposta:', res);
-                    if (res.success) {
-                        var modal = bootstrap.Modal.getInstance(document.getElementById('modal_incluir'));
-                        modal.hide();
-                        tableAgendamentos.ajax.reload();
-                        alert('Agendamento salvo com sucesso!');
-                    } else {
-                        alert('Erro ao salvar: ' + (res.message || 'Desconhecido'));
-                    }
-                }).fail(function(error) {
-                    console.error('Erro AJAX:', error);
-                    alert('Erro ao salvar agendamento');
-                });
-            });
-
-            $('#btn_salvar_imovel').click(function(e) {
-                e.preventDefault();
-                console.log('Salvando imóvel');
-                $.post('/imoveis/salva', $('#form_imovel').serialize(), function(res) {
-                    console.log('Resposta:', res);
-                    if (res.success) {
-                        var modal = bootstrap.Modal.getInstance(document.getElementById('modal_imovel'));
-                        modal.hide();
-                        tableImoveis.ajax.reload();
-                        alert('Imóvel salvo com sucesso!');
-                    } else {
-                        alert('Erro ao salvar: ' + (res.message || 'Desconhecido'));
-                    }
-                }).fail(function(error) {
-                    console.error('Erro AJAX:', error);
-                    alert('Erro ao salvar imóvel');
-                });
-            });
-
-            $(document).on('click', '#table_agendamentos button[data-action="deletar"]', function(e) {
-                e.preventDefault();
-                var id = $(this).data('id');
-                if (confirm('Tem certeza que deseja deletar este agendamento?')) {
-                    $.post('/agendamentos/deletar', {id: id, _token: $('meta[name="csrf-token"]').attr('content')}, function(res) {
-                        if (res.success) {
-                            tableAgendamentos.ajax.reload();
-                            alert('Agendamento deletado com sucesso!');
-                        } else {
-                            alert('Erro ao deletar: ' + (res.message || 'Desconhecido'));
-                        }
-                    }).fail(function(error) {
-                        console.error('Erro AJAX:', error);
-                        alert('Erro ao deletar agendamento');
-                    });
+                
+                let clienteId = $('#modal_cliente_id').val();
+                let endereco = $('#form_imovel_inline_endereco').val();
+                
+                if (!clienteId) {
+                    alert('Selecione um cliente!');
+                    return;
                 }
+                
+                if (!endereco) {
+                    alert('Preencha o endereço do imóvel!');
+                    return;
+                }
+
+                // Montar dados do formulário com dados do imóvel
+                let formData = $('#form_incluir').serialize() + 
+                    '&imovel_endereco=' + encodeURIComponent($('#form_imovel_inline_endereco').val()) +
+                    '&imovel_complemento=' + encodeURIComponent($('#form_imovel_inline_complemento').val()) +
+                    '&imovel_bairro=' + encodeURIComponent($('#form_imovel_inline_bairro').val()) +
+                    '&imovel_cidade=' + encodeURIComponent($('#form_imovel_inline_cidade').val()) +
+                    '&imovel_uf=' + encodeURIComponent($('#form_imovel_inline_uf').val()) +
+                    '&imovel_tipo=' + encodeURIComponent($('#form_imovel_inline_tipo').val()) +
+                    '&imovel_telefone=' + encodeURIComponent($('#form_imovel_inline_telefone').val()) +
+                    '&imovel_responsavel=' + encodeURIComponent($('#form_imovel_inline_responsavel').val());
+
+                $.post('/agendamentos/salva', formData, function(res) {
+                    if (res.success) {
+                        // Tentar fechar modal com Bootstrap
+                        try {
+                            if (typeof $.fn.modal !== 'undefined') {
+                                $('#modal_incluir').modal('hide');
+                            } else {
+                                // Fallback: remover atributo show e esconder com jQuery
+                                $('#modal_incluir').removeClass('show').hide();
+                                $('.modal-backdrop').remove();
+                                $('body').removeClass('modal-open');
+                            }
+                        } catch (e) {
+                            $('#modal_incluir').hide();
+                            $('.modal-backdrop').remove();
+                        }
+                        
+                        tableAgendamentos.ajax.reload();
+                        alert('Agendamento e imóvel salvos com sucesso!');
+                    } else {
+                        alert('Erro ao salvar: ' + (res.message || 'Erro desconhecido'));
+                    }
+                }).fail(function(error) {
+                    alert('Erro ao salvar agendamento: ' + error.statusText);
+                });
             });
 
-            $(document).on('click', '#table_agendamentos button[data-action="editar"]', function(e) {
+            // Editar agendamento
+            $(document).on('click', 'button[data-action="editar"][data-type="agendamento"]', function(e) {
                 e.preventDefault();
-                var id = $(this).data('id');
-                console.log('Editando agendamento:', id);
+                let id = $(this).data('id');
                 $.get('/agendamentos/' + id, function(res) {
-                    console.log('Dados do agendamento:', res);
                     if (res.success && res.data) {
-                        var agendamento = res.data;
+                        let agendamento = res.data;
                         $('#modal_id').val(agendamento.id);
-                        $('#modal_cliente_id').val(agendamento.cliente_id);
-                        $('#modal_imovel_id').val(agendamento.imovel_id);
+                        $('#modal_cliente_id').val(agendamento.cliente_id).trigger('change');
+                        setTimeout(() => {
+                            $('#modal_imovel_id').val(agendamento.imovel_id).trigger('change');
+                        }, 200);
                         $('#modal_os').val(agendamento.numero_sequencial);
                         $('#modal_data').val(agendamento.data);
                         $('#modal_hora_inicio').val(agendamento.hora_inicio);
@@ -581,69 +554,82 @@
                         $('#modal_numero_proposta').val(agendamento.numero_proposta);
                         $('#modal_observacoes').val(agendamento.observacoes);
                         
-                        var modal = new bootstrap.Modal(document.getElementById('modal_incluir'));
-                        modal.show();
-                    } else {
-                        alert('Erro ao carregar agendamento');
+                        // Resetar abas para primeira
+                        $('.modal_nave').removeClass('active');
+                        $('.modal_nave:first').addClass('active');
+                        $('.dados').hide();
+                        $('#dados_agendamento_incluir').show();
+                        
+                        // Abrir modal com fallback
+                        try {
+                            if (typeof $.fn.modal !== 'undefined') {
+                                $('#modal_incluir').modal('show');
+                            } else {
+                                $('#modal_incluir').addClass('show').fadeIn();
+                                $('body').append('<div class="modal-backdrop fade show"></div>');
+                                $('body').addClass('modal-open');
+                            }
+                        } catch (e) {
+                            $('#modal_incluir').show();
+                        }
                     }
-                }).fail(function(error) {
-                    console.error('Erro AJAX:', error);
-                    alert('Erro ao carregar agendamento');
                 });
             });
 
-            $(document).on('click', '#table_imoveis button[data-action="deletar"]', function(e) {
+            // Deletar agendamento
+            $(document).on('click', 'button[data-action="deletar"][data-type="agendamento"]', function(e) {
                 e.preventDefault();
-                var id = $(this).data('id');
-                if (confirm('Tem certeza que deseja deletar este imóvel?')) {
-                    $.post('/imoveis/deletar', {id: id, _token: $('meta[name="csrf-token"]').attr('content')}, function(res) {
+                let id = $(this).data('id');
+                if (confirm('Tem certeza que deseja deletar este agendamento?')) {
+                    $.post('/agendamentos/deletar', {id: id, _token: $('meta[name="csrf-token"]').attr('content')}, function(res) {
                         if (res.success) {
-                            tableImoveis.ajax.reload();
-                            alert('Imóvel deletado com sucesso!');
+                            tableAgendamentos.ajax.reload();
+                            alert('Agendamento deletado com sucesso!');
                         } else {
-                            alert('Erro ao deletar: ' + (res.message || 'Desconhecido'));
+                            alert('Erro ao deletar');
                         }
-                    }).fail(function(error) {
-                        console.error('Erro AJAX:', error);
-                        alert('Erro ao deletar imóvel');
                     });
                 }
             });
 
-            $(document).on('click', '#table_imoveis button[data-action="editar"]', function(e) {
-                e.preventDefault();
-                var id = $(this).data('id');
-                console.log('Editando imóvel:', id);
-                $.get('/imoveis/' + id, function(res) {
-                    console.log('Dados do imóvel:', res);
-                    if (res.success && res.data) {
-                        var imovel = res.data;
-                        $('#modal_imovel_hidden').val(imovel.id);
-                        $('#modal_imovel_endereco').val(imovel.endereco);
-                        $('#modal_imovel_complemento').val(imovel.complemento);
-                        $('#modal_imovel_bairro').val(imovel.bairro);
-                        $('#modal_imovel_cidade').val(imovel.cidade);
-                        $('#modal_imovel_uf').val(imovel.estado || imovel.uf);
-                        $('#modal_imovel_tipo').val(imovel.tipo);
-                        $('#modal_imovel_telefone').val(imovel.telefone);
-                        $('#modal_imovel_responsavel').val(imovel.responsavel);
-                        
-                        var modal = new bootstrap.Modal(document.getElementById('modal_imovel'));
-                        modal.show();
-                    } else {
-                        alert('Erro ao carregar imóvel');
+            // Fechar modal com botão cancelar
+            $(document).on('click', '[data-dismiss="modal"]', function(e) {
+                let modal = $(this).closest('.modal');
+                if (modal.length) {
+                    try {
+                        if (typeof $.fn.modal !== 'undefined') {
+                            modal.modal('hide');
+                        } else {
+                            modal.removeClass('show').hide();
+                            $('.modal-backdrop').remove();
+                            $('body').removeClass('modal-open');
+                        }
+                    } catch (e) {
+                        modal.hide();
+                        $('.modal-backdrop').remove();
                     }
-                }).fail(function(error) {
-                    console.error('Erro AJAX:', error);
-                    alert('Erro ao carregar imóvel');
-                });
+                }
             });
-        }
 
-        if(document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeApp);
-        } else {
-            initializeApp();
-        }
+            // Fechar modal ao clicar no X
+            $(document).on('click', '.modal .close', function(e) {
+                e.preventDefault();
+                let modal = $(this).closest('.modal');
+                if (modal.length) {
+                    try {
+                        if (typeof $.fn.modal !== 'undefined') {
+                            modal.modal('hide');
+                        } else {
+                            modal.removeClass('show').hide();
+                            $('.modal-backdrop').remove();
+                            $('body').removeClass('modal-open');
+                        }
+                    } catch (e) {
+                        modal.hide();
+                        $('.modal-backdrop').remove();
+                    }
+                }
+            });
+        });
     </script>
 @endsection

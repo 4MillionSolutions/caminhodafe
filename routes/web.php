@@ -98,7 +98,7 @@ Route::match(['get', 'post'],'/alterar-operacoes', [App\Http\Controllers\Operaco
 Route::match(['get', 'post'],'/incluir-operacoes', [App\Http\Controllers\OperacoesController::class, 'incluir'])->name('incluir-operacoes')->middleware('afterAuth:operacoes');
 
 Route::get('/agendamentos', [App\Http\Controllers\AgendamentosController::class, 'index'])->name('agendamentos')->middleware('auth');
-Route::post('/agendamentos/salva', [App\Http\Controllers\AgendamentosController::class, 'salva'])->name('agendamentos.salva')->middleware('auth');
+Route::post('/agendamentos/salva', [App\Http\Controllers\AgendamentosController::class, 'salvaAgendamento'])->name('agendamentos.salva')->middleware('auth');
 Route::post('/agendamentos/deletar', [App\Http\Controllers\AgendamentosController::class, 'deletaAgendamento'])->name('agendamentos.deletar')->middleware('auth');
 Route::get('/agendamentos/{id}', [App\Http\Controllers\AgendamentosController::class, 'getAgendamento'])->name('agendamentos.get')->middleware('auth');
 Route::post('/imoveis/salva', [App\Http\Controllers\AgendamentosController::class, 'salvaImovel'])->name('imoveis.salva')->middleware('auth');

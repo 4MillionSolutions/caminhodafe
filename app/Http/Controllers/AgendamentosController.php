@@ -135,46 +135,57 @@ class AgendamentosController extends Controller
         return view('agendamentos', $data);
     }
 
+    public function salvaAgendamento(Request $request) {
+        try {
+            $agendamentos_id = $this->salva($request);
+            return response()->json([
+                'success' => true,
+                'message' => 'Agendamento salvo com sucesso!',
+                'data' => ['id' => $agendamentos_id]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erro ao salvar agendamento (wrapper)', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao salvar agendamento: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function salva($request) {
         try {
-            Log::info('Iniciando salva de agendamento', $request->all());
-            
             $imovel_id = null;
-            if ($request->input('imovel_nome') && $request->input('imovel_endereco')) {
-                Log::info('Criando novo imóvel', [
-                    'nome' => $request->input('imovel_nome'),
-                    'endereco' => $request->input('imovel_endereco')
-                ]);
+            
+            // Se os dados de imóvel vêm do formulário inline (da aba 2)
+            if ($request->input('imovel_endereco')) {
                 
                 $imovel = new Imoveis();
-                $imovel->cliente_id = $request->input('cliente_id');
-                $imovel->nome = $request->input('imovel_nome');
-                $imovel->contato = $request->input('imovel_contato') ?? null;
-                $imovel->telefone = preg_replace("/[^0-9]/", "", $request->input('imovel_telefone') ?? '');
+                $imovel->numero = $request->input('imovel_numero') ?? '';
                 $imovel->endereco = $request->input('imovel_endereco');
-                $imovel->numero = $request->input('imovel_numero') ?? null;
-                $imovel->complemento = $request->input('imovel_complemento') ?? null;
-                $imovel->bairro = $request->input('imovel_bairro') ?? null;
-                $imovel->cidade = $request->input('imovel_cidade') ?? null;
-                $imovel->uf = $request->input('imovel_uf') ?? 'SP';
-                $imovel->cep = $request->input('imovel_cep') ?? null;
-                $imovel->tipo = $request->input('imovel_tipo') ?? null;
+                $imovel->complemento = $request->input('imovel_complemento') ?? '';
+                $imovel->bairro = $request->input('imovel_bairro') ?? '';
+                $imovel->cidade = $request->input('imovel_cidade') ?? '';
+                $imovel->estado = $request->input('imovel_uf') ?? 'SP';
+                $imovel->cep = $request->input('imovel_cep') ?? '';
+                $imovel->tipo = $request->input('imovel_tipo') ?? '';
+                $imovel->telefone = $request->input('imovel_telefone') ?? '';
+                $imovel->responsavel = $request->input('imovel_responsavel') ?? '';
                 $imovel->ativo = true;
                 $imovel->save();
                 $imovel_id = $imovel->id;
-                
-                Log::info('Imóvel criado com sucesso', ['id' => $imovel_id]);
             }
 
             if($request->input('id')) {
-                $agendamentos = Agendamentos::where('id', $request->input('id'))->first();
-                Log::info('Atualizando agendamento existente', ['id' => $request->input('id')]);
             } else {
                 $agendamentos = new Agendamentos();
                 $ultimoAgendamento = Agendamentos::latest('id')->first();
                 $numero = ($ultimoAgendamento ? $ultimoAgendamento->id + 1 : 1);
                 $agendamentos->numero_sequencial = 'OS-' . str_pad($numero, 4, '0', STR_PAD_LEFT);
-                Log::info('Criando novo agendamento', ['numero_sequencial' => $agendamentos->numero_sequencial]);
             }
 
             $agendamentos->cliente_id = $request->input('cliente_id');
@@ -194,7 +205,6 @@ class AgendamentosController extends Controller
                 $filename = 'matricula_' . $agendamentos->numero_sequencial . '_' . time() . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('agendamentos', $filename, 'public');
                 $agendamentos->arquivo_matricula = $filename;
-                Log::info('Arquivo matrícula salvo', ['arquivo' => $filename]);
             }
 
             if ($request->hasFile('iptu')) {
@@ -202,11 +212,9 @@ class AgendamentosController extends Controller
                 $filename = 'iptu_' . $agendamentos->numero_sequencial . '_' . time() . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('agendamentos', $filename, 'public');
                 $agendamentos->arquivo_iptu = $filename;
-                Log::info('Arquivo IPTU salvo', ['arquivo' => $filename]);
             }
 
             $agendamentos->save();
-            Log::info('Agendamento salvo com sucesso', ['id' => $agendamentos->id]);
 
             return $agendamentos->id;
         } catch (\Exception $e) {
@@ -289,8 +297,6 @@ class AgendamentosController extends Controller
 
             $agendamento->delete();
 
-            Log::info('Agendamento deletado com sucesso', ['id' => $id]);
-
             return response()->json([
                 'success' => true,
                 'message' => 'Agendamento deletado com sucesso!'
@@ -349,8 +355,6 @@ class AgendamentosController extends Controller
 
             $imovel->delete();
 
-            Log::info('Imóvel deletado com sucesso', ['id' => $id]);
-
             return response()->json([
                 'success' => true,
                 'message' => 'Imóvel deletado com sucesso!'
@@ -384,7 +388,7 @@ class AgendamentosController extends Controller
                 'hora_inicio' => $agendamento->hora_inicio,
                 'prestador' => $agendamento->prestador->nome ?? '-',
                 'ativo' => $agendamento->ativo ? '<span class="badge badge-success">Ativo</span>' : '<span class="badge badge-danger">Inativo</span>',
-                'acoes' => '<button type="button" class="btn btn-sm btn-primary" data-action="editar" data-id="' . $agendamento->id . '">Editar</button> <button type="button" class="btn btn-sm btn-danger" data-action="deletar" data-id="' . $agendamento->id . '">Deletar</button>'
+                'acoes' => '<button type="button" class="btn btn-sm btn-primary" data-action="editar" data-type="agendamento" data-id="' . $agendamento->id . '">Editar</button> <button type="button" class="btn btn-sm btn-danger" data-action="deletar" data-type="agendamento" data-id="' . $agendamento->id . '">Deletar</button>'
             ];
         }
 
@@ -435,7 +439,17 @@ class AgendamentosController extends Controller
     public function salvaImovel(Request $request)
     {
         try {
-            Log::info('Salvando imóvel', $request->all());
+            // Validação
+            $validated = $request->validate([
+                'endereco' => 'required|string|max:180',
+                'complemento' => 'nullable|string|max:100',
+                'bairro' => 'nullable|string|max:100',
+                'cidade' => 'nullable|string|max:100',
+                'uf' => 'nullable|string|max:2',
+                'tipo' => 'nullable|string|max:50',
+                'telefone' => 'nullable|string|max:11',
+                'responsavel' => 'nullable|string|max:100',
+            ]);
 
             if ($request->input('id')) {
                 $imovel = Imoveis::find($request->input('id'));
@@ -449,23 +463,30 @@ class AgendamentosController extends Controller
                 $imovel = new Imoveis();
             }
 
+            $imovel->numero = $request->input('numero') ?? '';
             $imovel->endereco = $request->input('endereco');
-            $imovel->complemento = $request->input('complemento') ?? null;
-            $imovel->bairro = $request->input('bairro') ?? null;
-            $imovel->cidade = $request->input('cidade') ?? null;
-            $imovel->estado = $request->input('uf') ?? null;
-            $imovel->tipo = $request->input('tipo') ?? null;
-            $imovel->telefone = $request->input('telefone') ?? null;
-            $imovel->responsavel = $request->input('responsavel') ?? null;
+            $imovel->complemento = $request->input('complemento') ?? '';
+            $imovel->bairro = $request->input('bairro') ?? '';
+            $imovel->cidade = $request->input('cidade') ?? '';
+            $imovel->estado = $request->input('uf') ?? 'SP';
+            $imovel->cep = $request->input('cep') ?? '';
+            $imovel->tipo = $request->input('tipo') ?? '';
+            $imovel->telefone = $request->input('telefone') ?? '';
+            $imovel->responsavel = $request->input('responsavel') ?? '';
+            $imovel->ativo = true;
             $imovel->save();
-
-            Log::info('Imóvel salvo com sucesso', ['id' => $imovel->id]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Imóvel salvo com sucesso!',
                 'data' => $imovel
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validação falhou',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             Log::error('Erro ao salvar imóvel', [
                 'message' => $e->getMessage(),
