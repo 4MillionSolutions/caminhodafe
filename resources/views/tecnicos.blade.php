@@ -1,130 +1,142 @@
-@extends('adminlte::page')
 
-@section('title', env('APP_NAME'))
-
-@section('content_header')
-    @if(isset($tela) and $tela == 'pesquisa')
-        <div class="form-group row">
-            <h1 class="m-0 text-dark col-sm-11 col-form-label">Pesquisa de {{ $nome_tela }}</h1>
-            <div class="col-sm-1">
-                @include('layouts.nav-open-incluir', ['rotaIncluir' => $rotaIncluir])
-            </div>
-        </div>
-    @endif
-    <script src="../vendor/jquery/jquery.min.js?cache={{time()}}"></script>
-    <script src="js/jquery.mask.js?cache={{time()}}"></script>
-    <script src="js/main_custom.js?cache={{time()}}"></script>
-    {{-- <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script> --}}
-
-@stop
-
-@section('adminlte_css')
-    <link rel="stylesheet" href="{{ asset('css/adminlte-custom.css') }}">
-@stop
-
-@section('content_top_nav_left')
-    @include('layouts.navbar_left')
-@stop
-
-@section('content')
-@extends('layouts.extra-content')
-@if(isset($tela) and $tela == 'pesquisa')
+{{-- Bloco de pesquisa --}}
+<div class="tecnicos">
     <div class="right_col" role="main">
-        <form id="filtro" action="tecnicos" method="get" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="">
-            <div class="form-group row">
-                <label for="nome" class="col-sm-2 col-form-label text-right">Nome</label>
-                <div class="col-sm-3">
-                    <input type="text" id="nome" name="nome" class="form-control" value="{{ $request->input('nome') ?? '' }}">
-                </div>
-                <label for="ativo" class="col-sm-1 col-form-label text-right">Situação</label>
-                <div class="col-sm-2">
-                    <select class="form-control" id="ativo" name="ativo">
-                        <option value="0" {{ $request->input('ativo') == '0' ? 'selected' : '' }}>Ativo</option>
-                        <option value="1" {{ $request->input('ativo') == '1' ? 'selected' : '' }}>Inativo</option>
-                    </select>
+        <div class="row">
+            <div class="col">
+                <div class="collapse multi-collapse border mx-auto p-3" id="div_pesquisa">
+                    <div class="form-group row">
+                        <h6> Pesquisa</h6>
+                        <form id="filtro" action="tecnicos" method="get" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="">
+                            <div class="container">
+                                @csrf
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label for="nome" class="col-sm-1 col-form-label">Nome</label>
+                                        <input type="text" id="nome" name="nome" class="form-control" value="{{ $request->input('nome') ?? '' }}">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="ativo" class="col-sm-1 col-form-label">Situação</label>
+                                        <select class="form-control" id="ativo" name="ativo">
+                                            <option value="A" {{ $request->input('ativo') == 'A' ? 'selected' : '' }}>Ativo</option>
+                                            <option value="I" {{ $request->input('ativo') == 'I' ? 'selected' : '' }}>Inativo</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <label class="col-sm-1 col-form-label">&nbsp;</label>
+                                        <button type="submit" class="btn btn-success">Buscar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-            <div class="form-group row">
-                <div class="col-sm-5">
-                    <button type="submit" class="btn btn-primary">Pesquisar</button>
-                </div>
-                <div class="col-sm-5">
-                </div>
-            </div>
-        </form>
-        <div class="form-group">
-          <label class="control-label col-md-3 col-sm-3 col-xs-12" for=""></label>
-          <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel">
-              <div class="x_title">
-                <h4>Encontrados</h4>
-                <div class="clearfix"></div>
-              </div>
-              <div class="x_content">
-                <table class="table table-striped text-center">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Nome</th>
-                      <th>Ativo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  @if(isset($tecnicos))
-                        @foreach ($tecnicos as $tecnico)
-                            <tr>
-                            <th scope="row" title="Editar tecnico"><a href={{ URL::route($rotaAlterar, array('id' => $tecnico->id )) }}>{{$tecnico->id}}</a></th>
-                              <td>{{$tecnico->nome}}</td>
-                              <td>{{$tecnico->ativo == 'A' ? 'Ativo' : 'Inativo'}}</td>
-
-                            </tr>
-                        @endforeach
-                    @endif
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
         </div>
     </div>
-@else
-    <h1 class="m-0 text-dark">{{ $tela == 'alterar' ? 'Alteração de' : 'Inclusão de' }} {{ $nome_tela }}</h1>
-
-
-    <form id="{{ $tela }}" action="{{ $tela == 'alterar' ? $rotaAlterar : $rotaIncluir }}" method="post">
-        @csrf
-        @if($tela == 'alterar')
-            <input type="hidden" name="id" value="{{ $tecnicos[0]->id ?? '' }}">
-        @endif
-        <div class="container">
-            <div class="row row-cols-md-3 g-3">
-                <div class="col-md-4">
-                    <label for="pessoa" class="form-label">Nome*</label>
-                    <input type="text" class="form-control" id="nome" name="nome" maxlength="200" required value="{{ $tecnicos[0]->nome ?? '' }}">
-                </div>
+    <div class="form-group">
+        <label class="control-label col-md-3 col-sm-3 col-xs-12" for=""></label>
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+            <div class="x_title">
+                <h6>Encontrados</h6>
+                <div class="clearfix"></div>
             </div>
+            <div class="x_content">
+                <table id='table_tecnicos' class="table table-striped text-center">
+                    <thead>
+                        <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>CREA/CAU</th>
+                        <th>Situação</th>
+                        <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-
-            <div class="row mt-1">
-                <div class="col-md-2">
-                    <label for="ativo" class="form-label">Situação</label>
-                    <select class="form-control" id="ativo" name="ativo">
-                        <option value="0" {{ isset($tecnicos[0]->ativo) && $tecnicos[0]->ativo == '0' ? 'selected' : '' }}>Inativo</option>
-                        <option value="1" {{ isset($tecnicos[0]->ativo) && $tecnicos[0]->ativo == '1' ? 'selected' : '' }}>Ativo</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mt-4 text-center">
-                <div class="col-md-12">
-                    <button class="btn btn-danger mx-2" onclick="window.history.back();" type="button">Cancelar</button>
-                    <button type="submit" class="btn btn-primary mx-2">Salvar</button>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
-    </form>
-@endif
-@stop
+    </div>
+</div>
 
-@section('scripts')
-    <script src="../vendor/jquery/jquery.min.js"></script>
-@endsection
+{{-- MODAL INCLUIR --}}
+<div class="modal fade" id="modal_incluir" tabindex="-1" role="dialog" aria-labelledby="modal_incluir" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <form method="POST" action="tecnicos/incluir">
+            @csrf
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Inclusão de Técnico</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                        <div class="container">
+                            <input type="hidden" name="modal_id" value="">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="cliente" class="form-label">Nome*</label>
+                                    <input type="text" class="form-control" id="modal_nome" name="nome" maxlength="200" required value="">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cliente" class="form-label">CREA/CAU</label>
+                                    <input type="text" class="form-control" id="modal_crea_cau" name="crea_cau" maxlength="200" required value="">
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="fechar_modal_incluir" data-dismiss="modal">Fechar</button>
+                <button type="button" id="salvar_tecnicos_incluir" class="btn btn-primary">Confirmar</button>
+            </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- MODAL ALTERAÇÃO --}}
+<div class="modal fade" id="modal_alteracao" tabindex="-1" role="dialog" aria-labelledby="modal_alteracao" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <form method="POST" action="tecnicos/alterar">
+            @csrf
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Alteração de Técnico</h5>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                        <div class="container">
+                            <input type="hidden" id="modal_id" name="modal_id" value="">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="cliente" class="form-label">Nome*</label>
+                                    <input type="text" class="form-control" id="modal_nome" name="nome" maxlength="200" required value="">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cliente" class="form-label">CREA/CAU</label>
+                                    <input type="text" class="form-control" id="modal_crea_cau" name="crea_cau" maxlength="200" required value="">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="ativo" class="form-label">Situação</label>
+                                    <select class="form-control" id="modal_ativo" name="ativo">
+                                        <option value="1">Ativo</option>
+                                        <option value="0">Inativo</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="fechar_modal_alteracao" data-dismiss="modal">Fechar</button>
+                <button type="button" id="salvar_tecnicos_alterar" class="btn btn-primary">Confirmar</button>
+            </div>
+            </div>
+        </form>
+    </div>
+</div>

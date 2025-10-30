@@ -1,4 +1,4 @@
- 
+
 .table th.sorting_asc::after {
     content: " ⬆";  /* Ícone para ordenação ascendente */
     color: #000;

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Servicos;
+use Yajra\DataTables\Facades\DataTables;
 
 class ServicosController extends Controller
 {
@@ -29,11 +30,6 @@ class ServicosController extends Controller
             $servicos = $servicos->where('ativo', '=', 1);
         }
 
-        if (!empty($request->input('documento'))) {
-            $documento = preg_replace("/[^0-9]/", "", $request->input('documento'));
-            $servicos = $servicos->where('documento', '=', $documento);
-        }
-
         if (!empty($request->input('nome'))) {
             $servicos = $servicos->where('nome', 'like', '%'.$request->input('nome').'%');
         }
@@ -49,7 +45,42 @@ class ServicosController extends Controller
             'rotaAlterar' => 'alterar-servicos'
         );
 
+
+        if (request()->ajax()) {
+            return response()->json($data);
+        }
+
         return view('servicos', $data);
+    }
+
+    public function getData(Request $request)
+    {
+        $servicos = new Servicos();
+
+        $servicos = $servicos::select(['id', 'nome', 'ativo'])
+                            ->where('ativo', '=', '1');
+
+        return DataTables::of($servicos)
+            ->filter(function ($query) use ($request) {
+                if ($search = $request->get('search')['value'] ?? null) {
+                    $query->where(function($q) use ($search) {
+                        $q->where('nome', 'like', "%{$search}%")
+                        ->orWhere('ativo', 'like', "%{$search}%");
+                    });
+                }
+            })
+            ->setRowId(function($row) {
+                return 'servico_' . $row->id;
+            })
+            ->editColumn('ativo', function ($row) {
+                return $row->ativo ? 'Ativo' : 'Inativo';
+            })
+            ->addColumn('acoes', function ($row) {
+                return '<i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_servicos pointer"></i>'.
+                        '<i data-id="'.$row->id.'" id="excluir" title="Excluir" class="fa fa-solid fa-trash pointer ml-3"></i>';
+            })
+            ->rawColumns(['acoes'])
+            ->make(true);
     }
 
     public function incluir(Request $request)
@@ -57,20 +88,10 @@ class ServicosController extends Controller
         $metodo = $request->method();
 
         if ($metodo == 'POST') {
-            $servicos_id = $this->salva($request);
-            return redirect()->route('servicos', [ 'id' => $servicos_id ] );
+            $servicos = $this->salva($request);
         }
+        return response()->json($servicos->toArray());
 
-        $tela = 'incluir';
-        $data = array(
-            'tela' => $tela,
-            'nome_tela' => 'servicos',
-            'request' => $request,
-            'rotaIncluir' => 'incluir-servicos',
-            'rotaAlterar' => 'alterar-servicos'
-        );
-
-        return view('servicos', $data);
     }
 
     public function alterar(Request $request)
@@ -80,42 +101,56 @@ class ServicosController extends Controller
 
         $metodo = $request->method();
         if ($metodo == 'POST') {
-            $servicos_id = $this->salva($request);
-            return redirect()->route('servicos', [ 'id' => $servicos_id ] );
+            $servicos = $this->salva($request);
         }
 
-        $servicos = $servicos->get();
-        // dd($servicos);
-        $tela = 'alterar';
-        $data = array(
-            'tela' => $tela,
-            'nome_tela' => 'servicos',
-            'servicos'=> $servicos,
-            'estados' => collect($this->getEstados())->toBase(),
-            'request' => $request,
-            'rotaIncluir' => 'incluir-servicos',
-            'rotaAlterar' => 'alterar-servicos'
-        );
+        $data = [
+            "id" => $servicos->id,
+            "nome" => $servicos->nome_empresa,
+            "ativo" => $servicos->ativo,
+            "acao" => '<button class="btn btn-sm btn-primary alterar_servicos" data-id="'.$servicos->id.'" data-toggle="modal" data-target="#modal_alteracao">Editar</button>'
+        ];
+        return response()->json($data);
+    }
 
-        return view('servicos', $data);
+    public function excluir(Request $request)
+    {
+        try{
+            $servicos = new Servicos();
+            $servicos = $servicos->where('id', '=', $request->input('id'));
+            $servicos->delete();
+
+            $data = array(
+                'nome_tela' => 'servicos',
+                'servicos'=> $servicos,
+                'request' => $request,
+                'rotaIncluir' => 'incluir-servicos',
+                'rotaAlterar' => 'alterar-servicos'
+            );
+            return view('servicos', $data);
+
+        } catch (\Exception $e){
+            return response(['error' => 'Erro ao excluir técnico: ' . $e->getMessage()], 500);
+        }
+
     }
 
     public function salva($request) {
 
 
-        $documento = preg_replace("/[^0-9]/", "", $request->input('documento'));
+        $servicos = new Servicos();
         if($request->input('id')) {
 
             $servicos = servicos::where('id', $request->input('id'))->first();
         }
 
-
+        $ativo = ($request->input('status') == 'on') ? true : false;
         $servicos->nome = $request->input('nome');
-        $servicos->ativo = $request->input('ativo');
+        $servicos->ativo = $ativo;
 
         $servicos->save();
 
-        return $servicos->id;
+        return $servicos;
     }
 
     public function getAllServicos() {
