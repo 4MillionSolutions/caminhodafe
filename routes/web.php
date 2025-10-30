@@ -109,3 +109,7 @@ Route::get('/ajax/imoveis', [App\Http\Controllers\AgendamentosController::class,
 
 Route::resource('controle-laudos', App\Http\Controllers\ControleLaudosController::class)->middleware('auth');
 Route::get('/controle-laudos/exportar', [App\Http\Controllers\ControleLaudosController::class, 'exportar'])->name('controle-laudos.exportar')->middleware('auth');
+
+Route::get('/producao', [App\Http\Controllers\ProducaoController::class, 'index'])->name('producao')->middleware('afterAuth:producao');
+Route::match(['get', 'post'],'/alterar-producao', [App\Http\Controllers\ProducaoController::class, 'alterar'])->name('alterar-producao')->middleware('afterAuth:producao');
+Route::match(['get', 'post'],'/incluir-producao', [App\Http\Controllers\ProducaoController::class, 'incluir'])->name('incluir-producao')->middleware('afterAuth:producao');
