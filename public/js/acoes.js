@@ -13,11 +13,29 @@ $(function ($) {
         $(target).show();
     });
 
+    $(document).on('click', '.desabilita_editar', function (e) {
+
+        $('#modal_alteracao .desabilita_editar').hide();
+
+        // desabilita todos os imputs do modal
+        $('#modal_alteracao input, #modal_alteracao select, #modal_alteracao textarea').attr('disabled', true);
+
+    });
+    $(document).on('click', '.habilita_editar', function (e) {
+
+        $('#modal_alteracao .desabilita_editar').show();
+
+        $('#modal_alteracao input, #modal_alteracao select, #modal_alteracao textarea').attr('disabled', false);
+
+    });
+
     $(document).on('click', '.acao_abrir_modal_incluir', function (e) {
 
         $('.dados_incluir').click();
 
     })
+
+
 
     function getCsrf() {
         return $('meta[name="csrf-token"]').attr('content');
@@ -149,7 +167,7 @@ $(function ($) {
                 $('#modal_alteracao .sonumeros').unmask();
                 $('#modal_alteracao .mask_minutos').unmask();
                 $('#modal_alteracao .mask_horas').unmask();
-                $('#modal_alteracao .mask_valor').unmask();
+                // $('#modal_alteracao .mask_valor').unmask();
                 $('#modal_alteracao .mask_date').unmask();
                 $('#modal_alteracao .mask_data_hora').unmask();
                 $('#modal_alteracao .cpf').unmask();
@@ -160,7 +178,8 @@ $(function ($) {
                 $('#modal_alteracao .sonumeros').mask('000000000000');
                 $('#modal_alteracao .mask_minutos').mask('00:00');
                 $('#modal_alteracao .mask_horas').mask('00:00:00');
-                $('#modal_alteracao .mask_valor').mask("000.000.000,00");
+                $('#modal_alteracao .mask_valor').mask('###.##0,00', {reverse: true});
+                $('#modal_alteracao .mask_valor').trigger('focus');
                 $('#modal_alteracao .mask_date').mask('00/00/0000');
                 $('#modal_alteracao .mask_data_hora').mask('00/00/0000 00:00:00');
 

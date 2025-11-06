@@ -17,6 +17,9 @@ return new class extends Migration
         Schema::create('servicos', function (Blueprint $table) {
             $table->id();
             $table->string('nome',100);
+            $table->integer('prioridade')->default(0);
+            $table->integer('sla')->default(0);
+            $table->decimal('valor', 10, 2)->default(0);
             $table->boolean('ativo')->default(true);
             $table->timestamps();
         });

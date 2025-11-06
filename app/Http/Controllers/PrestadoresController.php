@@ -165,7 +165,9 @@ class PrestadoresController extends Controller
                 return $row->ativo ? 'Ativo' : 'Inativo';
             })
             ->addColumn('acoes', function ($row) {
-                return '<i data-id="' . $row->id . '" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_prestadores pointer"></i>' .
+                return '
+                    <i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Visualizar" class="fas fa-eye alterar_prestadores desabilita_editar pointer"></i>
+                    <i data-id="' . $row->id . '" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_prestadores pointer habilita_editar ml-3"></i>' .
                     '<i data-id="' . $row->id . '" id="excluir" title="Excluir" class="fa fa-solid fa-trash pointer ml-3"></i>';
             })
             ->rawColumns(['acoes'])
@@ -242,6 +244,8 @@ class PrestadoresController extends Controller
             $prestadores->documento = DateHelpers::somenteNumeros($request->input('documento'));
             $prestadores->profissao = $request->input('profissao');
             $prestadores->endereco = $request->input('endereco');
+            $prestadores->funcao = $request->input('funcao');
+            $prestadores->crea_cau = $request->input('crea_cau');
             $prestadores->complemento = $request->input('complemento');
             $prestadores->numero = $request->input('numero');
             $prestadores->cep = DateHelpers::somenteNumeros($request->input('cep'));

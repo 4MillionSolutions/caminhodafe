@@ -90,42 +90,52 @@
                                     </ul>
                                 </div>
                                 <div id="dados_prestadores_incluir" class="row col-md-12 dados" style="display:block;">
-                                    <div class="col-md-12">
-                                        <label for="Tipo pessoa" class="form-label">Tipo</label>
-                                        <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
-                                            name="tipo" value="F"> Pessoa física
-                                        <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
-                                            name="tipo" value="J"> Pessoa jurídica
-                                    </div>
+                                    @include('formularios.tiposPessoasFormulario')
                                     <div class="row mt-2">
                                         <div class="col-md-4">
                                             <label for="nome" class="form-label">Nome</label>
                                             <input type="text" class="form-control " id="modal_nome"
                                                 name="nome" maxlength="180" value="">
                                         </div>
-                                        <div class="col-md-4">
-                                            <label for="documento" class="form-label label_documento">CNPJ</label>
-                                            <input type="text" class="form-control cnpj" id="modal_documento"
+                                        <div class="col-md-3">
+                                            <label for="documento" class="form-label label_documento">CPF</label>
+                                            <input type="text" class="form-control cpf" id="modal_documento"
                                                 name="documento" maxlength="14" value="">
                                         </div>
-                                        <div class="col-md-4">
-                                            <label for="limite_credito" class="form-label">Contato</label>
-                                            <input type="text" class="form-control mask_phone" id="modal_contato" name="contato"
+                                        <div class="col-md-2">
+                                            <label for="modal_telefone" class="form-label">Contato</label>
+                                            <input type="text" class="form-control mask_phone" id="modal_telefone" name="modal_telefone"
                                                 value="">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="funcao" class="form-label">Função</label>
+                                            <select class="form-control" id="modal_funcao" name="funcao">
+                                                <option value="0" selected>
+                                                    Selecione</option>
+                                                @foreach ([['id' => 1, 'nome' => 'Engenheiro'], ['id' => 2, 'nome' => 'Arquiteto']] as $funcao)
+                                                    <option value="{{ $funcao['id'] }}">{{ $funcao['nome'] }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="row mt-2">
-                                        <div class="col-md-4">
+                                        <div class="col-md-2">
+                                            <label for="crea_cau" class="form-label">CREA/CAU</label>
+                                            <input type="text" class="form-control" id="crea_cau" name="crea_cau"
+                                                value="">
+                                        </div>
+                                        <div class="col-md-3">
                                             <label for="limite_credito" class="form-label">Email</label>
                                             <input type="email" class="form-control" id="modal_email" name="email"
                                                 value="">
                                         </div>
                                         <div class="col-md-2">
                                             <label for="cep" class="form-label">CEP</label>
-                                            <input type="text" class="form-control cep" id="modal_cep"
+                                            <input type="text" class="form-control cep modal_cep" id="modal_cep"
                                                 name="cep" maxlength="8" value="">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label for="endereco" class="form-label">Endereço</label>
                                             <input type="text" class="form-control " id="modal_endereco"
                                                 name="endereco" maxlength="500" value="">
@@ -148,7 +158,7 @@
                                             <input type="text" class="form-control " id="modal_complemento"
                                                 name="complemento" maxlength="100" value="">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-2">
                                             <label for="cidade" class="form-label">Cidade</label>
                                             <input type="text" class="form-control" id="modal_cidade" name="cidade"
                                                 maxlength="150" value="">
@@ -326,42 +336,52 @@
                                     </ul>
                                 </div>
                                 <div id="dados_prestadores" class="row col-md-12 dados" style="display:block;">
-                                    <div class="col-md-12">
-                                        <label for="Tipo pessoa" class="form-label">Tipo</label>
-                                        <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
-                                            name="tipo" value="F"> Pessoa física
-                                        <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
-                                            name="tipo" value="J"> Pessoa jurídica
-                                    </div>
+                                    @include('formularios.tiposPessoasFormulario')
                                     <div class="row mt-2">
                                         <div class="col-md-4">
                                             <label for="nome" class="form-label">Nome</label>
                                             <input type="text" class="form-control " id="modal_nome"
                                                 name="nome" maxlength="180" value="">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label for="documento" class="form-label label_documento">CNPJ</label>
                                             <input type="text" class="form-control cnpj" id="modal_documento"
                                                 name="documento" maxlength="14" value="">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-2">
                                             <label for="modal_telefone" class="form-label">Contato</label>
                                             <input type="text" class="form-control mask_phone" id="modal_telefone" name="modal_telefone"
                                                 value="">
                                         </div>
+                                        <div class="col-md-3">
+                                            <label for="funcao" class="form-label">Função</label>
+                                            <select class="form-control" id="modal_funcao" name="funcao">
+                                                <option value="0" selected>
+                                                    Selecione</option>
+                                                @foreach ([['id' => 1, 'nome' => 'Engenheiro'], ['id' => 2, 'nome' => 'Arquiteto']] as $funcao)
+                                                    <option value="{{ $funcao['id'] }}">{{ $funcao['nome'] }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="row mt-2">
-                                        <div class="col-md-4">
-                                            <label for="limite_credito" class="form-label">Email</label>
+                                        <div class="col-md-2">
+                                            <label for="crea_cau" class="form-label">CREA/CAU</label>
+                                            <input type="text" class="form-control" id="crea_cau" name="crea_cau"
+                                                value="">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="email" class="form-label">Email</label>
                                             <input type="email" class="form-control" id="modal_email" name="email"
                                                 value="">
                                         </div>
                                         <div class="col-md-2">
                                             <label for="cep" class="form-label">CEP</label>
-                                            <input type="text" class="form-control cep" id="modal_cep"
+                                            <input type="text" class="form-control cep modal_cep" id="modal_cep"
                                                 name="cep" maxlength="8" value="{{ $cientes[0]->cep ?? '' }}">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label for="endereco" class="form-label">Endereço</label>
                                             <input type="text" class="form-control " id="modal_endereco"
                                                 name="endereco" maxlength="500" value="">
@@ -521,7 +541,7 @@
                         <button type="button" class="btn btn-secondary" id="fechar_modal_alteracao"
                             data-dismiss="modal">Fechar</button>
                         <button type="submit" id="salvar_prestadores_alterar"
-                            class="btn btn-primary">Confirmar</button>
+                            class="btn btn-primary habilita_editar">Confirmar</button>
                     </div>
                 </div>
             </form>
