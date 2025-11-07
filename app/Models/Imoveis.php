@@ -12,15 +12,18 @@ class Imoveis extends Model
     protected $table = 'imoveis';
 
     protected $fillable = [
-        'cliente_id',
         'cep',
         'estado',
         'cidade',
         'bairro',
         'endereco',
         'numero',
+        'complemento',
+        'responsavel',
+        'telefone',
         'logradouro',
         'complemento_viacep',
+        'tipo',
         'tipo_enum',
         'data_criacao',
         'usuario_criacao_id',
