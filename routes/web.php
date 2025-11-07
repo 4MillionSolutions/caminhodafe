@@ -101,6 +101,18 @@ Route::get('/agendamentos', [App\Http\Controllers\AgendamentosController::class,
 Route::post('/agendamentos/salva', [App\Http\Controllers\AgendamentosController::class, 'salvaAgendamento'])->name('agendamentos.salva')->middleware('auth');
 Route::post('/agendamentos/deletar', [App\Http\Controllers\AgendamentosController::class, 'deletaAgendamento'])->name('agendamentos.deletar')->middleware('auth');
 Route::get('/agendamentos/{id}', [App\Http\Controllers\AgendamentosController::class, 'getAgendamento'])->name('agendamentos.get')->middleware('auth');
+
+// FASE 1: NOVOS ENDPOINTS PARA REDESENHO
+Route::post('/agendamentos/consultar-cep', [App\Http\Controllers\AgendamentosController::class, 'consultarViaCep'])->name('agendamentos.consultar-cep')->middleware('auth');
+Route::post('/agendamentos/cadastrar-imovel', [App\Http\Controllers\AgendamentosController::class, 'cadastrarImovel'])->name('agendamentos.cadastrar-imovel')->middleware('auth');
+Route::get('/agendamentos/prestadores-recomendados', [App\Http\Controllers\AgendamentosController::class, 'getPrestatoresRecomendados'])->name('agendamentos.prestadores-recomendados')->middleware('auth');
+Route::post('/agendamentos/atribuir-prestador', [App\Http\Controllers\AgendamentosController::class, 'atribuirAoPrestador'])->name('agendamentos.atribuir-prestador')->middleware('auth');
+Route::post('/agendamentos/enviar-producao', [App\Http\Controllers\AgendamentosController::class, 'enviarParaProducao'])->name('agendamentos.enviar-producao')->middleware('auth');
+Route::post('/agendamentos/reagendar', [App\Http\Controllers\AgendamentosController::class, 'reagendar'])->name('agendamentos.reagendar')->middleware('auth');
+Route::post('/agendamentos/retorno', [App\Http\Controllers\AgendamentosController::class, 'retorno'])->name('agendamentos.retorno')->middleware('auth');
+Route::post('/agendamentos/reavaliacao', [App\Http\Controllers\AgendamentosController::class, 'reavaliacao'])->name('agendamentos.reavaliacao')->middleware('auth');
+Route::get('/agendamentos/auditoria/{id}', [App\Http\Controllers\AgendamentosController::class, 'getAuditoriaAgendamento'])->name('agendamentos.auditoria')->middleware('auth');
+
 Route::post('/imoveis/salva', [App\Http\Controllers\AgendamentosController::class, 'salvaImovel'])->name('imoveis.salva')->middleware('auth');
 Route::post('/imoveis/deletar', [App\Http\Controllers\AgendamentosController::class, 'deletaImovel'])->name('imoveis.deletar')->middleware('auth');
 Route::get('/imoveis/{id}', [App\Http\Controllers\AgendamentosController::class, 'getImovel'])->name('imoveis.get')->middleware('auth');
