@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('tipo_pessoa',1);
             $table->string('documento',20)->nullable();
             $table->string('profissao',20)->nullable();
+            $table->string('crea_cau',20)->nullable();
             $table->string('endereco', 200)->nullable();
             $table->string('complemento', 200)->nullable();
             $table->string('numero', 10)->nullable();
@@ -32,8 +33,9 @@ return new class extends Migration
             $table->string('banco', 150)->nullable();
             $table->string('agencia', 150)->nullable();
             $table->string('conta', 150)->nullable();
-            $table->integer('tipo',)->nullable();
-            $table->integer('tipo_chave_pix',)->nullable();
+            $table->integer('funcao')->nullable();
+            $table->integer('tipo')->nullable();
+            $table->integer('tipo_chave_pix')->nullable();
             $table->string('chave_pix', 150)->nullable();
             $table->longText('observacoes')->nullable();
 

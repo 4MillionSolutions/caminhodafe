@@ -7,6 +7,7 @@ use App\Http\Controllers\DateHelpers;
 use App\Models\Clientes;
 use App\Models\Tecnicos;
 use Google\Service\AdExchangeBuyerII\Date;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables; // se usar o pacote yajra/laravel-datatables
 
 
@@ -24,7 +25,27 @@ class ClientesController extends Controller
         $id = !empty($request->input('id')) ? ($request->input('id')) : ( !empty($id) ? $id : false );
 
         $clientes = new Clientes();
-
+        $clientes = $clientes::select(
+            'id',
+            'nome_empresa',
+            'nome',
+            'tipo_pessoa',
+            'documento',
+            'endereco',
+            'complemento',
+            'numero',
+            'cep',
+            'bairro',
+            'cidade',
+            'estado',
+            'telefone_cliente',
+            'telefone',
+            'email',
+            'email_cliente',
+            'observacoes',
+            'ativo',
+            DB::raw("DATE_FORMAT(clientes.created_at, '%d/%m/%Y') as created_at")
+        );
         if ($id) {
             $clientes = $clientes->where('id', '=', $id);
         }
@@ -42,7 +63,7 @@ class ClientesController extends Controller
 
 
         $clientes = $clientes->get();
-
+        info($clientes);
         $tela = 'pesquisa';
         $data = array(
             'tela' => $tela,
@@ -65,7 +86,7 @@ class ClientesController extends Controller
     {
         $clientes = new Clientes();
 
-        $clientes = $clientes::select(['id', 'nome_empresa as nome', 'ativo'])
+        $clientes = $clientes::select(['id', 'nome_empresa as nome_empresa', 'nome as nome', 'ativo'])
                             ->where('ativo', '=', '1');
 
         return DataTables::of($clientes)
@@ -84,7 +105,9 @@ class ClientesController extends Controller
                 return $row->ativo ? 'Ativo' : 'Inativo';
             })
             ->addColumn('acoes', function ($row) {
-                return '<i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_clientes pointer"></i>'.
+                return '
+                <i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Visualizar" class="fas fa-eye alterar_clientes desabilita_editar pointer"></i>
+                <i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_clientes habilita_editar pointer ml-3"></i>'.
                         '<i data-id="'.$row->id.'" id="excluir" title="Excluir" class="fa fa-solid fa-trash pointer ml-3"></i>';
             })
             ->rawColumns(['acoes'])
@@ -164,7 +187,9 @@ class ClientesController extends Controller
         $clientes->bairro = $request->input('bairro');
         $clientes->cidade = $request->input('cidade');
         $clientes->estado = $request->input('estado');
+        $clientes->telefone_cliente = DateHelpers::somenteNumeros($request->input('telefone_cliente'));
         $clientes->telefone = DateHelpers::somenteNumeros($request->input('telefone'));
+        $clientes->email_cliente = $request->input('email_cliente');
         $clientes->email = $request->input('email');
         $clientes->observacoes = $request->input('observacoes');
 

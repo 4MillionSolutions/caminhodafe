@@ -76,7 +76,9 @@ class ServicosController extends Controller
                 return $row->ativo ? 'Ativo' : 'Inativo';
             })
             ->addColumn('acoes', function ($row) {
-                return '<i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_servicos pointer"></i>'.
+                return '
+                    <i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Visualizar" class="fas fa-eye alterar_servicos desabilita_editar pointer"></i>
+                    <i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_servicos pointer habilita_editar ml-3"></i>'.
                         '<i data-id="'.$row->id.'" id="excluir" title="Excluir" class="fa fa-solid fa-trash pointer ml-3"></i>';
             })
             ->rawColumns(['acoes'])
@@ -146,6 +148,9 @@ class ServicosController extends Controller
 
         $ativo = ($request->input('status') == 'on') ? true : false;
         $servicos->nome = $request->input('nome');
+        $servicos->prioridade = $request->input('prioridade');
+        $servicos->sla = $request->input('sla');
+        $servicos->valor = DateHelpers::formatFloatValue($request->input('valor'));
         $servicos->ativo = $ativo;
 
         $servicos->save();

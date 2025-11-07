@@ -26,8 +26,10 @@ return new class extends Migration
             $table->string('bairro', 150)->nullable();
             $table->string('cidade', 150)->nullable();
             $table->string('estado', 150)->nullable();
+            $table->string('telefone_cliente', 11)->nullable();
             $table->string('telefone', 11)->nullable();
             $table->string('email', 150)->nullable();
+            $table->string('email_cliente', 150)->nullable();
             $table->longText('observacoes')->nullable();
             $table->boolean('ativo')->default(true);
             $table->timestamps();

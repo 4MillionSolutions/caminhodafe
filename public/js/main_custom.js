@@ -58,20 +58,28 @@ $(function ($) {
     $('.mask_data_hora').mask('00/00/0000 00:00:00');
     $('.cpf').mask('000.000.000-00', {reverse: true});
     $('.cnpj').mask('00.000.000/0000-00', {reverse: true});
+    $('.date').mask('00/00/0000');
+    $('.tipo_pessoa[value="F"]').prop('checked', true);
+    $('#id_dados_comerciais_incluir').hide();
+
 
     $(document).on('click', '.tipo_pessoa', function() {
 
         if($(this).val() === 'F') {
             $('.label_documento').text('CPF');
+            $('.label_nome_empresa').text('Nome');
             $('#modal_alteracao #modal_documento').removeClass('cnpj').addClass('cpf');
             $('#modal_alteracao #modal_documento').unmask();
             $('#modal_alteracao #modal_documento').mask('000.000.000-00');
+            $('#id_dados_comerciais_incluir').hide();
 
             $('#modal_incluir #modal_documento').removeClass('cnpj').addClass('cpf');
             $('#modal_incluir #modal_documento').unmask();
             $('#modal_incluir #modal_documento').mask('000.000.000-00');
         } else {
+            $('#id_dados_comerciais_incluir').show();
             $('.label_documento').text('CNPJ');
+            $('.label_nome_empresa').text('Razão Social');
             $('#modal_alteracao #modal_documento').removeClass('cpf').addClass('cnpj');
             $('#modal_alteracao #modal_documento').unmask();
             $('#modal_alteracao #modal_documento').mask('00.000.000/0000-00');
@@ -184,6 +192,80 @@ $(function ($) {
             $(this).removeClass('is-invalid');
         }
     });
+
+
+    const ufToName = {
+    "AC":"Acre","AL":"Alagoas","AP":"Amapá","AM":"Amazonas","BA":"Bahia",
+    "CE":"Ceará","DF":"Distrito Federal","ES":"Espírito Santo","GO":"Goiás",
+    "MA":"Maranhão","MT":"Mato Grosso","MS":"Mato Grosso do Sul","MG":"Minas Gerais",
+    "PA":"Pará","PB":"Paraíba","PR":"Paraná","PE":"Pernambuco","PI":"Piauí",
+    "RJ":"Rio de Janeiro","RN":"Rio Grande do Norte","RS":"Rio Grande do Sul",
+    "RO":"Rondônia","RR":"Roraima","SC":"Santa Catarina","SP":"São Paulo",
+    "SE":"Sergipe","TO":"Tocantins"
+    };
+
+
+
+    // Quando o campo CEP perde o foco
+    $('.modal_cep').on('blur', function () {
+        let cep = $(this).val().replace(/\D/g, ''); // remove tudo que não for número
+
+        if (cep.length === 8) {
+            $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function (dados) {
+                if (!("erro" in dados)) {
+                    let modalId = $(".modal.show").attr("id");
+
+                    // Preenche os campos com os valores retornados
+
+                    $('#' + modalId + ' #modal_endereco').val(dados.logradouro);
+                    $('#' + modalId + ' #modal_bairro').val(dados.bairro);
+                    $('#' + modalId + ' #modal_cidade').val(dados.localidade);
+                    selectEstadoByUf(modalId, dados.uf);
+                } else {
+                    alert("CEP não encontrado!");
+                    limpaCamposEndereco();
+                }
+            }).fail(function () {
+                alert("Erro ao consultar o CEP!");
+                limpaCamposEndereco();
+            });
+        } else {
+            alert("CEP inválido! Digite 8 números.");
+            limpaCamposEndereco();
+        }
+    });
+
+    // Função para limpar os campos caso o CEP seja inválido
+    function limpaCamposEndereco() {
+        let modalId = $(".modal.show").attr("id");
+        $('#' + modalId + ' #modal_endereco').val('');
+        $('#' + modalId + ' #modal_bairro').val('');
+        $('#' + modalId + ' #modal_cidade').val('');
+        $('#' + modalId + ' #modal_estado').val('0');
+    }
+
+    function selectEstadoByUf(modalId, uf) {
+        if (!uf) return;
+        const nome = ufToName[uf.toUpperCase()];
+        if (!nome) return;
+
+        const $select = $('#' + modalId + ' #modal_estado');
+
+        // Busca opção pelo texto (trim e comparar uppercase)
+        const $opt = $select.find('option').filter(function () {
+            return $(this).text().trim().toUpperCase() === nome.toUpperCase();
+        });
+
+        if ($opt.length) {
+            $opt.prop('selected', true);
+            $select.change(); // dispara change se você tiver listeners
+        } else {
+            // fallback: tenta selecionar pela sigla no value (caso já exista)
+            $select.val(uf.toUpperCase()).change();
+        }
+        }
+
+
 });
 
 function compartilharLink() {

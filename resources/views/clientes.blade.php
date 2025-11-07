@@ -49,10 +49,11 @@
                     <table id='table_clientes' class="table table-striped text-center">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Nome</th>
-                                <th>Situação</th>
-                                <th>Ação</th>
+                                <th data-name="id">ID</th>
+                                <th data-name="nome_empresa">Empresa</th>
+                                <th data-name="nome">Nome</th>
+                                <th data-name="ativo">Situação</th>
+                                <th data-name="acoes">Ação</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -84,106 +85,19 @@
                                                 cliente</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link modal_nave" href="#dados_comerciais_incluir">Dados
-                                                comerciais</a>
+                                            <a class="nav-link modal_nave" id="id_dados_comerciais_incluir" href="#dados_comerciais_incluir">Dados comerciais</a>
                                         </li>
                                     </ul>
                                 </div>
                                 <div id="dados_clientes_incluir" class="row col-md-12 dados" style="display:block;">
-                                    <div class="row mt-2">
 
-                                        <div class="col-md-12">
-                                            <label for="Tipo pessoa" class="form-label">Tipo</label>
-                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
-                                                name="tipo" value="F"> Pessoa física
-                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
-                                                name="tipo" value="J"> Pessoa jurídica
-                                        </div>
-                                        <div class="col-md-8">
-                                            <label for="nome_empresa" class="form-label">Nome</label>
-                                            <input type="text" class="form-control " id="modal_nome_empresa"
-                                                name="nome_empresa" maxlength="180" value="">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="documento" class="form-label label_documento">CNPJ</label>
-                                            <input type="text" class="form-control cnpj" id="modal_documento"
-                                                name="documento" maxlength="14" value="">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="cep" class="form-label">CEP</label>
-                                            <input type="text" class="form-control cep" id="modal_cep"
-                                                name="cep" maxlength="8" value="{{ $cientes[0]->cep ?? '' }}">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="endereco" class="form-label">Endereço</label>
-                                            <input type="text" class="form-control " id="modal_endereco"
-                                                name="endereco" maxlength="500" value="">
-                                        </div>
-                                        <div class="col-md-1">
-                                            <label for="numero" class="form-label">Número</label>
-                                            <input type="text" class="form-control " id="modal_numero"
-                                                name="numero" maxlength="20" value="">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label for="bairro" class="form-label">Bairro</label>
-                                            <input type="text" class="form-control " id="modal_bairro"
-                                                name="bairro" maxlength="100" value="">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="complemento" class="form-label">Complemento</label>
-                                            <input type="text" class="form-control " id="modal_complemento"
-                                                name="complemento" maxlength="100" value="">
-                                        </div>
-                                    </div>
-                                    <div class="row mt-2">
+                                    @include('formularios.clientesFormularioClientes')
 
-                                        <div class="col-md-4">
-                                            <label for="cidade" class="form-label">Cidade</label>
-                                            <input type="text" class="form-control" id="modal_cidade" name="cidade"
-                                                maxlength="150" value="">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="estado" class="form-label">Estado</label>
-                                            <select class="form-control" id="modal_estado" name="estado">
-                                                <option value="0" selected>
-                                                    Selecione</option>
-                                                @foreach ($estados as $estado)
-                                                    <option value="{{ $estado['id'] }}">{{ $estado['estado'] }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-
-                                    </div>
-                                    <div class="row mt-2">
-
-
-                                    </div>
-                                    <div class="row mt-2">
-
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="modal_status"
-                                                name="status" checked>
-                                            <label class="form-check-label" for="status">Ativo</label>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div id="dados_comerciais_incluir" class="row col-md-12 dados" style="display:none;">
-                                    <div class="col-md-4">
-                                        <label for="modal_nome" class="form-label">Nome</label>
-                                        <input type="text" class="form-control" id="modal_nome"
-                                            name="nome" maxlength="180" value="">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="modal_telefone" class="form-label">Contato</label>
-                                        <input type="text" class="form-control mask_phone" id="modal_telefone" name="telefone"
-                                            value="">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="modal_email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="modal_email" name="email"
-                                            value="">
-                                    </div>
+
+                                    @include('formularios.clientesFormularioComerciais')
+
                                 </div>
                             </div>
                         </div>
@@ -227,100 +141,14 @@
                                     </ul>
                                 </div>
                                 <div id="dados_clientes" class="row col-md-12 dados" style="display:block;">
-                                    <div class="row mt-2">
 
-                                        <div class="col-md-12">
-                                            <label for="Tipo pessoa" class="form-label">Tipo</label>
-                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
-                                                name="tipo_pessoa" value="F"> Pessoa física
-                                            <input class="ml-2 tipo_pessoa" type="radio" id="modal_tipo_pessoa"
-                                                name="tipo_pessoa" value="J"> Pessoa jurídica
-                                        </div>
-                                        <div class="col-md-8">
-                                            <label for="nome_empresa" class="form-label">Nome</label>
-                                            <input type="text" class="form-control " id="modal_nome_empresa"
-                                                name="nome_empresa" maxlength="180" value="">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="documento" class="form-label label_documento">CNPJ</label>
-                                            <input type="text" class="form-control cnpj" id="modal_documento"
-                                                name="documento" maxlength="14" value="">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="cep" class="form-label">CEP</label>
-                                            <input type="text" class="form-control cep" id="modal_cep"
-                                                name="cep" maxlength="8" value="123">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="endereco" class="form-label">Endereço</label>
-                                            <input type="text" class="form-control " id="modal_endereco"
-                                                name="endereco" maxlength="500" value="">
-                                        </div>
-                                        <div class="col-md-1">
-                                            <label for="numero" class="form-label">Número</label>
-                                            <input type="text" class="form-control " id="modal_numero"
-                                                name="numero" maxlength="20" value="">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label for="bairro" class="form-label">Bairro</label>
-                                            <input type="text" class="form-control " id="modal_bairro"
-                                                name="bairro" maxlength="100" value="">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="complemento" class="form-label">Complemento</label>
-                                            <input type="text" class="form-control " id="modal_complemento"
-                                                name="complemento" maxlength="100" value="">
-                                        </div>
-                                    </div>
-                                    <div class="row mt-2">
+                                    @include('formularios.clientesFormularioClientes')
 
-                                        <div class="col-md-4">
-                                            <label for="cidade" class="form-label">Cidade</label>
-                                            <input type="text" class="form-control" id="modal_cidade" name="cidade"
-                                                maxlength="150" value="">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="estado" class="form-label">Estado</label>
-                                            <select class="form-control" id="modal_estado" name="estado">
-                                                <option value="0" selected>
-                                                    Selecione</option>
-                                                @foreach ($estados as $estado)
-                                                    <option value="{{ $estado['id'] }}">{{ $estado['estado'] }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-
-                                    </div>
-                                    <div class="row mt-2">
-
-
-                                    </div>
-                                    <div class="row mt-2">
-
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="modal_status"
-                                                name="status" checked>
-                                            <label class="form-check-label" for="status">Ativo</label>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div id="dados_comerciais" class="row col-md-12 dados" style="display:none;">
-                                    <div class="col-md-4">
-                                        <label for="modal_nome" class="form-label">Nome</label>
-                                        <input type="text" class="form-control" id="modal_nome"
-                                            name="nome" maxlength="11" value="">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="modal_telefone" class="form-label">Contato</label>
-                                        <input type="text" class="form-control mask_phone" id="modal_telefone" name="telefone"
-                                            value="">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="modal_email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="modal_email" name="email"
-                                            value="">
-                                    </div>
+
+                                    @include('formularios.clientesFormularioComerciais')
+
                                 </div>
                             </div>
                         </div>
@@ -329,9 +157,10 @@
                         <button type="button" class="btn btn-secondary" id="fechar_modal_alteracao"
                         data-dismiss="modal">Fechar</button>
                         <button type="button" id="salvar_clientes_alterar"
-                        class="btn btn-primary">Confirmar</button>
+                        class="btn btn-primary desabilita_editar">Confirmar</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+

@@ -142,6 +142,7 @@ $(function ($) {
             },
             "columns": [
                 { data: 'id', name: 'id' },
+                { data: 'nome_empresa', name: 'nome_empresa' },
                 { data: 'nome', name: 'nome' },
                 { data: 'ativo', name: 'ativo' },
                 { data: 'acoes', name: 'acoes', orderable: false, searchable: false }

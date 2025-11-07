@@ -93,7 +93,40 @@
                                                 name="nome" maxlength="180" value="">
                                         </div>
                                     </div>
-
+                                    <div class="row mt-2">
+                                        <div class="col-md-4">
+                                            <label for="prioridade" class="form-label">Prioridade</label>
+                                            <select class="form-control" id="modal_prioridade" name="prioridade">
+                                                <option value="0">Selecione</option>
+                                                <option value="1">Baixa</option>
+                                                <option value="2">Média</option>
+                                                <option value="3">Alta</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label for="modal_sla" class="form-label">SLA</label>
+                                            <select class="form-control" id="modal_sla" name="sla">
+                                                <option value="0">D+0</option>
+                                                <option value="1">D+1</option>
+                                                <option value="2">D+2</option>
+                                                <option value="3">D+3</option>
+                                                <option value="4">D+4</option>
+                                                <option value="5">D+5</option>
+                                                <option value="6">D+6</option>
+                                                <option value="7">D+7</option>
+                                                <option value="8">D+8</option>
+                                                <option value="9">D+9</option>
+                                                <option value="10">D+10</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {{-- //valor --}}
+                                    <div class="row mt-2">
+                                        <div class="col-md-2">
+                                            <label for="modal_valor" class="form-label">Valor</label>
+                                            <input type="text" class="form-control mask_valor" id="modal_valor" name="valor" maxlength="15" value="">
+                                        </div>
+                                    </div>
                                     <div class="row mt-2">
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" id="modal_status"
@@ -149,6 +182,40 @@
                                         </div>
                                     </div>
                                     <div class="row mt-2">
+                                        <div class="col-md-4">
+                                            <label for="prioridade" class="form-label">Prioridade</label>
+                                            <select class="form-control" id="modal_prioridade" name="prioridade">
+                                                <option value="0">Selecione</option>
+                                                <option value="1">Baixa</option>
+                                                <option value="2">Média</option>
+                                                <option value="3">Alta</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label for="modal_sla" class="form-label">SLA</label>
+                                            <select class="form-control" id="modal_sla" name="sla">
+                                                <option value="0">D+0</option>
+                                                <option value="1">D+1</option>
+                                                <option value="2">D+2</option>
+                                                <option value="3">D+3</option>
+                                                <option value="4">D+4</option>
+                                                <option value="5">D+5</option>
+                                                <option value="6">D+6</option>
+                                                <option value="7">D+7</option>
+                                                <option value="8">D+8</option>
+                                                <option value="9">D+9</option>
+                                                <option value="10">D+10</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {{-- //valor --}}
+                                    <div class="row mt-2">
+                                        <div class="col-md-2">
+                                            <label for="modal_valor" class="form-label">Valor</label>
+                                            <input type="text" class="form-control mask_valor" id="modal_valor" name="valor" maxlength="15" value="">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
                                         <div class="form-check form-switch">
                                             <input class="form-check-input" type="checkbox" id="modal_status"
                                                 name="status" checked>
@@ -163,7 +230,7 @@
                         <button type="button" class="btn btn-secondary" id="fechar_modal_alteracao"
                         data-dismiss="modal">Fechar</button>
                         <button type="button" id="salvar_servicos_alterar"
-                        class="btn btn-primary">Confirmar</button>
+                        class="btn btn-primary habilita_editar">Confirmar</button>
                     </div>
                 </div>
             </form>
