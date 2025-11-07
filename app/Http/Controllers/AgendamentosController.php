@@ -9,7 +9,10 @@ use App\Models\Clientes;
 use App\Models\Imoveis;
 use App\Models\Prestadores;
 use App\Models\Motivos;
+use App\Models\Servicos;
+use App\Models\AgendamentoAuditoria;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class AgendamentosController extends Controller
 {
@@ -62,7 +65,7 @@ class AgendamentosController extends Controller
             'rotaAlterar' => 'alterar-agendamentos'
         );
 
-        return view('agendamentos', $data);
+        return view('agendamentos_novo', $data);
     }
 
     public function incluir(Request $request)
@@ -188,17 +191,27 @@ class AgendamentosController extends Controller
                 $agendamentos->numero_sequencial = 'OS-' . str_pad($numero, 4, '0', STR_PAD_LEFT);
             }
 
+            Log::info('DEBUG: Recebendo dados do frontend', [
+                'cliente_id' => $request->input('cliente_id'),
+                'imovel_id' => $request->input('imovel_id'),
+                'prestador_id' => $request->input('prestador_id'),
+                'todos_inputs' => $request->all()
+            ]);
+
             $agendamentos->cliente_id = $request->input('cliente_id');
             $agendamentos->imovel_id = $imovel_id ?? $request->input('imovel_id') ?? null;
             $agendamentos->data = $request->input('data');
             $agendamentos->hora_inicio = $request->input('hora_inicio');
             $agendamentos->hora_fim = $request->input('hora_fim') ?? null;
             $agendamentos->prestador_id = $request->input('prestador_id') ?? null;
-            $agendamentos->tipo_demanda = $request->input('tipo_demanda') ?? null;
-            $agendamentos->numero_proposta = $request->input('numero_proposta') ?? null;
-            $agendamentos->numero_contato = $request->input('numero_contato') ?? null;
-            $agendamentos->observacoes = $request->input('observacoes') ?? null;
+            $agendamentos->numero_contato = $request->input('numero_contato_formatted') ?? $request->input('numero_contato') ?? null;
+            $agendamentos->contato_nome = $request->input('contato_nome') ?? null;
+            $agendamentos->observacao_externa = $request->input('observacao_externa') ?? null;
+            $agendamentos->data_criacao_demanda = $request->input('data_criacao_demanda') ?? now();
+            $agendamentos->data_vencimento_sla = $request->input('data_vencimento_sla') ?? null;
+            $agendamentos->os_plataforma = $request->input('os_plataforma') ?? null;
             $agendamentos->ativo = $request->input('ativo') ? true : false;
+            $agendamentos->usuario_criacao_id = auth()->id() ?? 1;
 
             if ($request->hasFile('matricula')) {
                 $file = $request->file('matricula');
@@ -215,6 +228,13 @@ class AgendamentosController extends Controller
             }
 
             $agendamentos->save();
+
+            Log::info('Agendamento salvo com sucesso', [
+                'id' => $agendamentos->id,
+                'cliente_id' => $agendamentos->cliente_id,
+                'prestador_id' => $agendamentos->prestador_id,
+                'imovel_id' => $agendamentos->imovel_id
+            ]);
 
             return $agendamentos->id;
         } catch (\Exception $e) {
@@ -374,19 +394,25 @@ class AgendamentosController extends Controller
     public function ajax()
     {
         $agendamentos = Agendamentos::with(['cliente', 'imovel', 'prestador'])
+            ->orderBy('id', 'desc')
             ->get();
 
         $dados = [];
         foreach($agendamentos as $agendamento) {
+            $cliente = $agendamento->cliente;
+            $cliente_nome = ($cliente ? ($cliente->nome ?? $cliente->nome_empresa ?? '-') : '-');
+            $imovel_endereco = optional($agendamento->imovel)->endereco ?? '-';
+            $prestador_nome = optional($agendamento->prestador)->nome ?? '-';
+            
             $dados[] = [
                 'id' => $agendamento->id,
                 'numero_sequencial' => $agendamento->numero_sequencial,
-                'cliente' => $agendamento->cliente->nome ?? '-',
-                'imovel' => $agendamento->imovel->nome ?? '-',
-                'endereco' => $agendamento->imovel->endereco ?? '-',
-                'data' => \Carbon\Carbon::parse($agendamento->data)->format('d/m/Y'),
-                'hora_inicio' => $agendamento->hora_inicio,
-                'prestador' => $agendamento->prestador->nome ?? '-',
+                'cliente' => $cliente_nome,
+                'imovel' => $imovel_endereco, // Mostrar o endereço do imóvel como identificador
+                'endereco' => $imovel_endereco, // Repetir aqui também para consistência
+                'data' => $agendamento->data ? \Carbon\Carbon::parse($agendamento->data)->format('d/m/Y') : '-',
+                'hora_inicio' => $agendamento->hora_inicio ?? '-',
+                'prestador' => $prestador_nome,
                 'ativo' => $agendamento->ativo ? '<span class="badge badge-success">Ativo</span>' : '<span class="badge badge-danger">Inativo</span>',
                 'acoes' => '<button type="button" class="btn btn-sm btn-primary" data-action="editar" data-type="agendamento" data-id="' . $agendamento->id . '">Editar</button> <button type="button" class="btn btn-sm btn-danger" data-action="deletar" data-type="agendamento" data-id="' . $agendamento->id . '">Deletar</button>'
             ];
@@ -499,5 +525,617 @@ class AgendamentosController extends Controller
                 'message' => 'Erro ao salvar imóvel: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * FASE 1: NOVOS MÉTODOS PARA REDESENHO COMPLETO
+     */
+
+    /**
+     * Consulta ViaCEP e auto-preenche dados do imóvel
+     */
+    public function consultarViaCep(Request $request)
+    {
+        try {
+            $cep = preg_replace('/\D/', '', $request->input('cep'));
+            
+            if (strlen($cep) !== 8) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'CEP inválido'
+                ], 422);
+            }
+
+            $url = "https://viacep.com.br/ws/{$cep}/json/";
+            $response = @file_get_contents($url);
+            
+            if ($response === false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao consultar ViaCEP'
+                ], 500);
+            }
+
+            $dados = json_decode($response, true);
+
+            if (isset($dados['erro'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'CEP não encontrado'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'logradouro' => $dados['logradouro'] ?? '',
+                    'complemento' => $dados['complemento'] ?? '',
+                    'bairro' => $dados['bairro'] ?? '',
+                    'cidade' => $dados['localidade'] ?? '',
+                    'estado' => $dados['uf'] ?? '',
+                    'cep' => $cep
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erro ao consultar ViaCEP', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao consultar ViaCEP: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Salva novo imóvel com dados do ViaCEP e retorna para seleção de prestadores
+     */
+    public function cadastrarImovel(Request $request)
+    {
+        try {
+            Log::info('DEBUG cadastrarImovel: Dados recebidos', $request->all());
+            
+            $validated = $request->validate([
+                'cliente_id' => 'required|exists:clientes,id',
+                'cep' => 'required|string',
+                'numero' => 'required|string|max:20',
+                'endereco' => 'nullable|string|max:255',
+                'complemento' => 'nullable|string|max:200',
+                'bairro' => 'nullable|string|max:100',
+                'cidade' => 'nullable|string|max:100',
+                'estado' => 'nullable|string|max:2',
+                'tipo_enum' => 'required|in:CS,AP,LT,GLP,PD,LJ,SL,OUTROS'
+            ]);
+
+            $imovel = new Imoveis();
+            $imovel->cep = preg_replace('/\D/', '', $validated['cep']);
+            $imovel->numero = $validated['numero'];
+            $imovel->endereco = $validated['endereco'] ?? '';
+            $imovel->complemento = $validated['complemento'] ?? '';
+            $imovel->bairro = $validated['bairro'] ?? '';
+            $imovel->cidade = $validated['cidade'] ?? '';
+            $imovel->estado = $validated['estado'] ?? 'SP';
+            $imovel->tipo = 'outro';
+            $imovel->responsavel = '';
+            $imovel->telefone = '';
+            
+            // Consulta ViaCEP e auto-preenche se não houver dados
+            if (empty($imovel->endereco)) {
+                $cepData = $this->obterDadosViaCep($imovel->cep);
+                if ($cepData) {
+                    $imovel->endereco = $cepData['logradouro'] ?? '';
+                    $imovel->complemento_viacep = $cepData['complemento'] ?? '';
+                    $imovel->bairro = $cepData['bairro'] ?? $imovel->bairro;
+                    $imovel->cidade = $cepData['localidade'] ?? $imovel->cidade;
+                    $imovel->estado = $cepData['uf'] ?? $imovel->estado;
+                }
+            }
+
+            $imovel->tipo_enum = $validated['tipo_enum'];
+            $imovel->usuario_criacao_id = Auth::id();
+            $imovel->data_criacao = now();
+            $imovel->save();
+
+            // Registra auditoria
+            $this->registrarAuditoriaImovel($imovel->id, 'CRIADO');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Imóvel cadastrado com sucesso!',
+                'data' => $imovel
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validação falhou',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Erro ao cadastrar imóvel', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao cadastrar imóvel: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Retorna prestadores recomendados para um imóvel (smart selection)
+     */
+    public function getPrestatoresRecomendados(Request $request)
+    {
+        try {
+            $imovelId = $request->input('imovel_id');
+            $imovel = Imoveis::find($imovelId);
+
+            if (!$imovel) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Imóvel não encontrado'
+                ], 404);
+            }
+
+            // Por enquanto, retorna todos os prestadores ativos (sem filtro de localização)
+            $prestadores = Prestadores::where('ativo', true)
+                ->orderBy('avaliacao', 'desc')
+                ->get()
+                ->map(function ($prestador) {
+                    return [
+                        'id' => $prestador->id,
+                        'nome' => $prestador->nome_completo,
+                        'localizacao' => $prestador->localizacao_atendimento ?? 'Sem informação',
+                        'valor_hora' => $prestador->valor_hora ?? 'N/A',
+                        'avaliacao' => $prestador->avaliacao ?? '0',
+                        'telefone' => $prestador->telefone_comercial ?? $prestador->telefone ?? 'Sem telefone',
+                        'whatsapp' => $prestador->whatsapp ?? null
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $prestadores->values()
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Erro ao buscar prestadores recomendados', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao buscar prestadores: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Atribui agendamento a um prestador e muda status para ATRIBUIDO
+     */
+    public function atribuirAoPrestador(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'agendamento_id' => 'required|exists:agendamentos,id',
+                'prestador_id' => 'required|exists:prestadores,id'
+            ]);
+
+            $agendamento = Agendamentos::find($validated['agendamento_id']);
+            
+            $valorAnterior = [
+                'prestador_id' => $agendamento->prestador_id,
+                'status' => $agendamento->status
+            ];
+
+            $agendamento->prestador_id = $validated['prestador_id'];
+            $agendamento->status = 'ATRIBUIDO';
+            $agendamento->data_atribuicao = now();
+            $agendamento->usuario_atribuicao_id = Auth::id();
+            $agendamento->save();
+
+            // Registra auditoria
+            $agendamento->registrarAuditoria(
+                'ATRIBUIDO',
+                Auth::id(),
+                'prestador_id',
+                $valorAnterior['prestador_id'],
+                $validated['prestador_id']
+            );
+
+            $agendamento->registrarAuditoria(
+                'STATUS_ALTERADO',
+                Auth::id(),
+                'status',
+                'RASCUNHO',
+                'ATRIBUIDO'
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Agendamento atribuído com sucesso!',
+                'data' => $agendamento
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validação falhou',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Erro ao atribuir agendamento', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao atribuir agendamento: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Envia agendamento para PRODUCAO
+     */
+    public function enviarParaProducao(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'agendamento_id' => 'required|exists:agendamentos,id'
+            ]);
+
+            $agendamento = Agendamentos::find($validated['agendamento_id']);
+
+            if ($agendamento->status !== 'ATRIBUIDO') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Apenas agendamentos ATRIBUIDOS podem ser enviados para PRODUCAO'
+                ], 422);
+            }
+
+            $statusAnterior = $agendamento->status;
+            $agendamento->status = 'PRODUCAO';
+            $agendamento->data_producao = now();
+            $agendamento->usuario_producao_id = Auth::id();
+            $agendamento->save();
+
+            // Registra auditoria
+            $agendamento->registrarAuditoria(
+                'ENVIADO_PRODUCAO',
+                Auth::id(),
+                'status',
+                $statusAnterior,
+                'PRODUCAO'
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Agendamento enviado para produção!',
+                'data' => $agendamento
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validação falhou',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Erro ao enviar para produção', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao enviar para produção: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Reagenda um agendamento para nova data/hora
+     */
+    public function reagendar(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'agendamento_id' => 'required|exists:agendamentos,id',
+                'data_agendamento' => 'required|date',
+                'hora_inicio' => 'required|date_format:H:i',
+                'observacao' => 'nullable|string'
+            ]);
+
+            $agendamento = Agendamentos::find($validated['agendamento_id']);
+            
+            $dadosAntigos = [
+                'data' => $agendamento->data,
+                'hora_inicio' => $agendamento->hora_inicio
+            ];
+
+            $agendamento->data = $validated['data_agendamento'];
+            $agendamento->hora_inicio = $validated['hora_inicio'];
+            $agendamento->status = 'REAGENDADO';
+            $agendamento->save();
+
+            // Registra auditoria
+            $agendamento->registrarAuditoria(
+                'REAGENDADO',
+                Auth::id(),
+                'data_hora',
+                $dadosAntigos['data'] . ' ' . $dadosAntigos['hora_inicio'],
+                $validated['data_agendamento'] . ' ' . $validated['hora_inicio']
+            );
+
+            if ($validated['observacao']) {
+                $agendamento->registrarAuditoria(
+                    'OBSERVACAO_ADICIONAL',
+                    Auth::id(),
+                    'observacao',
+                    null,
+                    $validated['observacao']
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Agendamento reagendado com sucesso!',
+                'data' => $agendamento
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validação falhou',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Erro ao reagendar', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao reagendar: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Cria agendamento RETORNO (cópia do original com OS prefixada com R-)
+     */
+    public function retorno(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'agendamento_referencia_id' => 'required|exists:agendamentos,id',
+                'motivo_retorno' => 'required|string|max:500',
+                'data_agendamento' => 'required|date',
+                'hora_inicio' => 'required|date_format:H:i'
+            ]);
+
+            $agendamentoOrigem = Agendamentos::find($validated['agendamento_referencia_id']);
+
+            // Gera nova OS com prefixo R
+            $novaOs = $this->gerarOsRetorno($agendamentoOrigem->os_interna);
+
+            $agendamentoRetorno = new Agendamentos();
+            $agendamentoRetorno->cliente_id = $agendamentoOrigem->cliente_id;
+            $agendamentoRetorno->imovel_id = $agendamentoOrigem->imovel_id;
+            $agendamentoRetorno->os_interna = $novaOs;
+            $agendamentoRetorno->os_plataforma = $agendamentoOrigem->os_plataforma;
+            $agendamentoRetorno->data = $validated['data_agendamento'];
+            $agendamentoRetorno->hora_inicio = $validated['hora_inicio'];
+            $agendamentoRetorno->contato_nome = $agendamentoOrigem->contato_nome;
+            $agendamentoRetorno->numero_contato_formatted = $agendamentoOrigem->numero_contato_formatted;
+            $agendamentoRetorno->observacao_externa = $validated['motivo_retorno'];
+            $agendamentoRetorno->agendamento_referencia_id = $validated['agendamento_referencia_id'];
+            $agendamentoRetorno->tipo_demanda_enum = 'RETORNO';
+            $agendamentoRetorno->status = 'RASCUNHO';
+            $agendamentoRetorno->usuario_criacao_id = Auth::id();
+            $agendamentoRetorno->data_criacao = now();
+            $agendamentoRetorno->save();
+
+            // Registra auditoria
+            $agendamentoRetorno->registrarAuditoria(
+                'CRIADO_RETORNO',
+                Auth::id(),
+                'agendamento_referencia_id',
+                null,
+                $validated['agendamento_referencia_id']
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Retorno criado com sucesso!',
+                'data' => $agendamentoRetorno
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validação falhou',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Erro ao criar retorno', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao criar retorno: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Cria agendamento REAVALIACAO (cópia do original com tipo REAVALIACAO)
+     */
+    public function reavaliacao(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'agendamento_referencia_id' => 'required|exists:agendamentos,id',
+                'motivo_reavaliacao' => 'required|string|max:500',
+                'data_agendamento' => 'required|date',
+                'hora_inicio' => 'required|date_format:H:i'
+            ]);
+
+            $agendamentoOrigem = Agendamentos::find($validated['agendamento_referencia_id']);
+
+            $agendamentoReavaliacao = new Agendamentos();
+            $agendamentoReavaliacao->cliente_id = $agendamentoOrigem->cliente_id;
+            $agendamentoReavaliacao->imovel_id = $agendamentoOrigem->imovel_id;
+            $agendamentoReavaliacao->os_interna = $agendamentoOrigem->os_interna;
+            $agendamentoReavaliacao->os_plataforma = $agendamentoOrigem->os_plataforma;
+            $agendamentoReavaliacao->data = $validated['data_agendamento'];
+            $agendamentoReavaliacao->hora_inicio = $validated['hora_inicio'];
+            $agendamentoReavaliacao->contato_nome = $agendamentoOrigem->contato_nome;
+            $agendamentoReavaliacao->numero_contato_formatted = $agendamentoOrigem->numero_contato_formatted;
+            $agendamentoReavaliacao->observacao_externa = $validated['motivo_reavaliacao'];
+            $agendamentoReavaliacao->agendamento_referencia_id = $validated['agendamento_referencia_id'];
+            $agendamentoReavaliacao->tipo_demanda_enum = 'REAVALIACAO';
+            $agendamentoReavaliacao->status = 'RASCUNHO';
+            $agendamentoReavaliacao->usuario_criacao_id = Auth::id();
+            $agendamentoReavaliacao->data_criacao = now();
+            $agendamentoReavaliacao->save();
+
+            // Registra auditoria
+            $agendamentoReavaliacao->registrarAuditoria(
+                'CRIADO_REAVALIACAO',
+                Auth::id(),
+                'agendamento_referencia_id',
+                null,
+                $validated['agendamento_referencia_id']
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Reavaliação criada com sucesso!',
+                'data' => $agendamentoReavaliacao
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validação falhou',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Erro ao criar reavaliação', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao criar reavaliação: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Obtém histórico de auditoria (rastreamento) de um agendamento
+     */
+    public function getAuditoriaAgendamento(Request $request)
+    {
+        try {
+            $agendamentoId = $request->input('agendamento_id');
+            
+            $auditoria = AgendamentoAuditoria::byAgendamento($agendamentoId)
+                ->with('usuario')
+                ->get()
+                ->map(function ($registro) {
+                    return [
+                        'id' => $registro->id,
+                        'acao' => $registro->acao,
+                        'campo_alterado' => $registro->campo_alterado,
+                        'valor_anterior' => $registro->valor_anterior,
+                        'valor_novo' => $registro->valor_novo,
+                        'usuario' => $registro->usuario->name ?? 'Sistema',
+                        'data_acao' => $registro->data_acao->format('d/m/Y H:i:s')
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $auditoria
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erro ao buscar auditoria', [
+                'message' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao buscar auditoria'
+            ], 500);
+        }
+    }
+
+    /**
+     * MÉTODOS AUXILIARES PRIVADOS
+     */
+
+    /**
+     * Consulta ViaCEP e retorna dados
+     */
+    private function obterDadosViaCep($cep)
+    {
+        try {
+            $cep = preg_replace('/\D/', '', $cep);
+            if (strlen($cep) !== 8) {
+                return null;
+            }
+
+            $url = "https://viacep.com.br/ws/{$cep}/json/";
+            $response = @file_get_contents($url);
+            
+            if ($response === false) {
+                return null;
+            }
+
+            $dados = json_decode($response, true);
+            
+            if (isset($dados['erro'])) {
+                return null;
+            }
+
+            return $dados;
+        } catch (\Exception $e) {
+            Log::error('Erro ao consultar ViaCEP', [
+                'message' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Gera OS com prefixo R para retornos
+     */
+    private function gerarOsRetorno($osOrigem)
+    {
+        // Se a OS original é OS-00001, gera R-OS-00001
+        // Se já é um retorno R-OS-00001, gera R2-OS-00001
+        
+        if (strpos($osOrigem, 'R') === 0) {
+            // Já é um retorno, incrementa o contador
+            preg_match('/^R(\d*)-/', $osOrigem, $matches);
+            $contador = isset($matches[1]) && $matches[1] ? (int)$matches[1] + 1 : 2;
+            return 'R' . $contador . '-' . substr($osOrigem, strlen('R') + 1);
+        }
+        
+        return 'R-' . $osOrigem;
+    }
+
+    /**
+     * Registra auditoria de imóvel
+     */
+    private function registrarAuditoriaImovel($imovelId, $acao)
+    {
+        // Pode ser expandido para logs mais detalhados conforme necessário
+        Log::info("Auditoria Imóvel", [
+            'imovel_id' => $imovelId,
+            'acao' => $acao,
+            'usuario_id' => Auth::id(),
+            'timestamp' => now()
+        ]);
     }
 }
