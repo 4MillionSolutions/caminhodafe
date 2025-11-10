@@ -59,6 +59,17 @@ class DateHelpers
     public static function formatDate_dmYHis($value) {
         return Carbon::parse(str_replace('/', '-', $value))->format('Y-m-d HH:mm:ss');
     }
+
+
+    /**
+     * CONVERTE DATAHORA PARA O FORMATO 10/10/2024 10:10:00
+     * @param mixed $value
+     * @return string
+     */
+    public static function formatDate_datahoraminutosegundo($value) {
+	    return Carbon::parse(str_replace('-', '/', $value))->format('d/m/Y H:i:s');
+    }
+
     /**
      * CONVERTE DATAHORA PARA O FORMATO 10/10/2024 10:10:00
      * @param mixed $value
@@ -192,5 +203,19 @@ class DateHelpers
     public static function somenteNumeros($telefone)
     {
         return preg_replace('/\D+/', '', $telefone);
+    }
+
+
+    public static function formatBytes($bytes, $precision = 2) {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+
+        // Calcula o valor formatado
+        $bytes /= (1 << (10 * $pow));
+
+        return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }

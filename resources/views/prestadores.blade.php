@@ -9,7 +9,7 @@
                         <form id="filtro" action="prestadores" method="get" data-parsley-validate=""
                             class="form-horizontal form-label-left" novalidate="">
                             <div class="container">
-                                @csrf
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                 <div class="row">
                                     <div class="col-md-4">
                                         <label for="nome" class="col-sm-1 col-form-label">Nome</label>
@@ -66,8 +66,8 @@
     {{-- MODAL INCLUIR --}}
     <div class="modal fade" id="modal_incluir"  data-acao="incluir"  tabindex="-1" role="dialog" aria-labelledby="modal_incluir"   aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-xl" role="document">
-            <form method="POST" action="prestadores/incluir">
-                @csrf
+            <form method="POST" action="prestadores/incluir" enctype="multipart/form-data">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Incluir de prestador</h5>
@@ -75,7 +75,6 @@
                     <div class="modal-body">
                         <div class="form-group row">
                             <div class="container">
-                                @csrf
                                 <div class="col-md-12">
                                     <ul class="nav nav-tabs">
                                         <li class="nav-item">
@@ -86,6 +85,9 @@
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link modal_nave" href="#dados_bancarios_incluir">Dados bancários</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link modal_nave" href="#arquivos_incluir">Arquivos</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -104,7 +106,7 @@
                                         </div>
                                         <div class="col-md-2">
                                             <label for="modal_telefone" class="form-label">Contato</label>
-                                            <input type="text" class="form-control mask_phone" id="modal_telefone" name="modal_telefone"
+                                            <input type="text" class="form-control mask_phone" id="modal_telefone" name="telefone"
                                                 value="">
                                         </div>
                                         <div class="col-md-3">
@@ -176,8 +178,14 @@
                                         </div>
                                     </div>
                                     <div class="row mt-2">
-                                        <label for="observacao" class="form-label">Observação</label>
-                                        <textarea class="form-control" id="modal_observacoes" name="observacao" rows="2"></textarea>
+                                        <div class="col-md-8">
+                                            <label for="observacao" class="form-label">Observação</label>
+                                            <textarea class="form-control" id="modal_observacoes" name="observacao" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="created_at" class="form-label">Criado em</label>
+                                            <input class="form-control mask_date" type="text" disabled id="modal_created_at" name="created_at" value="">
+                                        </div>
                                     </div>
                                     <div class="row mt-2">
 
@@ -291,6 +299,12 @@
                                     </div>
 
                                 </div>
+
+                                <div id="arquivos_incluir" class="row col-md-12 dados" style="display:none;">
+
+                                    @include('formularios.formularioArquivos')
+
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -311,8 +325,8 @@
     {{-- MODAL ALTERAÇÃO --}}
     <div class="modal fade" id="modal_alteracao" data-acao="alterar" tabindex="-1" role="dialog" aria-labelledby="modal_alteracao" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-xl" role="document">
-            <form method="POST" action="prestadores/alterar">
-                @csrf
+            <form method="POST" action="prestadores/alterar" enctype="multipart/form-data">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Alteração de prestador</h5>
@@ -320,8 +334,7 @@
                     <div class="modal-body">
                         <div class="form-group row">
                             <div class="container">
-                                <input type="hidden" id="modal_id" name="modal_id" value="">
-                                @csrf
+                                <input type="hidden" id="modal_id" name="id" value="">
                                 <div class="col-md-12">
                                     <ul class="nav nav-tabs">
                                         <li class="nav-item">
@@ -332,6 +345,9 @@
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link modal_nave" href="#dados_bancarios">Dados bancários</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link modal_nave" href="#arquivos">Arquivos</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -350,7 +366,7 @@
                                         </div>
                                         <div class="col-md-2">
                                             <label for="modal_telefone" class="form-label">Contato</label>
-                                            <input type="text" class="form-control mask_phone" id="modal_telefone" name="modal_telefone"
+                                            <input type="text" class="form-control mask_phone" id="modal_telefone" name="telefone"
                                                 value="">
                                         </div>
                                         <div class="col-md-3">
@@ -422,8 +438,14 @@
                                         </div>
                                     </div>
                                     <div class="row mt-2">
-                                        <label for="observacao" class="form-label">Observação</label>
-                                        <textarea class="form-control" id="modal_observacoes" name="observacao" rows="2"></textarea>
+                                        <div class="col-md-8">
+                                            <label for="observacao" class="form-label">Observação</label>
+                                            <textarea class="form-control" id="modal_observacoes" name="observacao" rows="2"></textarea>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="created_at" class="form-label">Criado em</label>
+                                            <input class="form-control mask_date" type="text" disabled id="modal_created_at" name="created_at" value="">
+                                        </div>
                                     </div>
                                     <div class="row mt-2">
                                         <div class="form-check form-switch">
@@ -534,6 +556,13 @@
                                         <input type="text" class="form-control" id="modal_chave_pix" name="chave_pix" value="">
                                     </div>
                                 </div>
+
+
+                                <div id="arquivos" class="row col-md-12 dados" style="display:none;">
+
+                                    @include('formularios.formularioArquivos')
+
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -541,7 +570,7 @@
                         <button type="button" class="btn btn-secondary" id="fechar_modal_alteracao"
                             data-dismiss="modal">Fechar</button>
                         <button type="submit" id="salvar_prestadores_alterar"
-                            class="btn btn-primary habilita_editar">Confirmar</button>
+                            class="btn btn-primary btn_desabilita_editar">Confirmar</button>
                     </div>
                 </div>
             </form>

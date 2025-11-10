@@ -11,6 +11,8 @@ class Prestadores extends Model
 
     protected $table = 'prestadores';
 
+    protected $dates = []; // desativa o cast automático
+
     protected $fillable = [
         'nome',
         'empresa',
@@ -39,6 +41,11 @@ class Prestadores extends Model
         'data_criacao' => 'datetime',
         'data_atualizacao' => 'datetime'
     ];
+
+    public function getCreatedAtAttribute($value)
+    {
+        return $value ? \Carbon\Carbon::parse($value)->format('d/m/Y H:i:s') : null;
+    }
 
     // Relacionamentos
     public function agendamentos()

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\DateHelpers;
+use App\Models\Arquivos;
 use App\Models\Bancos;
 use App\Models\Clientes;
 use App\Models\Prestadores;
@@ -12,6 +13,7 @@ use App\Models\PrestadoresRegioesServicos;
 use App\Models\Servicos;
 use Google\Service\AdExchangeBuyerII\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Mime\Header\DateHeader;
 use Yajra\DataTables\Facades\DataTables; // se usar o pacote yajra/laravel-datatables
 
@@ -49,9 +51,11 @@ class PrestadoresController extends Controller
 
 
         $prestadores = $prestadores->get();
-
+        $array_latitude_longitude   = [];
 
         foreach ($prestadores as &$prestador) {
+
+            $prestador->created_at = DateHelpers::formatDate_datahoraminutosegundo($prestador->created_at);
 
             $PrestadoresRegioes = new PrestadoresRegioes();
             $PrestadoresRegioes = $PrestadoresRegioes->where('prestadores_id', '=', $prestador->id)->where('ativo', '=', '1')->get();
@@ -80,10 +84,12 @@ class PrestadoresController extends Controller
 
                 $regioes->valor = number_format($regioes->valor, 2, ',', '.');
 
+                $nome_estado = $estados[$regioes->uf-1]['estado'];
 
-                $id_estado = array_search($regioes->uf, array_column($estados, 'estado'));
-
-                $nome_estado = $estados[$id_estado]['estado'];
+                $array_latitude_longitude[] =[
+                    'latitude' => $regioes->latitude,
+                    'longitude' => $regioes->longitude
+                ];
 
                 $tabela_regioes[] = "
                     <tr>
@@ -118,6 +124,36 @@ class PrestadoresController extends Controller
             };
 
             $prestador->tabela_regioes = $tabela_regioes;
+            $prestador->array_latitude_longitude = $array_latitude_longitude;
+
+
+            $arquivos = new Arquivos();
+            $arquivos = $arquivos->where('tipo_relacionamento_id', '=', 2) // 2 para Prestador
+                                 ->where('relacionamento_id', '=', $prestador->id)
+                                 ->get();
+
+            $html_arquivos = '';
+            foreach($arquivos as $arquivo){
+
+                $url_download = route('arquivos.download', $arquivo->id);
+
+                $tamanho_em_mb = DateHelpers::formatBytes($arquivo->tamanho);
+                $data_hora = date('d/m/Y H:i:s', strtotime($arquivo->created_at));
+                $html_arquivos .= "
+                    <tr>
+                        <td>{$arquivo->nome_original}</td>
+                        <td>$tamanho_em_mb</td>
+                        <td>$data_hora</td>
+                        <td><a href='{$url_download}'><i id='download' class='fa fa-download'></i></a></td>
+                    </tr>
+                ";
+            }
+
+
+            $prestador->arquivos_html = $html_arquivos;
+
+
+
         }
 
 
@@ -266,15 +302,15 @@ class PrestadoresController extends Controller
 
             $PrestadoresRegioes = new PrestadoresRegioes();
 
-            $stados = $request->input('stados');
+            $stados = $request->input('modal_tabela_stados');
 
-            $raio = $request->input('raios');
-            $cidades = $request->input('cidades');
-            $valores = $request->input('valores');
-            $longitudes = $request->input('longitude');
-            $latitudes = $request->input('latitude');
+            $raio = $request->input('modal_tabela_raios');
+            $cidades = $request->input('modal_tabela_cidades');
+            $valores = $request->input('modal_tabela_valores');
+            $longitudes = $request->input('modal_tabela_latitude');
+            $latitudes = $request->input('modal_tabela_longitude');
 
-            $servicos = $request->input('servicos');
+            $servicos = $request->input('modal_tabela_servicos');
 
             $PrestadoresRegioes::where('prestadores_id', $prestadores->id)->delete();
 
@@ -309,6 +345,29 @@ class PrestadoresController extends Controller
                     }
                 }
             }
+
+            if ($request->hasFile('modal_arquivos')) {
+                $arquivos = $request->file('modal_arquivos');
+                $diretorio = 'prestadores/' . $prestadores->id . '/';
+                foreach ($arquivos as $arquivo) {
+                    $nome_arquivo = $arquivo->getClientOriginalName();
+                    $caminho_arquivo = $arquivo->storeAs($diretorio, $nome_arquivo);
+
+                    // Aqui você pode salvar o caminho do arquivo no banco de dados
+                    $arquivoModel = new Arquivos();
+                    $arquivoModel->tipo_relacionamento_id = 2; // 2 para Prestador
+                    $arquivoModel->relacionamento_id = $prestadores->id;
+                    $arquivoModel->nome_original = $nome_arquivo;
+                    $arquivoModel->caminho = $caminho_arquivo;
+                    $arquivoModel->tipo_mime = $arquivo->getClientMimeType();
+                    $arquivoModel->tamanho = $arquivo->getSize();
+                    $arquivoModel->extensao = $arquivo->getClientOriginalExtension();
+                    $arquivoModel->save();
+
+                }
+            }
+
+
 
             return $prestadores;
         });

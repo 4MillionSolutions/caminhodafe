@@ -71,13 +71,13 @@ $(function ($) {
             $('#modal_alteracao #modal_documento').removeClass('cnpj').addClass('cpf');
             $('#modal_alteracao #modal_documento').unmask();
             $('#modal_alteracao #modal_documento').mask('000.000.000-00');
-            $('#id_dados_comerciais_incluir').hide();
+            $('.tab_dados_comerciais').hide();
 
             $('#modal_incluir #modal_documento').removeClass('cnpj').addClass('cpf');
             $('#modal_incluir #modal_documento').unmask();
             $('#modal_incluir #modal_documento').mask('000.000.000-00');
         } else {
-            $('#id_dados_comerciais_incluir').show();
+            $('.tab_dados_comerciais').show();
             $('.label_documento').text('CNPJ');
             $('.label_nome_empresa').text('Razão Social');
             $('#modal_alteracao #modal_documento').removeClass('cpf').addClass('cnpj');

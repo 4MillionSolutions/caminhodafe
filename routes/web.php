@@ -127,3 +127,6 @@ Route::get('/controle-laudos/exportar', [App\Http\Controllers\ControleLaudosCont
 Route::get('/producao', [App\Http\Controllers\ProducaoController::class, 'index'])->name('producao')->middleware('afterAuth:producao');
 Route::match(['get', 'post'],'/alterar-producao', [App\Http\Controllers\ProducaoController::class, 'alterar'])->name('alterar-producao')->middleware('afterAuth:producao');
 Route::match(['get', 'post'],'/incluir-producao', [App\Http\Controllers\ProducaoController::class, 'incluir'])->name('incluir-producao')->middleware('afterAuth:producao');
+
+
+Route::get('/download/{id}', [App\Http\Controllers\ArquivosController::class, 'download'])->name('arquivos.download');

@@ -16,64 +16,58 @@ class GoogleDriveService
 
     protected $folderId = '1oEnFTfnE2_VlYkilI4ULLzny8rX9Y3sh'; // ID da pasta no Google Drive
 
+    // public function __construct()
+    // {
+    //     $this->client = new Client();
+    //     $this->client->setAuthConfig(config('filesystems.disks.google.credentials_file', storage_path('app/google/credentials.json')));
+    //     $this->client->addScope(Drive::DRIVE);
+    //     $this->client->setAccessType('offline');
+
+    //     $this->service = new Drive($this->client);
+    //     $this->folderId = env('GOOGLE_DRIVE_FOLDER_ID');
+    // }
 
     public function __construct()
     {
-        $client = new \Google\Client();
+        $client = new GoogleClientLib();
         $client->setClientId(config('services.google.client_id'));
         $client->setClientSecret(config('services.google.client_secret'));
-        // opcional, mas recomendado para consistência
-        $client->setRedirectUri(route('google.callback'));
         $client->setAccessType('offline');
 
-        // caminho do token (storage/app/google_tokens.json)
-        $tokenPath = 'google_tokens.json';
-
-        if (!Storage::exists($tokenPath)) {
-            throw new \Exception('Arquivo google_tokens.json não encontrado em storage/app. Faça a autenticação inicial.');
+        // Pega token salvo
+        if (!Storage::exists('google_tokens.json')) {
+            throw new \Exception('Arquivo google_tokens.json não encontrado.');
         }
 
-        $token = json_decode(Storage::get($tokenPath), true);
-
-        if (empty($token) || !is_array($token)) {
-            throw new \Exception('Conteúdo inválido no google_tokens.json.');
-        }
-
-        // define o token atual no client
+        $token = json_decode(Storage::get('google_tokens.json'), true);
         $client->setAccessToken($token);
 
-        // se expirado, tenta renovar com refresh_token
+        // Se expirou, renova
         if ($client->isAccessTokenExpired()) {
-            $refreshToken = $token['refresh_token'] ?? $client->getRefreshToken() ?? null;
+            $refreshToken = $token['refresh_token'] ?? null;
 
-            if (empty($refreshToken)) {
-                throw new \Exception('Refresh token ausente no arquivo google_tokens.json. É necessário autorizar novamente.');
+            if ($refreshToken) {
+                // Usa o refresh token para obter um novo access token
+                $client->fetchAccessTokenWithRefreshToken($refreshToken);
+
+                // Recupera o novo token atualizado
+                $newToken = $client->getAccessToken();
+
+                // Garante que o refresh_token não se perca
+                $newToken['refresh_token'] = $refreshToken;
+
+                // Salva o token atualizado
+                Storage::put('google_tokens.json', json_encode($newToken));
+            } else {
+                throw new \Exception('Refresh token ausente no arquivo google_tokens.json.');
             }
-
-            // Tenta renovar e captura resposta
-            $newToken = $client->fetchAccessTokenWithRefreshToken($refreshToken);
-
-            if (isset($newToken['error'])) {
-                // loga pra debug e lança exceção
-                info('Erro ao renovar token Google', ['error' => $newToken]);
-                throw new \Exception('Falha ao renovar token: ' . ($newToken['error_description'] ?? $newToken['error']));
-            }
-
-            // merge para garantir que o refresh_token não se perca
-            $merged = array_merge($token, $newToken);
-            if (!isset($merged['refresh_token'])) {
-                $merged['refresh_token'] = $refreshToken;
-            }
-
-            // salva o token atualizado
-            Storage::put($tokenPath, json_encode($merged));
-
-            // aplica o token atualizado ao client (muito importante)
-            $client->setAccessToken($merged);
         }
 
-        // Se quiser usar o client fora do construtor, salve em propriedade
-        $this->client = $client;
+        // Define o escopo de acesso ao Google Drive
+        $client->addScope(GoogleDrive::DRIVE);
+
+        // Inicializa o serviço do Google Drive
+        $this->service = new GoogleDrive($client);
     }
 
 

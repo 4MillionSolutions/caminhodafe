@@ -70,7 +70,7 @@
     </div>
     <div class="col-md-2">
         <label for="created_at" class="form-label">Criado em</label>
-        <input class="form-control mask_date" type="text" disabled id="modal_created_at" name="modal_created_at" value="">
+        <input class="form-control mask_date" type="text" disabled id="modal_created_at" name="created_at" value="">
     </div>
 </div>
 <div class="row mt-2">

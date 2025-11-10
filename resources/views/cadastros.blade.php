@@ -66,5 +66,7 @@
     <script async
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxrTRxwlRJODloZQ47_FOXBKnByI9s5p4&callback=initMap">
     </script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
 @endsection

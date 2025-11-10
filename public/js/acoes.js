@@ -15,15 +15,14 @@ $(function ($) {
 
     $(document).on('click', '.desabilita_editar', function (e) {
 
-        $('#modal_alteracao .desabilita_editar').hide();
-
+        $('#modal_alteracao .btn_desabilita_editar').hide();
         // desabilita todos os imputs do modal
         $('#modal_alteracao input, #modal_alteracao select, #modal_alteracao textarea').attr('disabled', true);
 
     });
     $(document).on('click', '.habilita_editar', function (e) {
 
-        $('#modal_alteracao .desabilita_editar').show();
+        $('#modal_alteracao .btn_desabilita_editar').show();
 
         $('#modal_alteracao input, #modal_alteracao select, #modal_alteracao textarea').attr('disabled', false);
 
@@ -60,41 +59,13 @@ $(function ($) {
     }
 
     function collectModalData(modalSelector) {
+        const self = this;
+        const formEl = $('#modal_alteracao form')[0];
+        // console.log(formEl);
 
-        let modalSelectorAtivo = $(".modal.show"); // modal visível
-
-        let payload = {};
-
-        // ✅ Campos do modal (ids)
-        modalSelectorAtivo.find('[id^="modal_"]').each(function () {
-            let id = $(this).attr('id');
-            let key = id.replace(/^modal_/, '');
-
-            //se tipo for um radio ou checkbox, pega o value do input checked
-            if ($(this).attr('type') === 'radio' || $(this).attr('type') === 'checkbox') {
-                if ($(this).is(':checked')) {
-                    payload[key] = $(this).val();
-                }
-            } else {
-                payload[key] = $(this).val();
-            }
-
-
-
-        });
-
-        // ✅ Campos da tabela dentro do modal (names)
-        modalSelectorAtivo.find('[name^="modal_tabela_"]').each(function () {
-            let name = $(this).attr('name'); // ex: modal_tabela_cidades[]
-            let key = name.replace(/^modal_tabela_/, '').replace(/\[\]$/, '');
-
-            if (!payload[key]) payload[key] = [];
-            payload[key].push($(this).val());
-        });
-
-
-        payload._token = getCsrf();
-        return payload;
+        const formData = new FormData(formEl);
+        formData.set('_token', $('meta[name="csrf-token"]').attr('content'));
+        return formData;
     }
 
     function submitResource(resource, action, payload, idForUrl, done, fail) {
@@ -103,6 +74,8 @@ $(function ($) {
             type: "POST",
             url: url,
             data: payload,
+            processData: false,
+            contentType: false,
             success: function (data) {
                 if (typeof done === 'function') done(data);
             },
@@ -157,9 +130,21 @@ $(function ($) {
             }, 500);
 
             $('#modal_alteracao #table_regioes tbody').empty();
+
+            var array_latitude_longitude = obj.array_latitude_longitude || [];
+
+            array_latitude_longitude.forEach(function(latlng) {
+
+                marcarMapa(mapAlterar, latlng.longitude, latlng.latitude, 'alterar');
+
+            });
+
             $('#modal_alteracao #table_regioes tbody').append(obj.tabela_regioes);
 
             $('.dados_alterar').trigger('click');
+
+
+            $('#modal_alteracao #arquivos_salvos').html(obj.arquivos_html);
 
             setTimeout(function() {
 
@@ -203,7 +188,12 @@ $(function ($) {
                     $('#modal_incluir #modal_documento').mask('00.000.000/0000-00');
                 }
 
-
+                //se tipo_pessoa for 'F' esconder a aba Dados comerciais
+                if(stipo_pessoa === 'F') {
+                    $('.tab_dados_comerciais').hide();
+                }         else {
+                    $('.tab_dados_comerciais').show();
+                }
 
                 var behavior = function (val) {
                     return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
@@ -215,10 +205,42 @@ $(function ($) {
                     }
                 };
                 $('#modal_alteracao  .mask_phone').mask(behavior, options);
-            }, 1000);
+                $('#modal_alteracao  #modal_created_at').attr('disabled', true);
+
+            }, 500);
 
 
         });
+    });
+
+    $(document).on('click', '.adicionar_arquivo', function (e) {
+        e.preventDefault();
+
+        $modal_visivel = $(".modal.show"); // modal visível
+
+        var $divArquivos = $modal_visivel.find('.div_arquivos').last();
+
+        var $newdivArquivos = $divArquivos.clone();
+        $newdivArquivos.find('input[type="file"]').val('');
+
+        $divArquivos.after($newdivArquivos);
+        if ($newdivArquivos.find('.remover_arquivo').length === 0) {
+            $newdivArquivos.append(
+            '<button type="button" class="btn btn-secondary btn-sm remover_arquivo ms-2"><i class="fa fa-trash"></i></button>'
+            );
+        }
+
+        $divArquivos.after($newdivArquivos);
+
+
+
+
+    });
+
+    $(document).on('click', '.remover_arquivo', function () {
+
+
+        $(this).closest('.div_arquivos').remove();
     });
 
     // generic salvar handler for ids like salvar_tecnicos_alterar or salvar_clientes_incluir
@@ -298,8 +320,8 @@ $(function ($) {
         let acao = $(".modal.show").data("acao");
         let estado = $('#' + modalId + ' #modal_estado_regiao_' + acao).find(':selected').text();
         let estado_codigo = $('#' + modalId + ' #modal_estado_regiao_' + acao).find(':selected').val();
-        let longitude = $('#' + modalId + ' #modal_tabela_longitude').val();
-        let latitude = $('#' + modalId + ' #modal_tabela_latitude').val();
+        let longitude = $('#modal_tabela_longitude').val();
+        let latitude = $('#modal_tabela_latitude').val();
         let cidade = $('#' + modalId + ' #cidade_regiao_' + acao).val();
 
         let raio = $('#' + modalId + ' #raio_' + acao).val();

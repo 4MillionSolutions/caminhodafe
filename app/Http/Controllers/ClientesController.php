@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\DateHelpers;
+use App\Models\Arquivos;
 use App\Models\Clientes;
 use App\Models\Tecnicos;
 use Google\Service\AdExchangeBuyerII\Date;
@@ -63,7 +64,35 @@ class ClientesController extends Controller
 
 
         $clientes = $clientes->get();
-        info($clientes);
+
+        if (request()->ajax()) {
+            foreach($clientes as &$cliente){
+                $arquivos = new Arquivos();
+                    $arquivos = $arquivos->where('tipo_relacionamento_id', '=', 1) // 1 para Cliente
+                                        ->where('relacionamento_id', '=', $cliente->id)
+                                        ->get();
+
+                    $html_arquivos = '';
+                    foreach($arquivos as $arquivo){
+
+                        $url_download = route('arquivos.download', $arquivo->id);
+
+                        $tamanho_em_mb = DateHelpers::formatBytes($arquivo->tamanho);
+                        $data_hora = date('d/m/Y H:i:s', strtotime($arquivo->created_at));
+                        $html_arquivos .= "
+                            <tr>
+                                <td>{$arquivo->nome_original}</td>
+                                <td>$tamanho_em_mb</td>
+                                <td>$data_hora</td>
+                                <td><a href='{$url_download}'><i id='download' class='fa fa-download'></i></a></td>
+                            </tr>
+                        ";
+                    }
+
+                    $cliente->arquivos_html = $html_arquivos;
+            }
+        }
+
         $tela = 'pesquisa';
         $data = array(
             'tela' => $tela,
@@ -195,6 +224,27 @@ class ClientesController extends Controller
 
         $clientes->ativo = $ativo;
         $clientes->save();
+
+        if ($request->hasFile('modal_arquivos')) {
+            $arquivos = $request->file('modal_arquivos');
+            $diretorio = 'clientes/' . $clientes->id . '/';
+            foreach ($arquivos as $arquivo) {
+                $nome_arquivo = $arquivo->getClientOriginalName();
+                $caminho_arquivo = $arquivo->storeAs($diretorio, $nome_arquivo);
+
+                // Aqui você pode salvar o caminho do arquivo no banco de dados
+                $arquivoModel = new Arquivos();
+                $arquivoModel->tipo_relacionamento_id = 1; // 1 para Cliente
+                $arquivoModel->relacionamento_id = $clientes->id;
+                $arquivoModel->nome_original = $nome_arquivo;
+                $arquivoModel->caminho = $caminho_arquivo;
+                $arquivoModel->tipo_mime = $arquivo->getClientMimeType();
+                $arquivoModel->tamanho = $arquivo->getSize();
+                $arquivoModel->extensao = $arquivo->getClientOriginalExtension();
+                $arquivoModel->save();
+
+            }
+        }
 
         return $clientes;
     }

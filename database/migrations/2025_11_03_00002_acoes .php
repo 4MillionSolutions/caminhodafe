@@ -20,6 +20,7 @@ return new class extends Migration
             ['nome' => 'Incluir'],
             ['nome' => 'Alterar'],
             ['nome' => 'Excluir'],
+            ['nome' => 'Duplicar'],
         ]);
     }
 

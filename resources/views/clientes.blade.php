@@ -7,9 +7,9 @@
                     <div class="form-group row">
                         <h6> Pesquisa</h6>
                         <form id="filtro" action="clientes" method="get" data-parsley-validate=""
-                            class="form-horizontal form-label-left" novalidate="">
+                            class="form-horizontal form-label-left" novalidate="" enctype="multipart/form-data">
                             <div class="container">
-                                @csrf
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                 <div class="row">
                                     <div class="col-md-4">
                                         <label for="nome" class="col-sm-1 col-form-label">Nome</label>
@@ -68,8 +68,8 @@
     <div class="modal fade" id="modal_incluir" tabindex="-1" role="dialog" aria-labelledby="modal_incluir"
         aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-xl" role="document">
-            <form method="POST" action="clientes/incluir">
-                @csrf
+            <form method="POST" action="clientes/incluir" enctype="multipart/form-data">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Inclusão de Cliente</h5>
@@ -77,7 +77,6 @@
                     <div class="modal-body">
                         <div class="form-group row">
                             <div class="container">
-                                @csrf
                                 <div class="col-md-12">
                                     <ul class="nav nav-tabs">
                                         <li class="nav-item">
@@ -85,7 +84,10 @@
                                                 cliente</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link modal_nave" id="id_dados_comerciais_incluir" href="#dados_comerciais_incluir">Dados comerciais</a>
+                                            <a class="nav-link modal_nave tab_dados_comerciais" id="id_dados_comerciais_incluir" href="#dados_comerciais_incluir">Dados comerciais</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link modal_nave" href="#arquivos_incluir">Arquivos</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -97,6 +99,11 @@
                                 <div id="dados_comerciais_incluir" class="row col-md-12 dados" style="display:none;">
 
                                     @include('formularios.clientesFormularioComerciais')
+
+                                </div>
+                                <div id="arquivos_incluir" class="row col-md-12 dados" style="display:none;">
+
+                                    @include('formularios.formularioArquivos')
 
                                 </div>
                             </div>
@@ -118,7 +125,7 @@
         aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-xl" role="document">
             <form method="POST" action="clientes/alterar">
-                @csrf
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Alteração de Cliente</h5>
@@ -126,17 +133,17 @@
                     <div class="modal-body">
                         <div class="form-group row">
                             <div class="container">
-                                <input type="hidden" id="modal_id" name="modal_id" value="">
-                                @csrf
+                                <input type="hidden" id="modal_id" name="id" value="">
                                 <div class="col-md-12">
                                     <ul class="nav nav-tabs">
                                         <li class="nav-item">
-                                            <a class="nav-link active modal_nave dados_alterar" href="#dados_clientes">Dados do
-                                                cliente</a>
+                                            <a class="nav-link active modal_nave dados_alterar" href="#dados_clientes">Dados do cliente</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link modal_nave" href="#dados_comerciais">Dados
-                                                comerciais</a>
+                                            <a class="nav-link modal_nave tab_dados_comerciais" id="id_dados_comerciais_alterar" href="#dados_comerciais">Dados comerciais</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link modal_nave" href="#arquivos">Arquivos</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -150,6 +157,12 @@
                                     @include('formularios.clientesFormularioComerciais')
 
                                 </div>
+
+                                <div id="arquivos" class="row col-md-12 dados" style="display:none;">
+
+                                    @include('formularios.formularioArquivos')
+
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -157,7 +170,7 @@
                         <button type="button" class="btn btn-secondary" id="fechar_modal_alteracao"
                         data-dismiss="modal">Fechar</button>
                         <button type="button" id="salvar_clientes_alterar"
-                        class="btn btn-primary desabilita_editar">Confirmar</button>
+                        class="btn btn-primary btn_desabilita_editar">Confirmar</button>
                     </div>
                 </div>
             </form>

@@ -9,7 +9,7 @@
                         <form id="filtro" action="servicos" method="get" data-parsley-validate=""
                             class="form-horizontal form-label-left" novalidate="">
                             <div class="container">
-                                @csrf
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                 <div class="row">
                                     <div class="col-md-4">
                                         <label for="nome" class="col-sm-1 col-form-label">Nome</label>
@@ -68,7 +68,7 @@
         aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-xl" role="document">
             <form method="POST" action="servicos/incluir">
-                @csrf
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Inclusão de serviço</h5>
@@ -76,7 +76,7 @@
                     <div class="modal-body">
                         <div class="form-group row">
                             <div class="container">
-                                @csrf
+
                                 <div class="col-md-12">
                                     <ul class="nav nav-tabs">
                                         <li class="nav-item">
@@ -155,7 +155,7 @@
         aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-xl" role="document">
             <form method="POST" action="servicos/alterar">
-                @csrf
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Alteração de serviço</h5>
@@ -164,7 +164,7 @@
                         <div class="form-group row">
                             <div class="container">
                                 <input type="hidden" id="modal_id" name="modal_id" value="">
-                                @csrf
+
                                 <div class="col-md-12">
                                     <ul class="nav nav-tabs">
                                         <li class="nav-item">
