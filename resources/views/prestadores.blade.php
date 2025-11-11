@@ -241,7 +241,7 @@
                                                     <th scope="col">Cidades</th>
                                                     <th scope="col">Raio(km)</th>
                                                     <th scope="col">Serviços habilitados</th>
-                                                    <th scope="col">valor deslocamento</th>
+                                                    <th scope="col">Valor do serviço</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -500,7 +500,7 @@
                                                     <th scope="col">Cidades</th>
                                                     <th scope="col">Raio(km)</th>
                                                     <th scope="col">Serviços habilitados</th>
-                                                    <th scope="col">valor deslocamento</th>
+                                                    <th scope="col">Valor do serviço</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

@@ -164,7 +164,7 @@ class PrestadoresController extends Controller
             'nome_tela' => 'prestadores',
             'prestadores' => $prestadores,
             'estados' => (new DateHelpers())->getEstados(),
-            'servicos' => (new Servicos())->orderby('nome')->get(),
+            'servicos' => (new Servicos())->orderby('id')->get(),
             'bancos' => (new Bancos())->orderby('nome')->get(),
             'request' => $request,
             'rotaIncluir' => 'incluir-prestadores',
