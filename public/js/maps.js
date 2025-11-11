@@ -39,7 +39,7 @@ function initMapIncluir() {
 
         drawCircle(markerIncluir.getPosition(), "incluir");
 
-        buscarCidade(latitude, longitude, "cidade_regiao_incluir");
+        // buscarCidade(latitude, longitude, "cidade_regiao_incluir");
 
         buscarEstados(latitude, longitude, "modal_estado_regiao_incluir");
     });
@@ -76,7 +76,7 @@ function initMapAlterar() {
 
         drawCircle(markerAlterar.getPosition(), "alterar");
 
-        buscarCidade(latitude, longitude, "cidade_regiao_alterar");
+        // buscarCidade(latitude, longitude, "cidade_regiao_alterar");
         buscarEstados(latitude, longitude, "modal_estado_regiao_alterar");
     });
 
@@ -167,6 +167,24 @@ const estados_br = {
     'Tocantins':'27'
 };
 
+document.getElementById("modal_cidades_regiao_incluir").addEventListener("change", localizarCidadeNoMapa);
+document.getElementById("modal_cidades_regiao_alterar").addEventListener("change", localizarCidadeNoMapa);
+
+async function buscaDadosIBGE(siglaEstado, cidadeSelect) {
+
+        const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${siglaEstado}/municipios`);
+            const cidades = await response.json();
+
+            cidadeSelect.innerHTML = '<option value="0">Selecione</option>';
+            cidades.forEach(cidade => {
+
+                const option = document.createElement("option");
+                option.value = cidade.id;
+                option.textContent = cidade.nome;
+                cidadeSelect.appendChild(option);
+            });
+    }
+
 // BUSCA ESTADO DINÂMICA PARA CADA MODAL
 function buscarEstados(lat, lng, campoDestino) {
     const latlng = { lat: lat, lng: lng };
@@ -180,10 +198,64 @@ function buscarEstados(lat, lng, campoDestino) {
                     break;
                 }
             }
-            // seta o estado pelo value usando o nome do "estado" estados_br
-            document.getElementById(campoDestino).value = estados_br[estado] || "Estado não encontrado";
+
+            if(campoDestino = 'modal_estado_regiao_alterar') {
+                var cidadeSelect = document.getElementById('modal_cidades_regiao_alterar');
+            } else {
+                var cidadeSelect = document.getElementById('modal_cidades_regiao_incluir');
+            }
+
+            const imputEstado = document.getElementById(campoDestino)
+            imputEstado.value= estados_br[estado] || 0
+
+            const sigla = imputEstado.options[imputEstado.selectedIndex].getAttribute('data-sigla');
+
+            setTimeout(() => {
+               buscaDadosIBGE(sigla, cidadeSelect);
+            }, 500);
+
         } else {
-            document.getElementById(campoDestino).value = "Erro ao buscar";
+            $('#'+campoDestino).val("0");
+        }
+    });
+}
+
+
+
+function localizarCidadeNoMapa() {
+    const estadoSelect = document.getElementById("modal_estado_regiao_alterar");
+    const cidadeSelect = document.getElementById("modal_cidades_regiao_alterar");
+
+    const nomeEstado = estadoSelect.options[estadoSelect.selectedIndex].text;
+    const nomeCidade = cidadeSelect.options[cidadeSelect.selectedIndex].text;
+
+    if (nomeCidade === "0" || nomeEstado === "Selecione") return;
+
+    const endereco = `${nomeCidade}, ${nomeEstado}, Brasil`;
+    geocoder.geocode({ address: endereco }, function(results, status) {
+        if (status === "OK" && results[0]) {
+            const location = results[0].geometry.location;
+
+            // Remove marcador anterior
+            if (markerAlterar) markerAlterar.setMap(null);
+
+            markerAlterar = new google.maps.Marker({
+                position: location,
+                map: mapAlterar,
+                title: `${nomeCidade} - ${nomeEstado}`,
+            });
+
+            mapAlterar.setCenter(location);
+            mapAlterar.setZoom(8);
+
+            // Se quiser, desenha o círculo (opcional)
+            drawCircle(location, "alterar");
+
+            // Preenche os inputs de lat/long se existirem
+            document.getElementById("modal_tabela_latitude").value = location.lat();
+            document.getElementById("modal_tabela_longitude").value = location.lng();
+        } else {
+            alert("Não foi possível localizar a cidade.");
         }
     });
 }

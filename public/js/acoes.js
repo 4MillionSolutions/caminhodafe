@@ -131,11 +131,12 @@ $(function ($) {
 
             $('#modal_alteracao #table_regioes tbody').empty();
 
+
             var array_latitude_longitude = obj.array_latitude_longitude || [];
 
             array_latitude_longitude.forEach(function(latlng) {
 
-                marcarMapa(mapAlterar, latlng.longitude, latlng.latitude, 'alterar');
+                marcarMapa(mapAlterar,  latlng.latitude, latlng.longitude, 'alterar');
 
             });
 
@@ -322,7 +323,7 @@ $(function ($) {
         let estado_codigo = $('#' + modalId + ' #modal_estado_regiao_' + acao).find(':selected').val();
         let longitude = $('#modal_tabela_longitude').val();
         let latitude = $('#modal_tabela_latitude').val();
-        let cidade = $('#' + modalId + ' #cidade_regiao_' + acao).val();
+        let cidade = $('#' + modalId + ' #modal_cidades_regiao_' + acao).find(':selected').text();
 
         let raio = $('#' + modalId + ' #raio_' + acao).val();
         let valor = $('#' + modalId + ' #modal_valor_' + acao).val();
@@ -352,5 +353,87 @@ $(function ($) {
         $('#' + modalId + ' #valor').val('');
     })
 
+    document.getElementById("modal_estado_regiao_alterar").addEventListener("change", async function() {
+        const estadoId = this.value;
+
+        const cidadeSelect = document.getElementById("modal_cidades_regiao_alterar");
+
+        const sigla = this.options[this.selectedIndex].getAttribute('data-sigla');
+
+        cidadeSelect.innerHTML = '<option value="0">Carregando...</option>';
+
+        if (estadoId === "0") {
+            cidadeSelect.innerHTML = '<option value="0">Selecione</option>';
+            return;
+        }
+
+        try {
+
+            await buscaDadosIBGE(sigla, cidadeSelect);
+        } catch (error) {
+            console.error("Erro ao buscar cidades:", error);
+            cidadeSelect.innerHTML = '<option value="0">Erro ao carregar</option>';
+        }
+    });
+
+    document.getElementById("modal_estado_regiao_alterar").addEventListener("change", async function() {
+        const estadoId = this.value;
+        const cidadeSelect = document.getElementById("modal_cidades_regiao_alterar");
+
+        const sigla = this.options[this.selectedIndex].getAttribute('data-sigla');
+
+        cidadeSelect.innerHTML = '<option value="0">Carregando...</option>';
+
+        if (estadoId === "0") {
+            cidadeSelect.innerHTML = '<option value="0">Selecione</option>';
+            return;
+        }
+
+        try {
+
+            await buscaDadosIBGE(sigla, cidadeSelect);
+        } catch (error) {
+            console.error("Erro ao buscar cidades:", error);
+            cidadeSelect.innerHTML = '<option value="0">Erro ao carregar</option>';
+        }
+    });
+
+
+    document.getElementById("modal_estado_regiao_incluir").addEventListener("change", async function() {
+        const estadoId = this.value;
+        const cidadeSelect = document.getElementById("modal_cidades_regiao_incluir");
+
+        const sigla = this.options[this.selectedIndex].getAttribute('data-sigla');
+
+        cidadeSelect.innerHTML = '<option value="0">Carregando...</option>';
+
+        if (estadoId === "0") {
+            cidadeSelect.innerHTML = '<option value="0">Selecione</option>';
+            return;
+        }
+
+        try {
+
+            await buscaDadosIBGE(sigla, cidadeSelect);
+        } catch (error) {
+            console.error("Erro ao buscar cidades:", error);
+            cidadeSelect.innerHTML = '<option value="0">Erro ao carregar</option>';
+        }
+    });
+
+    async function buscaDadosIBGE(siglaEstado, cidadeSelect) {
+
+        const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${siglaEstado}/municipios`);
+            const cidades = await response.json();
+
+            cidadeSelect.innerHTML = '<option value="0">Selecione</option>';
+            cidades.forEach(cidade => {
+
+                const option = document.createElement("option");
+                option.value = cidade.id;
+                option.textContent = cidade.nome;
+                cidadeSelect.appendChild(option);
+            });
+    }
 
 }); // fecha function($)

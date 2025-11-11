@@ -307,8 +307,8 @@ class PrestadoresController extends Controller
             $raio = $request->input('modal_tabela_raios');
             $cidades = $request->input('modal_tabela_cidades');
             $valores = $request->input('modal_tabela_valores');
-            $longitudes = $request->input('modal_tabela_latitude');
-            $latitudes = $request->input('modal_tabela_longitude');
+            $longitudes = $request->input('modal_tabela_longitude');
+            $latitudes = $request->input('modal_tabela_latitude');
 
             $servicos = $request->input('modal_tabela_servicos');
 

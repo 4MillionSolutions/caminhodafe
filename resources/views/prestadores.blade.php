@@ -208,15 +208,18 @@
                                         <select class="form-control" id="modal_estado_regiao_incluir" name="estado_regiao">
                                             <option value="0" >Selecione</option>
                                             @foreach ($estados as $estado)
-                                                <option value="{{ $estado['id'] }}" >{{ $estado['estado'] }}</option>
+                                                <option data-sigla="{{ $estado['sigla'] }}" value="{{ $estado['id'] }}" >{{ $estado['estado'] }}</option>
                                             @endforeach
+                                        </select>
+                                        <label for="cidade" class="form-label">Cidade</label>
+                                        <select class="form-control" id="modal_cidades_regiao_incluir" name="cidades_regiao">
+                                            <option value="0">Selecione</option>
                                         </select>
 
                                         <label for="raio" class="form-label">Raio (km)</label>
                                         <input type="number" class="form-control col-md-4" id="raio_incluir" name="raio" value="50" min="1" max="100">
 
-                                        <label for="cidade_regiao"  class="form-label">Cidade</label>
-                                        <input type="text" class="form-control" id="cidade_regiao_incluir" name="cidade_regiao" value="">
+
 
                                         <label for="servico"  class="form-label">Serviço</label>
                                         <select class="form-control" multiple id="modal_servico_regiao_incluir" name="servico">
@@ -467,15 +470,19 @@
                                         <select class="form-control" id="modal_estado_regiao_alterar" name="estado_regiao">
                                             <option value="0" >Selecione</option>
                                             @foreach ($estados as $estado)
-                                                <option value="{{ $estado['id'] }}" >{{ $estado['estado'] }}</option>
+                                                <option data-sigla="{{ $estado['sigla'] }}" value="{{ $estado['id'] }}" >{{ $estado['estado'] }}</option>
                                             @endforeach
+                                        </select>
+                                        <label for="cidade" class="form-label">Cidade</label>
+                                        <select class="form-control" id="modal_cidades_regiao_alterar" name="cidades_regiao">
+                                            <option value="0">Selecione</option>
                                         </select>
 
                                         <label for="raio" class="form-label">Raio (km)</label>
                                         <input type="number" class="form-control col-md-4 raio" id="raio_alterar" name="raio" value="50" min="1" max="100">
 
-                                        <label for="cidade_regiao"  class="form-label">Cidade</label>
-                                        <input type="text" class="form-control" id="cidade_regiao_alterar" name="cidade_regiao" value="">
+                                        {{-- <label for="cidade_regiao"  class="form-label">Cidade</label>
+                                        <input type="text" class="form-control" id="cidade_regiao_alterar" name="cidade_regiao" value=""> --}}
 
                                         <label for="servico"  class="form-label">Serviço</label>
                                         <select class="form-control" multiple id="modal_servico_regiao_alterar" name="servico">
