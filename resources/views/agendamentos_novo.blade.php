@@ -116,6 +116,75 @@
             margin-top: 0.5rem;
             font-size: 0.85rem;
         }
+
+        /* Modal Customizado */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            outline: 0;
+        }
+        .modal.show {
+            overflow-y: auto;
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1040;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            opacity: 0.5;
+        }
+        .modal-dialog {
+            position: relative;
+            width: auto;
+            margin: 1.75rem auto;
+            max-width: 90vw;
+        }
+        .modal-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            pointer-events: auto;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0,0,0,.2);
+            border-radius: 0.3rem;
+            outline: 0;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            border-top-left-radius: calc(0.3rem - 1px);
+            border-top-right-radius: calc(0.3rem - 1px);
+        }
+        .modal-body {
+            position: relative;
+            flex: 1 1 auto;
+            padding: 1rem;
+        }
+        .modal-footer {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0.75rem;
+            border-top: 1px solid #dee2e6;
+            border-bottom-right-radius: calc(0.3rem - 1px);
+            border-bottom-left-radius: calc(0.3rem - 1px);
+        }
     </style>
 @stop
 
@@ -175,6 +244,7 @@
                                     <th>Endereço</th>
                                     <th>Data</th>
                                     <th>Hora</th>
+                                    <th>Serviço</th>
                                     <th>Prestador</th>
                                     <th>Status</th>
                                     <th>Ação</th>
@@ -219,9 +289,9 @@
                         </li>
                     </ul>
 
-                    <!-- CONTEÚDO DAS ABAS -->
+                    <!-- CONTE�DO DAS ABAS -->
                     <div class="tab-content">
-                        <!-- ABA 1: CADASTRO DE IMÓVEL -->
+                        <!-- ABA 1: CADASTRO DE IM�VEL -->
                         <div class="tab-pane fade show active" id="content_imovel" role="tabpanel">
                             <form id="form_cadastro_imovel">
                                 <input type="hidden" name="imovel_id" id="input_imovel_id">
@@ -273,7 +343,7 @@
                                     <div class="col-md-3">
                                         <label for="input_complemento_viacep">Complemento</label>
                                         <input type="text" class="form-control" id="input_complemento_viacep" 
-                                            name="complemento_viacep" readonly>
+                                            name="complemento_viacep">
                                     </div>
                                 </div>
 
@@ -362,19 +432,28 @@
 
                                 <h6 class="text-info mb-3"><strong>Dados do Agendamento</strong></h6>
                                 <div class="row mb-3">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label for="input_data_agendamento">Data *</label>
                                         <input type="date" class="form-control" id="input_data_agendamento" 
                                             name="data" required>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label for="input_hora_inicio">Hora Início *</label>
                                         <input type="time" class="form-control" id="input_hora_inicio" 
                                             name="hora_inicio" required>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label for="input_hora_fim">Hora Fim</label>
                                         <input type="time" class="form-control" id="input_hora_fim" name="hora_fim">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="input_servico_id">Serviço (Demanda) *</label>
+                                        <select class="form-control" id="input_servico_id" name="servico_id" required>
+                                            <option value="">Selecione o Serviço</option>
+                                            @foreach($servicos ?? [] as $servico)
+                                                <option value="{{ $servico->id }}">{{ $servico->nome }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
 
@@ -383,12 +462,19 @@
                                     <div class="col-md-6">
                                         <label for="input_data_criacao_demanda">Data Criação Demanda</label>
                                         <input type="datetime-local" class="form-control" id="input_data_criacao_demanda" 
-                                            name="data_criacao_demanda">
+                                            name="data_criacao_demanda" readonly>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="input_data_vencimento_sla">Data Vencimento SLA</label>
-                                        <input type="datetime-local" class="form-control" id="input_data_vencimento_sla" 
-                                            name="data_vencimento_sla">
+                                        <div class="input-group">
+                                            <input type="datetime-local" class="form-control" id="input_data_vencimento_sla" 
+                                                name="data_vencimento_sla" readonly>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-primary" type="button" id="btn_calcular_sla">
+                                                    <i class="fas fa-calculator"></i> Calcular
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -425,160 +511,204 @@
             </div>
         </div>
     </div>
-
-    <!-- ================= MODAL: VISUALIZAR AGENDAMENTO ================= -->
-    <div class="modal fade" id="modal_visualizar_agendamento" tabindex="-1" role="dialog" data-backdrop="static">
+    <!-- MODAL DE EDIÇÃO DE AGENDAMENTO -->
+    <div class="modal fade" id="modal_editar_agendamento" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title">Detalhes do Agendamento</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal">
+                    <h5 class="modal-title">Editar Agendamento</h5>
+                    <button type="button" class="close text-white" onclick="fecharModalEdicao()">
                         <span>&times;</span>
                     </button>
                 </div>
 
                 <div class="modal-body">
-                    <!-- ABAS: DADOS E RASTREAMENTO -->
+                    <!-- ABAS PRINCIPAIS -->
                     <ul class="nav nav-tabs mb-3" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" id="tab_ver_dados" data-toggle="tab" href="#content_ver_dados" role="tab">
-                                <i class="fas fa-info-circle"></i> Dados
+                            <a class="nav-link active" id="edit_tab_imovel" data-toggle="tab" href="#edit_content_imovel" role="tab">
+                                <i class="fas fa-home"></i> 1. Cadastro de Imóvel
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="tab_rastreamento" data-toggle="tab" href="#content_rastreamento" role="tab">
-                                <i class="fas fa-history"></i> Rastreamento (Auditoria)
+                            <a class="nav-link" id="edit_tab_prestador" data-toggle="tab" href="#edit_content_prestador" role="tab">
+                                <i class="fas fa-user-tie"></i> 2. Seleção de Prestador
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="edit_tab_dados" data-toggle="tab" href="#edit_content_dados" role="tab">
+                                <i class="fas fa-list"></i> 3. Dados do Agendamento
                             </a>
                         </li>
                     </ul>
 
+                    <!-- CONTEÚDO DAS ABAS -->
                     <div class="tab-content">
-                        <!-- ABA: DADOS -->
-                        <div class="tab-pane fade show active" id="content_ver_dados" role="tabpanel">
-                            <input type="hidden" id="view_agendamento_id">
+                        <!-- ABA 1: CADASTRO DE IMÓVEL -->
+                        <div class="tab-pane fade show active" id="edit_content_imovel" role="tabpanel">
+                            <form id="form_editar_imovel">
+                                <input type="hidden" id="edit_agendamento_id">
 
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <h6><strong>Status:</strong> 
-                                        <span id="view_status_badge" class="badge badge-status"></span>
-                                    </h6>
-                                </div>
-                            </div>
-
-                            <h6 class="text-info mb-2"><strong>Identificação</strong></h6>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <p><strong>OS Interna:</strong> <span id="view_os_interna"></span></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>OS Plataforma:</strong> <span id="view_os_plataforma"></span></p>
-                                </div>
-                            </div>
-
-                            <h6 class="text-info mb-2"><strong>Cliente</strong></h6>
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <p><strong>Cliente:</strong> <span id="view_cliente_nome"></span></p>
-                                </div>
-                            </div>
-
-                            <h6 class="text-info mb-2"><strong>Imóvel</strong></h6>
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <p><strong>Endereço:</strong> <span id="view_endereco_completo"></span></p>
-                                </div>
-                            </div>
-
-                            <h6 class="text-info mb-2"><strong>Agendamento</strong></h6>
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <p><strong>Data:</strong> <span id="view_data"></span></p>
-                                </div>
-                                <div class="col-md-4">
-                                    <p><strong>Hora Início:</strong> <span id="view_hora_inicio"></span></p>
-                                </div>
-                                <div class="col-md-4">
-                                    <p><strong>Prestador:</strong> <span id="view_prestador_nome"></span></p>
-                                </div>
-                            </div>
-
-                            <h6 class="text-info mb-2"><strong>Contato</strong></h6>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <p><strong>Nome:</strong> <span id="view_contato_nome"></span></p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Telefone:</strong> <span id="view_numero_contato"></span></p>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-md-12">
-                                    <p><strong>Observações:</strong></p>
-                                    <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 0.25rem;">
-                                        <p id="view_observacao_externa" style="white-space: pre-wrap;"></p>
+                                <h6 class="text-info mb-3"><strong>Dados do Cliente</strong></h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label for="edit_cliente_select">Cliente *</label>
+                                        <select class="form-control" id="edit_cliente_select" required>
+                                            <option value="">Selecione um cliente</option>
+                                            @foreach($clientes as $cliente)
+                                                <option value="{{ $cliente->id }}">
+                                                    {{ $cliente->nome ?? $cliente->nome_empresa }}
+                                                </option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
-                            </div>
+
+                                <h6 class="text-info mb-3"><strong>Informações do Imóvel</strong></h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label><strong>Imóvel (Endereço Principal)</strong></label>
+                                        <p id="edit_imovel_endereco" class="form-control-plaintext"></p>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label for="edit_imovel_complemento"><strong>Complemento do Imóvel</strong> (AP 25 BLOCO 2, LT 25 QD D, etc)</label>
+                                        <textarea class="form-control" id="edit_imovel_complemento" rows="3" placeholder="Ex: AP 25 BLOCO 2&#10;LT 25 QD D"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="text-right mt-4">
+                                    <button type="button" class="btn btn-secondary" onclick="fecharModalEdicao()">Cancelar</button>
+                                    <button type="button" class="btn btn-primary" id="edit_btn_proximo_prestador">
+                                        Próximo: Seleção de Prestador <i class="fas fa-arrow-right ml-2"></i>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
 
-                        <!-- ABA: RASTREAMENTO -->
-                        <div class="tab-pane fade" id="content_rastreamento" role="tabpanel">
-                            <div class="audit-timeline" id="audit_timeline">
-                                <div class="text-center text-muted">
-                                    <p>Carregando histórico...</p>
+                        <!-- ABA 2: SELEÇÃO DE PRESTADOR -->
+                        <div class="tab-pane fade" id="edit_content_prestador" role="tabpanel">
+                            <h6 class="text-info mb-3"><strong>Prestador Atual</strong></h6>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label><strong>Prestador</strong></label>
+                                    <p id="edit_prestador_nome" class="form-control-plaintext"></p>
                                 </div>
                             </div>
+
+                            <div class="text-right mt-4">
+                                <button type="button" class="btn btn-secondary" id="edit_btn_voltar_imovel">
+                                    <i class="fas fa-arrow-left mr-2"></i> Voltar
+                                </button>
+                                <button type="button" class="btn btn-primary" id="edit_btn_proximo_dados">
+                                    Próximo: Dados do Agendamento <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ABA 3: DADOS DO AGENDAMENTO -->
+                        <div class="tab-pane fade" id="edit_content_dados" role="tabpanel">
+                            <form id="form_editar_dados">
+                                <h6 class="text-info mb-3"><strong>Dados do Agendamento</strong></h6>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <label for="edit_data">Data do Agendamento *</label>
+                                        <input type="date" class="form-control" id="edit_data" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                    </div>
+                                    <div class="col-md-3">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="edit_servico_id">Serviço (Demanda) *</label>
+                                        <select class="form-control" id="edit_servico_id" required>
+                                            <option value="">Selecione o Serviço</option>
+                                            @foreach($servicos ?? [] as $servico)
+                                                <option value="{{ $servico->id }}">{{ $servico->nome }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="edit_data_vencimento_sla">Data Vencimento SLA</label>
+                                        <input type="datetime-local" class="form-control" id="edit_data_vencimento_sla" readonly>
+                                    </div>
+                                </div>
+
+                                <h6 class="text-info mb-3"><strong>Informaç�es do Contato</strong></h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="edit_contato">Nome do Contato</label>
+                                        <input type="text" class="form-control" id="edit_contato">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="edit_telefone">Telefone do Contato</label>
+                                        <input type="text" class="form-control" id="edit_telefone">
+                                    </div>
+                                </div>
+
+                                <h6 class="text-info mb-3"><strong>Deslocamento</strong></h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="edit_deslocamento_valor">Valor Deslocamento (R$)</label>
+                                        <input type="number" step="0.01" class="form-control" id="edit_deslocamento_valor" min="0">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="edit_deslocamento_observacoes">Observações Deslocamento</label>
+                                        <textarea class="form-control" id="edit_deslocamento_observacoes" rows="2"></textarea>
+                                    </div>
+                                </div>
+
+                                <h6 class="text-info mb-3"><strong>Status</strong></h6>
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label for="edit_status">Status</label>
+                                        <select class="form-control" id="edit_status">
+                                            <option value="CRIADO">Criado</option>
+                                            <option value="ATRIBUIDO">Atribuído</option>
+                                            <option value="REAGENDADO">Reagendado</option>
+                                            <option value="CONCLUIDO">Concluído</option>
+                                            <option value="CANCELADO">Cancelado</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="text-right mt-4">
+                                    <button type="button" class="btn btn-secondary" onclick="fecharModalEdicao()">Cancelar</button>
+                                    <button type="button" class="btn btn-secondary" id="edit_btn_voltar_prestador">
+                                        <i class="fas fa-arrow-left mr-2"></i> Voltar
+                                    </button>
+                                    <button type="button" class="btn btn-success" id="edit_btn_salvar">
+                                        <i class="fas fa-save mr-2"></i> Salvar Alterações
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                    <button type="button" class="btn btn-warning" id="btn_reagendar" style="display:none;">
-                        <i class="fas fa-calendar-alt mr-2"></i> Reagendar
-                    </button>
-                    <button type="button" class="btn btn-danger" id="btn_retorno" style="display:none;">
-                        <i class="fas fa-redo mr-2"></i> Retorno
-                    </button>
-                    <button type="button" class="btn btn-info" id="btn_reavaliacao" style="display:none;">
-                        <i class="fas fa-search mr-2"></i> Reavaliação
-                    </button>
-                    <button type="button" class="btn btn-primary" id="btn_atribuir_prestador" style="display:none;">
-                        <i class="fas fa-user-check mr-2"></i> Atribuir Prestador
-                    </button>
-                    <button type="button" class="btn btn-success" id="btn_enviar_producao" style="display:none;">
-                        <i class="fas fa-paper-plane mr-2"></i> Enviar Produção
-                    </button>
                 </div>
             </div>
         </div>
     </div>
-@stop
+@endsection
 
 @section('js')
+    <!-- Garantir que jQuery esteja carregado antes dos scripts abaixo -->
+    <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('DataTables/datatables.min.js') }}"></script>
     <script src="{{ asset('js/jquery.mask.js') }}"></script>
     <script>
         $(document).ready(function() {
-            console.log('Document ready!');
-            
-            // Máscaras
             $('#input_cep').mask('00000-000');
             $('#input_numero_contato').mask('(00) 00000-0000');
             
-            // Inicializar DataTable
             inicializarDataTable();
-
-            // Event Listeners
             setupEventListeners();
-            
-            console.log('Inicialização concluída!');
         });
 
         function inicializarDataTable() {
-            console.log('Inicializando DataTable...');
             const table = $('#table_agendamentos').DataTable({
                 ajax: {
                     url: '/ajax/agendamentos',
@@ -594,100 +724,237 @@
                     { data: 'endereco' },
                     { data: 'data' },
                     { data: 'hora_inicio' },
+                    { data: 'servico' },
                     { data: 'prestador' },
                     { data: 'ativo' },
                     { data: 'acoes', orderable: false }
                 ],
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Portuguese-Brasil.json'
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json'
                 },
                 autoWidth: false,
                 pageLength: 10,
                 searching: true,
                 ordering: true,
-                paging: true,
-                initComplete: function() {
-                    console.log('DataTable inicializada com sucesso!');
-                }
+                paging: true
             });
             
-            // Armazenar referência global
             window.agendamentosDataTable = table;
-            console.log('DataTable pronta para ser recarregada');
         }
 
         function setupEventListeners() {
-            console.log('setupEventListeners chamado');
-            
-            // Quando a modal abre, limpar os formulários
             $('#modal_novo_agendamento').on('show.bs.modal', function () {
-                console.log('Modal abrindo!');
                 limparFormularios();
             });
 
-            // Consultar ViaCEP
             $('#btn_consultar_cep').click(function() {
                 consultarViaCep();
             });
 
-            // Próximo: Prestador
             $('#btn_proximo_prestador').click(function() {
-                console.log('Botão "Próximo: Selecionar Prestador" clicado');
                 if (validarFormularioImovel()) {
-                    console.log('Formulário do imóvel válido, carregando prestadores');
                     carregarPrestadoresRecomendados();
-                    // A aba será ativada automaticamente após carregarPrestadoresRecomendados() receber a resposta
-                } else {
-                    console.log('Formulário do imóvel inválido');
                 }
             });
 
-            // Voltar de Prestador para Imóvel
             $('#btn_voltar_imovel').click(function() {
-                console.log('Botão "Voltar para Imóvel" clicado');
-                // Remover classes active/show de todas as abas
-                $('.tab-pane').removeClass('show active');
-                $('.nav-link').removeClass('active');
+                $('#modal_novo_agendamento .tab-pane').removeClass('show active');
+                $('#modal_novo_agendamento .nav-link').removeClass('active');
                 
-                // Adicionar classes para aba de imóvel
-                $('#content_imovel').addClass('show active');
-                $('#tab_imovel').addClass('active');
-                
-                console.log('Aba "Cadastro de Imóvel" ativada!');
+                $('#modal_novo_agendamento #content_imovel').addClass('show active');
+                $('#modal_novo_agendamento #tab_imovel').addClass('active');
             });
 
-            // Próximo: Dados
             $('#btn_proximo_dados').click(function() {
-                console.log('Botão "Próximo: Dados" clicado');
-                // Remover classes active/show de todas as abas
-                $('.tab-pane').removeClass('show active');
-                $('.nav-link').removeClass('active');
+                $('#modal_novo_agendamento .tab-pane').removeClass('show active');
+                $('#modal_novo_agendamento .nav-link').removeClass('active');
                 
-                // Adicionar classes para aba de dados
-                $('#content_dados').addClass('show active');
-                $('#tab_dados').addClass('active');
+                $('#modal_novo_agendamento #content_dados').addClass('show active');
+                $('#modal_novo_agendamento #tab_dados').addClass('active');
                 
-                console.log('Aba "Dados do Agendamento" ativada!');
+                const agora = new Date();
+                const ano = agora.getFullYear();
+                const mes = String(agora.getMonth() + 1).padStart(2, '0');
+                const dia = String(agora.getDate()).padStart(2, '0');
+                const hora = String(agora.getHours()).padStart(2, '0');
+                const minuto = String(agora.getMinutes()).padStart(2, '0');
+                const dataHoraAtual = `${ano}-${mes}-${dia}T${hora}:${minuto}`;
+                
+                setTimeout(function() {
+                    const $campo = $('#input_data_criacao_demanda');
+                    
+                    $campo.val(dataHoraAtual);
+                    $campo.prop('value', dataHoraAtual);
+                    $campo[0].value = dataHoraAtual;
+                    
+                    $campo.trigger('change');
+                    $campo.trigger('input');
+                }, 100);
             });
 
-            // Voltar de Dados para Prestador
             $('#btn_voltar_prestador').click(function() {
-                console.log('Botão "Voltar" clicado');
-                // Remover classes active/show de todas as abas
-                $('.tab-pane').removeClass('show active');
-                $('.nav-link').removeClass('active');
+                $('#modal_novo_agendamento .tab-pane').removeClass('show active');
+                $('#modal_novo_agendamento .nav-link').removeClass('active');
                 
-                // Adicionar classes para aba de prestador
-                $('#content_prestador').addClass('show active');
-                $('#tab_prestador').addClass('active');
-                
-                console.log('Aba "Seleção de Prestador" ativada!');
+                $('#modal_novo_agendamento #content_prestador').addClass('show active');
+                $('#modal_novo_agendamento #tab_prestador').addClass('active');
             });
 
-            // Salvar agendamento
             $('#btn_salvar_agendamento_novo').click(function() {
                 salvarNovoAgendamento();
             });
+
+            $(document).on('click', '[data-action="editar"]', function() {
+                const agendamentoId = $(this).data('id');
+                editarAgendamento(agendamentoId);
+            });
+
+            $(document).on('click', '[data-action="deletar"]', function() {
+                const agendamentoId = $(this).data('id');
+                deletarAgendamento(agendamentoId);
+            });
+
+            $('#edit_btn_proximo_prestador').click(function() {
+                $('#modal_editar_agendamento .tab-pane').removeClass('show active');
+                $('#modal_editar_agendamento .nav-link').removeClass('active');
+                
+                $('#modal_editar_agendamento #edit_content_prestador').addClass('show active');
+                $('#modal_editar_agendamento #edit_tab_prestador').addClass('active');
+            });
+
+            $('#edit_btn_voltar_imovel').click(function() {
+                $('#modal_editar_agendamento .tab-pane').removeClass('show active');
+                $('#modal_editar_agendamento .nav-link').removeClass('active');
+                
+                $('#modal_editar_agendamento #edit_content_imovel').addClass('show active');
+                $('#modal_editar_agendamento #edit_tab_imovel').addClass('active');
+            });
+
+            $('#edit_btn_proximo_dados').click(function() {
+                $('#modal_editar_agendamento .tab-pane').removeClass('show active');
+                $('#modal_editar_agendamento .nav-link').removeClass('active');
+                
+                $('#modal_editar_agendamento #edit_content_dados').addClass('show active');
+                $('#modal_editar_agendamento #edit_tab_dados').addClass('active');
+            });
+
+            $('#edit_btn_voltar_prestador').click(function() {
+                $('#modal_editar_agendamento .tab-pane').removeClass('show active');
+                $('#modal_editar_agendamento .nav-link').removeClass('active');
+                
+                $('#modal_editar_agendamento #edit_content_prestador').addClass('show active');
+                $('#modal_editar_agendamento #edit_tab_prestador').addClass('active');
+            });
+
+            $('#edit_btn_salvar').click(function() {
+                salvarEdicaoAgendamento();
+            });
+
+            // Delegação de eventos para change do select de serviço
+            $(document).on('change', '#input_servico_id', function() {
+                console.log(' Change event triggered para input_servico_id');
+                const dataCriacao = $('#input_data_criacao_demanda').val();
+                const servicoId = $(this).val();
+                console.log(' Dados:', {dataCriacao, servicoId});
+                calcularDataVencimentoSLA(dataCriacao, servicoId);
+            });
+
+            $(document).on('change', '#edit_servico_id', function() {
+                console.log(' Change event triggered para edit_servico_id');
+                const data = $('#edit_data').val();
+                const servicoId = $(this).val();
+                console.log(' Dados:', {data, servicoId});
+                calcularDataVencimentoSLAEdit(data, servicoId);
+            });
+
+            $(document).on('change', '#edit_data', function() {
+                console.log(' Change event triggered para edit_data');
+                const data = $(this).val();
+                const servicoId = $('#edit_servico_id').val();
+                console.log(' Dados:', {data, servicoId});
+                calcularDataVencimentoSLAEdit(data, servicoId);
+            });
+
+            // Aguardar um tempo e tentar adicionar listeners diretos também
+            setTimeout(function() {
+                console.log('Adicionando listeners diretos...');
+                
+                const selectServico = document.getElementById('input_servico_id');
+                if (selectServico) {
+                    console.log('Elemento input_servico_id encontrado!');
+                    
+                    // Tentar múltiplos eventos
+                    selectServico.addEventListener('change', function() {
+                        console.log(' LISTENER DIRETO - change - input_servico_id mudou!');
+                        const dataCriacao = document.getElementById('input_data_criacao_demanda').value;
+                        const servicoId = this.value;
+                        console.log(' Valores:', {dataCriacao, servicoId});
+                        if (dataCriacao && servicoId) {
+                            calcularDataVencimentoSLA(dataCriacao, servicoId);
+                        }
+                    });
+
+                    selectServico.addEventListener('click', function() {
+                        console.log(' LISTENER DIRETO - click - input_servico_id clicado!');
+                    });
+
+                    selectServico.addEventListener('input', function() {
+                        console.log(' LISTENER DIRETO - input - input_servico_id mudou!');
+                        const dataCriacao = document.getElementById('input_data_criacao_demanda').value;
+                        const servicoId = this.value;
+                        console.log(' Valores:', {dataCriacao, servicoId});
+                        if (dataCriacao && servicoId) {
+                            calcularDataVencimentoSLA(dataCriacao, servicoId);
+                        }
+                    });
+                } else {
+                    console.log(' Elemento input_servico_id NÃO encontrado!');
+                }
+
+                const editSelectServico = document.getElementById('edit_servico_id');
+                if (editSelectServico) {
+                    console.log(' Elemento edit_servico_id encontrado!');
+                    
+                    editSelectServico.addEventListener('change', function() {
+                        console.log(' LISTENER DIRETO - change - edit_servico_id mudou!');
+                        const data = document.getElementById('edit_data').value;
+                        const servicoId = this.value;
+                        console.log(' Valores:', {data, servicoId});
+                        if (data && servicoId) {
+                            calcularDataVencimentoSLAEdit(data, servicoId);
+                        }
+                    });
+
+                    editSelectServico.addEventListener('input', function() {
+                        console.log(' LISTENER DIRETO - input - edit_servico_id mudou!');
+                        const data = document.getElementById('edit_data').value;
+                        const servicoId = this.value;
+                        console.log(' Valores:', {data, servicoId});
+                        if (data && servicoId) {
+                            calcularDataVencimentoSLAEdit(data, servicoId);
+                        }
+                    });
+                } else {
+                    console.log(' Elemento edit_servico_id NÃO encontrado!');
+                }
+
+                const editData = document.getElementById('edit_data');
+                if (editData) {
+                    console.log(' Elemento edit_data encontrado!');
+                    
+                    editData.addEventListener('change', function() {
+                        console.log(' LISTENER DIRETO - change - edit_data mudou!');
+                        const data = this.value;
+                        const servicoId = document.getElementById('edit_servico_id').value;
+                        console.log(' Valores:', {data, servicoId});
+                        if (data && servicoId) {
+                            calcularDataVencimentoSLAEdit(data, servicoId);
+                        }
+                    });
+                } else {
+                    console.log(' Elemento edit_data NÃO encontrado!');
+                }
+            }, 500);
         }
 
         function consultarViaCep() {
@@ -742,9 +1009,6 @@
         }
 
         function carregarPrestadoresRecomendados() {
-            console.log('Iniciando carregamento de prestadores recomendados...');
-            
-            // Primeiro, salva o imóvel
             $.ajax({
                 url: '/agendamentos/cadastrar-imovel',
                 type: 'POST',
@@ -761,67 +1025,52 @@
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    console.log('Imóvel salvo:', response);
                     if (response.success) {
                         $('#input_imovel_id').val(response.data.id);
-                        console.log('Chamando carregarPrestadores com ID:', response.data.id);
-
-                        // Agora carrega os prestadores
                         carregarPrestadores(response.data.id);
                     } else {
                         alert('Erro ao cadastrar imóvel: ' + response.message);
                     }
                 },
                 error: function(xhr) {
-                    console.log('Erro ao cadastrar imóvel:', xhr);
                     alert('Erro ao cadastrar imóvel');
                 }
             });
         }
 
         function carregarPrestadores(imovelId) {
-            const url = '/agendamentos/prestadores-recomendados?imovel_id=' + imovelId;
-            console.log('Chamando URL:', url);
+            const cep = $('#input_cep').val();
+            const estado = $('#input_estado').val();
+            const cidade = $('#input_cidade').val();
+            
+            const url = '/agendamentos/prestadores-recomendados?cep=' + encodeURIComponent(cep) + '&estado=' + encodeURIComponent(estado) + '&cidade=' + encodeURIComponent(cidade);
             
             $.ajax({
                 url: url,
                 type: 'GET',
                 success: function(response) {
-                    console.log('Resposta prestadores recebida:', response);
                     if (response.success) {
-                        console.log('Success = true, chamando exibirPrestadores');
                         exibirPrestadores(response.data);
-                        console.log('Ativando aba prestador manualmente');
-                        // Remover classes active/show de todas as abas
-                        $('.tab-pane').removeClass('show active');
-                        $('.nav-link').removeClass('active');
+                        $('#modal_novo_agendamento .tab-pane').removeClass('show active');
+                        $('#modal_novo_agendamento .nav-link').removeClass('active');
                         
-                        // Adicionar classes para aba do prestador
-                        $('#content_prestador').addClass('show active');
-                        $('#tab_prestador').addClass('active');
-                        
-                        console.log('Aba prestador ativada!');
-                        console.log('Classes da aba:', $('#content_prestador').attr('class'));
+                        $('#modal_novo_agendamento #content_prestador').addClass('show active');
+                        $('#modal_novo_agendamento #tab_prestador').addClass('active');
                     } else {
-                        console.log('Erro na resposta:', response.message);
                         $('#container_prestadores').html('<div class="alert alert-warning">Nenhum prestador encontrado para esta localização</div>');
                     }
                 },
                 error: function(xhr) {
-                    console.log('Erro AJAX:', xhr);
-                    console.log('Status:', xhr.status);
-                    console.log('Response:', xhr.responseText);
                     alert('Erro ao carregar prestadores: ' + xhr.status);
                 }
             });
         }
 
         function exibirPrestadores(prestadores) {
-            console.log('Exibindo prestadores:', prestadores);
             let html = '';
 
             if (prestadores.length === 0) {
-                html = '<div class="alert alert-warning">Nenhum prestador disponível</div>';
+                html = '<div class="alert alert-warning">Nenhum prestador dispon�vel</div>';
             } else {
                 prestadores.forEach(function(p) {
                     html += `
@@ -829,13 +1078,13 @@
                             <div class="row">
                                 <div class="col-md-8">
                                     <h6 class="mb-2">${p.nome}</h6>
-                                    <p class="mb-1"><small class="text-muted">📍 ${p.localizacao || 'Sem informação'}</small></p>
-                                    <p class="mb-0"><small class="text-muted">⭐ Avaliação: ${p.avaliacao || 'N/A'}</small></p>
+                                    <p class="mb-1"><small class="text-muted"> ${p.localizacao || 'Sem informação'}</small></p>
+                                    <p class="mb-0"><small class="text-muted"> Avaliação: ${p.avaliacao || 'N/A'}</small></p>
                                 </div>
                                 <div class="col-md-4 text-right">
                                     <h5 class="text-success mb-2">R$ ${p.valor_hora || 'N/A'}</h5>
-                                    <p class="mb-0"><small>📱 ${p.telefone || 'N/A'}</small></p>
-                                    ${p.whatsapp ? `<p><small>💬 WhatsApp</small></p>` : ''}
+                                    <p class="mb-0"><small> ${p.telefone || 'N/A'}</small></p>
+                                    ${p.whatsapp ? `<p><small> WhatsApp</small></p>` : ''}
                                 </div>
                             </div>
                         </div>
@@ -843,44 +1092,24 @@
                 });
             }
 
-            console.log('HTML a inserir:', html);
-            console.log('Container antes:', $('#container_prestadores').html());
             $('#container_prestadores').html(html);
-            console.log('Prestadores renderizados!');
-            console.log('Container depois:', $('#container_prestadores').html());
         }
 
         function selecionarPrestador(prestadorId, prestadorNome) {
-            console.log('🎯 Prestador selecionado:', { id: prestadorId, nome: prestadorNome });
             $('#input_prestador_id').val(prestadorId);
-            console.log('Prestador ID salvo no input:', $('#input_prestador_id').val());
 
-            // Highlight
-            console.log('Removendo classe selected de todos os cards');
             $('.prestador-card').removeClass('selected');
-            console.log('Adicionando classe selected ao card clicado');
             event.currentTarget.classList.add('selected');
 
-            // Habilitar próximo
-            console.log('Habilitando botão "Próximo: Dados do Agendamento"');
             $('#btn_proximo_dados').prop('disabled', false);
-            console.log('Botão habilitado:', $('#btn_proximo_dados').prop('disabled'));
         }
 
         function salvarNovoAgendamento() {
-            const clienteIdElement = $('#input_cliente_id');
-            const clienteIdValue = clienteIdElement.val();
-            
-            console.log('🔍 DEBUG Cliente ID:');
-            console.log('  - Elemento encontrado:', clienteIdElement.length > 0 ? 'SIM' : 'NÃO');
-            console.log('  - Valor do campo:', clienteIdValue);
-            console.log('  - Tipo:', typeof clienteIdValue);
-            console.log('  - HTML do select:', clienteIdElement.html());
-            
             const dados = {
-                cliente_id: clienteIdValue,
+                cliente_id: $('#input_cliente_id').val(),
                 imovel_id: $('#input_imovel_id').val(),
                 prestador_id: $('#input_prestador_id').val(),
+                servico_id: $('#input_servico_id').val(),
                 contato_nome: $('#input_contato_nome').val(),
                 numero_contato_formatted: $('#input_numero_contato').val(),
                 data: $('#input_data_agendamento').val(),
@@ -893,34 +1122,127 @@
                 _token: $('meta[name="csrf-token"]').attr('content')
             };
 
-            console.log('📤 Dados a enviar:', dados);
-
             $.ajax({
                 url: '/agendamentos/salva',
                 type: 'POST',
                 data: dados,
                 success: function(response) {
-                    console.log('Resposta do servidor:', response);
                     if (response.success) {
-                        console.log('Agendamento salvo com sucesso!');
                         alert('Agendamento salvo com sucesso!');
                         
-                        // Fechar modal sem usar .modal() que não está disponível
-                        // Usar trigger para simular clique no botão de fechar
                         $('#modal_novo_agendamento').css('display', 'none');
                         $('.modal-backdrop').remove();
                         $('body').removeClass('modal-open');
+                        
+                        try {
+                            if (window.agendamentosDataTable) {
+                                window.agendamentosDataTable.ajax.reload(function() {
+                                });
+                            } else {
+                                const table = $('#table_agendamentos').DataTable();
+                                table.ajax.reload(function() {
+                                });
+                            }
+                        } catch(e) {
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
+                        }
+                        
+                        limparFormularios();
+                    } else {
+                        alert('Erro: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    alert('Erro ao salvar agendamento');
+                }
+            });
+        }
+
+        function limparFormularios() {
+            $('#form_cadastro_imovel')[0].reset();
+            $('#form_dados_agendamento')[0].reset();
+            $('#input_prestador_id').val('');
+            $('#btn_proximo_dados').prop('disabled', true);
+            
+            $('.tab-pane').removeClass('show active');
+            $('.nav-link').removeClass('active');
+            $('#content_imovel').addClass('show active');
+            $('#tab_imovel').addClass('active');
+        }
+
+        function editarAgendamento(agendamentoId) {
+            $.ajax({
+                url: '/agendamentos/' + agendamentoId + '/editar',
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        const agendamento = response.data;
+                        
+                        $('#edit_agendamento_id').val(agendamento.id);
+                        $('#edit_cliente_select').val(agendamento.cliente_id || '');
+                        $('#edit_imovel_endereco').text(agendamento.imovel_endereco);
+                        $('#edit_prestador_nome').text(agendamento.prestador_nome);
+                        $('#edit_servico_id').val(agendamento.servico_id || '');
+                        $('#edit_data').val(agendamento.data);
+                        $('#edit_data_vencimento_sla').val(agendamento.data_vencimento_sla || '');
+                        $('#edit_contato').val(agendamento.contato_nome || '');
+                        $('#edit_telefone').val(agendamento.telefone_contato || '');
+                        $('#edit_imovel_complemento').val(agendamento.imovel_complemento || '');
+                        $('#edit_deslocamento_valor').val(agendamento.deslocamento_valor || 0);
+                        $('#edit_deslocamento_observacoes').val(agendamento.deslocamento_observacoes || '');
+                        $('#edit_status').val(agendamento.status || 'CRIADO');
+                        
+                        $('#modal_editar_agendamento').css('display', 'block').addClass('show');
+                        $('body').addClass('modal-open');
+                        $('<div class="modal-backdrop fade show"></div>').appendTo('body');
+                    } else {
+                        alert('Erro ao carregar agendamento: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Erro ao carregar agendamento para edição: ' + status);
+                }
+            });
+        }
+
+        function fecharModalEdicao() {
+            $('#modal_editar_agendamento').css('display', 'none').removeClass('show');
+            $('body').removeClass('modal-open');
+            $('.modal-backdrop').remove();
+        }
+
+        function deletarAgendamento(agendamentoId) {
+            console.log('deletarAgendamento() chamado com ID:', agendamentoId);
+            
+            if (!confirm('Tem certeza que deseja deletar este agendamento?')) {
+                console.log('Deleção cancelada pelo usuário');
+                return;
+            }
+            
+            console.log('Enviando requisição POST para:', '/agendamentos/' + agendamentoId + '/deletar');
+            
+            $.ajax({
+                url: '/agendamentos/' + agendamentoId + '/deletar',
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    console.log('DELETE SUCCESS:', response);
+                    if (response.success) {
+                        console.log('Agendamento deletado com sucesso!');
+                        alert('Agendamento deletado com sucesso!');
                         
                         // Recarregar tabela
                         console.log('Recarregando tabela...');
                         try {
                             if (window.agendamentosDataTable) {
-                                console.log('Usando referência global de DataTable');
                                 window.agendamentosDataTable.ajax.reload(function() {
-                                    console.log('Tabela recarregada com sucesso via callback!');
+                                    console.log('Tabela recarregada com sucesso!');
                                 });
                             } else {
-                                console.log('Referência global não encontrada, tentando obter DataTable');
                                 const table = $('#table_agendamentos').DataTable();
                                 table.ajax.reload(function() {
                                     console.log('Tabela recarregada com sucesso!');
@@ -928,41 +1250,159 @@
                             }
                         } catch(e) {
                             console.error('Erro ao recarregar DataTable:', e);
-                            console.log('Tentando recarregar a página em 2 segundos...');
                             setTimeout(() => {
                                 location.reload();
-                            }, 2000);
+                            }, 1000);
                         }
-                        
-                        // Limpar formulários
-                        limparFormularios();
                     } else {
                         console.log('Erro na resposta:', response.message);
                         alert('Erro: ' + response.message);
                     }
                 },
-                error: function(xhr) {
-                    console.log('Erro AJAX:', xhr);
-                    alert('Erro ao salvar agendamento');
+                error: function(xhr, status, error) {
+                    console.error('DELETE ERROR:', status, error, xhr);
+                    console.error('Response:', xhr.responseText);
+                    alert('Erro ao deletar agendamento: ' + status);
                 }
             });
         }
 
-        function limparFormularios() {
-            console.log('Limpando formulários...');
-            $('#form_cadastro_imovel')[0].reset();
-            $('#form_dados_agendamento')[0].reset();
-            $('#input_prestador_id').val('');
-            $('#btn_proximo_dados').prop('disabled', true);
+        function salvarEdicaoAgendamento() {
+            const agendamentoId = $('#edit_agendamento_id').val();
+            const dados = {
+                cliente_id: $('#edit_cliente_select').val(),
+                contato_nome: $('#edit_contato').val(),
+                telefone_contato: $('#edit_telefone').val(),
+                servico_id: $('#edit_servico_id').val(),
+                deslocamento_valor: $('#edit_deslocamento_valor').val(),
+                deslocamento_observacoes: $('#edit_deslocamento_observacoes').val(),
+                imovel_complemento: $('#edit_imovel_complemento').val(),
+                data: $('#edit_data').val(),
+                data_vencimento_sla: $('#edit_data_vencimento_sla').val(),
+                status: $('#edit_status').val(),
+                _token: $('meta[name="csrf-token"]').attr('content')
+            };
             
-            // Voltar para aba de imóvel
-            console.log('Voltando para aba de imóvel');
-            $('.tab-pane').removeClass('show active');
-            $('.nav-link').removeClass('active');
-            $('#content_imovel').addClass('show active');
-            $('#tab_imovel').addClass('active');
-            
-            console.log('Formulários limpos!');
+            $.ajax({
+                url: '/agendamentos/' + agendamentoId + '/atualizar',
+                type: 'POST',
+                data: dados,
+                success: function(response) {
+                    if (response.success) {
+                        alert('Agendamento atualizado com sucesso!');
+                        
+                        fecharModalEdicao();
+                        
+                        try {
+                            if (window.agendamentosDataTable) {
+                                window.agendamentosDataTable.ajax.reload();
+                            } else {
+                                const table = $('#table_agendamentos').DataTable();
+                                table.ajax.reload();
+                            }
+                        } catch(e) {
+                            location.reload();
+                        }
+                    } else {
+                        alert('Erro: ' + response.message);
+                    }
+                },
+                error: function(xhr) {
+                    alert('Erro ao atualizar agendamento');
+                }
+            });
+        }
+
+        function calcularDataVencimentoSLA(dataCriacao, servicoId) {
+            if (!dataCriacao || !servicoId) {
+                console.log('calcularDataVencimentoSLA - Faltam parâmetros:', {dataCriacao, servicoId});
+                return;
+            }
+
+            console.log('calcularDataVencimentoSLA - Buscando SLA para serviço:', servicoId);
+
+            $.ajax({
+                url: '/agendamentos/servico/' + servicoId,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Resposta do servidor:', response);
+                    if (response.success && response.data.sla) {
+                        const slaEmDias = response.data.sla;
+                        console.log('SLA em dias:', slaEmDias);
+                        
+                        const dataCriacao = new Date($('#input_data_criacao_demanda').val());
+                        console.log('Data Criação:', dataCriacao);
+                        
+                        const dataVencimento = new Date(dataCriacao);
+                        dataVencimento.setDate(dataVencimento.getDate() + slaEmDias);
+                        console.log('Data Vencimento calculada:', dataVencimento);
+                        
+                        const ano = dataVencimento.getFullYear();
+                        const mes = String(dataVencimento.getMonth() + 1).padStart(2, '0');
+                        const dia = String(dataVencimento.getDate()).padStart(2, '0');
+                        const hora = String(dataVencimento.getHours()).padStart(2, '0');
+                        const minuto = String(dataVencimento.getMinutes()).padStart(2, '0');
+                        const dataVencimentoFormatada = `${ano}-${mes}-${dia}T${hora}:${minuto}`;
+                        
+                        console.log('Data formatada:', dataVencimentoFormatada);
+                        
+                        $('#input_data_vencimento_sla').val(dataVencimentoFormatada);
+                        console.log('Campo preenchido com:', $('#input_data_vencimento_sla').val());
+                    } else {
+                        console.error('Resposta inválida ou sem SLA');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao buscar SLA do serviço:', status, error, xhr.responseText);
+                }
+            });
+        }
+
+        function calcularDataVencimentoSLAEdit(data, servicoId) {
+            if (!data || !servicoId) {
+                console.log('calcularDataVencimentoSLAEdit - Faltam parâmetros:', {data, servicoId});
+                return;
+            }
+
+            console.log('calcularDataVencimentoSLAEdit - Buscando SLA para serviço:', servicoId);
+
+            $.ajax({
+                url: '/agendamentos/servico/' + servicoId,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Resposta do servidor:', response);
+                    if (response.success && response.data.sla) {
+                        const slaEmDias = response.data.sla;
+                        console.log('SLA em dias:', slaEmDias);
+                        
+                        const dataCriacao = new Date(data + 'T00:00:00');
+                        console.log('Data Criação:', dataCriacao);
+                        
+                        const dataVencimento = new Date(dataCriacao);
+                        dataVencimento.setDate(dataVencimento.getDate() + slaEmDias);
+                        console.log('Data Vencimento calculada:', dataVencimento);
+                        
+                        const ano = dataVencimento.getFullYear();
+                        const mes = String(dataVencimento.getMonth() + 1).padStart(2, '0');
+                        const dia = String(dataVencimento.getDate()).padStart(2, '0');
+                        const hora = String(dataVencimento.getHours()).padStart(2, '0');
+                        const minuto = String(dataVencimento.getMinutes()).padStart(2, '0');
+                        const dataVencimentoFormatada = `${ano}-${mes}-${dia}T${hora}:${minuto}`;
+                        
+                        console.log('Data formatada:', dataVencimentoFormatada);
+                        
+                        $('#edit_data_vencimento_sla').val(dataVencimentoFormatada);
+                        console.log('Campo preenchido com:', $('#edit_data_vencimento_sla').val());
+                    } else {
+                        console.error('Resposta inválida ou sem SLA');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Erro ao buscar SLA do serviço:', status, error, xhr.responseText);
+                }
+            });
         }
     </script>
 @stop

@@ -15,6 +15,7 @@ class Agendamentos extends Model
         'cliente_id',
         'imovel_id',
         'prestador_id',
+        'servico_id',
         'tecnico_id',
         'tipo_demanda_id',
         'os_interna',
@@ -32,7 +33,12 @@ class Agendamentos extends Model
         'usuario_producao_id',
         'agendamento_referencia_id',
         'tipo_demanda_enum',
-        'status'
+        'status',
+        'deslocamento_valor',
+        'deslocamento_observacoes',
+        'numero_demanda_interna',
+        'hora_inicio',
+        'hora_fim'
     ];
 
     protected $casts = [
@@ -41,7 +47,8 @@ class Agendamentos extends Model
         'data_atribuicao' => 'datetime',
         'data_producao' => 'datetime',
         'data_criacao_demanda' => 'datetime',
-        'data_vencimento_sla' => 'datetime'
+        'data_vencimento_sla' => 'datetime',
+        'deslocamento_valor' => 'decimal:2'
     ];
 
     // Relacionamentos
@@ -68,6 +75,11 @@ class Agendamentos extends Model
     public function tipoDemanda()
     {
         return $this->belongsTo(Motivos::class, 'tipo_demanda_id');
+    }
+
+    public function servico()
+    {
+        return $this->belongsTo(Servicos::class, 'servico_id');
     }
 
     // Novos relacionamentos para auditoria e rastreamento
