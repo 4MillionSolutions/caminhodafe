@@ -74,7 +74,14 @@
                   @if(isset($perfis))
                         @foreach ($perfis as $perfil)
                             <tr>
-                            <th scope="row"><a href={{ URL::route($rotaAlterar, array('id' => $perfil->id )) }}>{{$perfil->id}}</a></th>
+
+                              <th scope="row">
+                                @if(in_array(2, $permissoes_liberadas))
+                                    <a href={{ URL::route($rotaAlterar, array('id' => $perfil->id )) }}>{{$perfil->id}}</a>
+                                @else
+                                    {{$perfil->id}}
+                                @endif
+                            </th>
                               <td>{{$perfil->nome}}</td>
                               </tr>
                         @endforeach
@@ -114,17 +121,25 @@
                 </div>
             </div>
 
-            <div class="form-group row">
-                <div class="col-sm-6">
-                    <label for="tela" class="col-sm-2 col-form-label ">Permissão de Telas</label>
-                    <div class="col-sm-6">
+            <div class="container-fluid">
+                <label for="tela" class="col-sm-2 col-form-label ">Permissão de Telas</label>
+                <div class="form-group row">
                         @foreach ($telas as $tela)
-                            <div class="form-check row">
-                                <input class="form-check-input" name="telas[]" value="{{$tela->id}}" type="checkbox" @if($tela->checked){{'checked'}}@endif/>
-                                <label class="form-check-label" for="{{$tela->id}}">{{$tela->nome}}</label>
+                            <div class="card ml-2 p-4" style="width: 18rem;">
+                                <div class="card-body">
+                                    <input class="form-check-input" name="telas[]" value="{{$tela->id}}" type="checkbox" @if($tela->checked){{'checked'}}@endif/>
+                                    <label class="form-check-label font-weight-bold" for="{{$tela->id}}">{{$tela->nome}}</label>
+                                    @foreach ($acoes as $acao)
+                                        <div class="form-check row">
+                                            <input class="form-check-input" name="permissoes[]" value="{{$tela->id}}_{{$acao->id}}" type="checkbox"
+                                                @if(!empty($permissoes[$perfis[0]->id][$tela->id]['acoes']) && in_array($acao->id, $permissoes[$perfis[0]->id][$tela->id]['acoes'])) {{'checked'}} @endif/>
+                                            <label class="form-check-label" for="{{$acao->id}}">{{$acao->nome}}</label>
+                                        </div>
+                                    @endforeach
+                                </div>
+
                             </div>
                         @endforeach
-                    </div>
                 </div>
             </div>
 

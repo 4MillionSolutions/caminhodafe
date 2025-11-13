@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\ValidaPermissaoAcessoController;
 use Illuminate\Http\Request;
 use App\Models\Servicos;
 use Yajra\DataTables\Facades\DataTables;
 
 class ServicosController extends Controller
 {
+
+    public $permissoes_liberadas = [];
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -15,6 +19,8 @@ class ServicosController extends Controller
 
     public function index(Request $request)
     {
+
+        $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
 
         $id = !empty($request->input('id')) ? ($request->input('id')) : ( !empty($id) ? $id : false );
 
@@ -40,6 +46,7 @@ class ServicosController extends Controller
             'tela' => $tela,
             'nome_tela' => 'servicos',
             'servicos'=> $servicos,
+            'permissoes_liberadas' => $this->permissoes_liberadas,
             'request' => $request,
             'rotaIncluir' => 'incluir-servicos',
             'rotaAlterar' => 'alterar-servicos'
@@ -55,6 +62,7 @@ class ServicosController extends Controller
 
     public function getData(Request $request)
     {
+        $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
         $servicos = new Servicos();
 
         $servicos = $servicos::select(['id', 'nome', 'ativo'])
@@ -76,10 +84,27 @@ class ServicosController extends Controller
                 return $row->ativo ? 'Ativo' : 'Inativo';
             })
             ->addColumn('acoes', function ($row) {
-                return '
-                    <i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Visualizar" class="fas fa-eye alterar_servicos desabilita_editar pointer"></i>
-                    <i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_servicos pointer habilita_editar ml-3"></i>'.
-                        '<i data-id="'.$row->id.'" id="excluir" title="Excluir" class="fa fa-solid fa-trash pointer ml-3"></i>';
+                $alterar = $excluir = $duplicar ='';
+
+                if (in_array(2, $this->permissoes_liberadas)){
+
+                    $alterar = '<i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_servicos pointer habilita_editar ml-3"></i>';
+                }
+                if (in_array(3, $this->permissoes_liberadas)){
+
+                    $excluir = '<i data-id="'.$row->id.'" id="excluir" title="Excluir" class="fa fa-solid fa-trash pointer ml-3"></i>';
+
+                }
+                if (in_array(4, $this->permissoes_liberadas)){
+
+                    $duplicar = '<i data-id="'.$row->id.'" id="duplicar" title="Duplicar" class="fa fa-solid fa-trash pointer ml-3"></i>';
+
+                }
+
+                return '<i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Visualizar" class="fas fa-eye alterar_servicos desabilita_editar pointer"></i>'.
+                        $alterar.
+                        $excluir.
+                        $duplicar;
             })
             ->rawColumns(['acoes'])
             ->make(true);
@@ -150,7 +175,7 @@ class ServicosController extends Controller
         $servicos->nome = $request->input('nome');
         $servicos->prioridade = $request->input('prioridade');
         $servicos->sla = $request->input('sla');
-        $servicos->valor = DateHelpers::formatFloatValue($request->input('valor'));
+        $servicos->valor = Helpers::formatFloatValue($request->input('valor'));
         $servicos->ativo = $ativo;
 
         $servicos->save();

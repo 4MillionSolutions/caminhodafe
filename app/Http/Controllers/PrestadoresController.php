@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\ValidaPermissaoAcessoController;
 use Illuminate\Http\Request;
-use App\Http\Controllers\DateHelpers;
+use App\Http\Controllers\Helpers;
 use App\Models\Arquivos;
 use App\Models\Bancos;
 use App\Models\Clientes;
@@ -20,6 +21,8 @@ use Yajra\DataTables\Facades\DataTables; // se usar o pacote yajra/laravel-datat
 
 class PrestadoresController extends Controller
 {
+     public $permissoes_liberadas = [];
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -28,6 +31,7 @@ class PrestadoresController extends Controller
     public function index(Request $request)
     {
 
+        $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
 
         $id = !empty($request->input('id')) ? ($request->input('id')) : (!empty($id) ? $id : false);
 
@@ -55,7 +59,7 @@ class PrestadoresController extends Controller
 
         foreach ($prestadores as &$prestador) {
 
-            $prestador->created_at = DateHelpers::formatDate_datahoraminutosegundo($prestador->created_at);
+            $prestador->created_at = Helpers::formatDate_datahoraminutosegundo($prestador->created_at);
 
             $PrestadoresRegioes = new PrestadoresRegioes();
             $PrestadoresRegioes = $PrestadoresRegioes->where('prestadores_id', '=', $prestador->id)->where('ativo', '=', '1')->get();
@@ -72,9 +76,9 @@ class PrestadoresController extends Controller
 
             }
 
-            $DateHelpers = new DateHelpers();
+            $Helpers = new Helpers();
 
-            $estados = $DateHelpers->getEstados();
+            $estados = $Helpers->getEstados();
 
 
             foreach($PrestadoresRegioes as $regioes){
@@ -137,7 +141,7 @@ class PrestadoresController extends Controller
 
                 $url_download = route('arquivos.download', $arquivo->id);
 
-                $tamanho_em_mb = DateHelpers::formatBytes($arquivo->tamanho);
+                $tamanho_em_mb = Helpers::formatBytes($arquivo->tamanho);
                 $data_hora = date('d/m/Y H:i:s', strtotime($arquivo->created_at));
                 $html_arquivos .= "
                     <tr>
@@ -163,7 +167,7 @@ class PrestadoresController extends Controller
             'tela' => $tela,
             'nome_tela' => 'prestadores',
             'prestadores' => $prestadores,
-            'estados' => (new DateHelpers())->getEstados(),
+            'estados' => (new Helpers())->getEstados(),
             'servicos' => (new Servicos())->orderby('id')->get(),
             'bancos' => (new Bancos())->orderby('nome')->get(),
             'request' => $request,
@@ -180,6 +184,7 @@ class PrestadoresController extends Controller
 
     public function getData(Request $request)
     {
+        $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
         $prestadores = new Prestadores();
 
         $prestadores = $prestadores::select(['id', 'nome', 'ativo'])
@@ -201,10 +206,27 @@ class PrestadoresController extends Controller
                 return $row->ativo ? 'Ativo' : 'Inativo';
             })
             ->addColumn('acoes', function ($row) {
-                return '
-                    <i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Visualizar" class="fas fa-eye alterar_prestadores desabilita_editar pointer"></i>
-                    <i data-id="' . $row->id . '" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_prestadores pointer habilita_editar ml-3"></i>' .
-                    '<i data-id="' . $row->id . '" id="excluir" title="Excluir" class="fa fa-solid fa-trash pointer ml-3"></i>';
+                $alterar = $excluir = $duplicar ='';
+
+                if (in_array(2, $this->permissoes_liberadas)){
+
+                    $alterar = '<i data-id="' . $row->id . '" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_prestadores pointer habilita_editar ml-3"></i>';
+                }
+                if (in_array(3, $this->permissoes_liberadas)){
+
+                    $excluir = '<i data-id="' . $row->id . '" id="excluir" title="Excluir" class="fa fa-solid fa-trash pointer ml-3"></i>';
+
+                }
+                if (in_array(4, $this->permissoes_liberadas)){
+
+                    $duplicar = '<i data-id="'.$row->id.'" id="duplicar" title="Duplicar" class="fa fa-solid fa-trash pointer ml-3"></i>';
+
+                }
+
+                return '<i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Visualizar" class="fas fa-eye alterar_prestadores desabilita_editar pointer"></i>'.
+                        $alterar.
+                        $excluir.
+                        $duplicar;
             })
             ->rawColumns(['acoes'])
             ->make(true);
@@ -274,21 +296,20 @@ class PrestadoresController extends Controller
             }
 
             $ativo = ($request->input('status') == 'on') ? true : false;
-            info($request->all());
             $prestadores->nome = $request->input('nome');
             $prestadores->tipo_pessoa = !empty($request->input('tipo_pessoa')) ? $request->input('tipo_pessoa') : 'F';
-            $prestadores->documento = DateHelpers::somenteNumeros($request->input('documento'));
+            $prestadores->documento = Helpers::somenteNumeros($request->input('documento'));
             $prestadores->profissao = $request->input('profissao');
             $prestadores->endereco = $request->input('endereco');
             $prestadores->funcao = $request->input('funcao');
             $prestadores->crea_cau = $request->input('crea_cau');
             $prestadores->complemento = $request->input('complemento');
             $prestadores->numero = $request->input('numero');
-            $prestadores->cep = DateHelpers::somenteNumeros($request->input('cep'));
+            $prestadores->cep = Helpers::somenteNumeros($request->input('cep'));
             $prestadores->bairro = $request->input('bairro');
             $prestadores->cidade = $request->input('cidade');
             $prestadores->estado = $request->input('estado');
-            $prestadores->telefone = DateHelpers::somenteNumeros($request->input('telefone'));
+            $prestadores->telefone = Helpers::somenteNumeros($request->input('telefone'));
             $prestadores->email = $request->input('email');
             $prestadores->banco = $request->input('banco');
             $prestadores->agencia = $request->input('agencia');
@@ -328,7 +349,7 @@ class PrestadoresController extends Controller
                     $PrestadoresRegioes->cidade = $cidades[$key];
                     $PrestadoresRegioes->longitude = $longitudes[$key];
                     $PrestadoresRegioes->latitude = $latitudes[$key];
-                    $PrestadoresRegioes->valor = DateHelpers::formatFloatValue($valores[$key]);
+                    $PrestadoresRegioes->valor = Helpers::formatFloatValue($valores[$key]);
                     $PrestadoresRegioes->observacoes = $request->input('observacoes');
                     $PrestadoresRegioes->ativo = $ativo;
                     $PrestadoresRegioes->save();

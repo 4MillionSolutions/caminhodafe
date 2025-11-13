@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\ValidaPermissaoAcessoController;
+use App\Models\Acoes;
 use App\Models\PerfilSubmenus;
 use App\Models\Perfis;
+use App\Models\PermissoesPerfis;
 use App\Models\SubMenus;
 use Illuminate\Http\Request;
 
 class PerfisController extends Controller
 {
+    public $permissoes_liberadas = [];
+
     /**
      * Create a new controller instance.
      *
@@ -28,6 +33,8 @@ class PerfisController extends Controller
     public function index(Request $request)
     {
 
+        $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
+        info($this->permissoes_liberadas);
         $perfis = new Perfis();
 
         $id = !empty($request->input('id')) ? ($request->input('id')) : ( !empty($id) ? $id : false );
@@ -40,11 +47,17 @@ class PerfisController extends Controller
         	$perfis = $perfis->where('nome', 'like', '%'.$request->input('nome').'%');
         }
 
+
+        $acoes =new Acoes();
+        $acoes = $acoes->get();
+
         $perfis = $perfis->get();
         $tela = 'pesquisa';
     	$data = array(
 				'tela' => $tela,
                 'nome_tela' => 'perfis',
+                'acoes' => $acoes,
+                'permissoes_liberadas' => $this->permissoes_liberadas,
 				'perfis'=> $perfis,
 				'request' => $request,
 				'rotaIncluir' => 'incluir-perfis',
@@ -75,11 +88,16 @@ class PerfisController extends Controller
         $telas = new SubMenus();
         $telas = $telas->where('ativo', '=', 1)->get();
 
+        $acoes =new Acoes();
+        $acoes = $acoes->get();
+
         $tela = 'incluir';
     	$data = array(
 				'tela' => $tela,
                 'nome_tela' => 'perfis',
                 'telas' => $telas,
+                'acoes' => $acoes,
+                'permissoes_liberadas' => $this->permissoes_liberadas,
 				'request' => $request,
 				'rotaIncluir' => 'incluir-perfis',
 				'rotaAlterar' => 'alterar-perfis'
@@ -119,6 +137,7 @@ class PerfisController extends Controller
         $PerfilSubmenus = new PerfilSubmenus();
         $PerfilSubmenus = $PerfilSubmenus->where('perfil_id', '=', $request->input('id'))->get()->toArray();
 
+        $array_PermissoesPerfis = array();
         foreach ($telas as $key => $value) {
 
             $value->checked = false;
@@ -127,13 +146,28 @@ class PerfisController extends Controller
                     $value->checked = true;
                 }
             }
+
+            $PermissoesPerfis = new PermissoesPerfis();
+
+
+            $permissoes = $PermissoesPerfis->where('perfil_id', '=', $request->input('id'))->where('submenus_id', '=', $value->id)->get()->toArray();
+
+            foreach ($permissoes as $key => $permissao) {
+                $array_PermissoesPerfis[$request->input('id')][$value->id]['acoes'][] = $permissao['acao_id'];
+            }
+
         }
+
+        $acoes =new Acoes();
+        $acoes = $acoes->get();
 
         $tela = 'alterar';
     	$data = array(
 				'tela' => $tela,
                 'nome_tela' => 'perfis',
                 'telas' => $telas,
+                'acoes' => $acoes,
+                'permissoes' => $array_PermissoesPerfis,
 				'perfis'=> $perfis,
 				'request' => $request,
 				'rotaIncluir' => 'incluir-perfis',
@@ -151,22 +185,38 @@ class PerfisController extends Controller
         }
 
         $perfis->nome = $request->input('nome');
+        $permissoes = $request->input('permissoes');
 
         $perfis->save();
 
         if(!empty($request->input('telas'))) {
-            // Obtém o array de IDs das telas a partir da requisição
+
             $array_telas = $request->input('telas');
 
-            // Busca os submenus que correspondem aos IDs em $array_telas
             $subMenus = SubMenus::whereIn('id', $array_telas)->get();
 
-            // Sincroniza os submenus encontrados com o perfil
             $perfis->subMenus()->sync($subMenus->pluck('id'));
         }else {
-            // Se nenhuma tela for selecionada, remove todos os submenus do perfil
+
             $perfis->subMenus()->sync([]);
         }
+
+        PermissoesPerfis::where('perfil_id', $perfis->id)->delete();
+
+        foreach ($permissoes as $key => $permissao) {
+            list($tela, $acao) = explode("_", $permissao);
+
+            PermissoesPerfis::updateOrCreate(
+                [
+                    'perfil_id' => $perfis->id,
+                    'acao_id' => $acao,
+                    'submenus_id' => $tela
+                ],
+                []
+            );
+        }
+
+
 
         return $perfis->id;
 

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\ValidaPermissaoAcessoController;
 use Illuminate\Http\Request;
-use App\Http\Controllers\DateHelpers;
+use App\Http\Controllers\Helpers;
 use App\Models\Arquivos;
 use App\Models\Clientes;
 use App\Models\Tecnicos;
@@ -14,15 +15,18 @@ use Yajra\DataTables\Facades\DataTables; // se usar o pacote yajra/laravel-datat
 
 class ClientesController extends Controller
 {
+    public $permissoes_liberadas = [];
+
     public function __construct()
     {
         $this->middleware('auth');
+
     }
 
     public function index(Request $request)
     {
 
-
+        $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
         $id = !empty($request->input('id')) ? ($request->input('id')) : ( !empty($id) ? $id : false );
 
         $clientes = new Clientes();
@@ -77,7 +81,7 @@ class ClientesController extends Controller
 
                         $url_download = route('arquivos.download', $arquivo->id);
 
-                        $tamanho_em_mb = DateHelpers::formatBytes($arquivo->tamanho);
+                        $tamanho_em_mb = Helpers::formatBytes($arquivo->tamanho);
                         $data_hora = date('d/m/Y H:i:s', strtotime($arquivo->created_at));
                         $html_arquivos .= "
                             <tr>
@@ -98,7 +102,7 @@ class ClientesController extends Controller
             'tela' => $tela,
             'nome_tela' => 'clientes',
             'clientes'=> $clientes,
-            'estados'=> (new DateHelpers())->getEstados(),
+            'estados'=> (new Helpers())->getEstados(),
             'request' => $request,
             'rotaIncluir' => 'incluir-clientes',
             'rotaAlterar' => 'alterar-clientes'
@@ -113,6 +117,7 @@ class ClientesController extends Controller
 
     public function getData(Request $request)
     {
+        $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
         $clientes = new Clientes();
 
         $clientes = $clientes::select(['id', 'nome_empresa as nome_empresa', 'nome as nome', 'ativo'])
@@ -134,10 +139,29 @@ class ClientesController extends Controller
                 return $row->ativo ? 'Ativo' : 'Inativo';
             })
             ->addColumn('acoes', function ($row) {
+
+                $alterar = $excluir = $duplicar ='';
+
+                if (in_array(2, $this->permissoes_liberadas)){
+
+                    $alterar = '<i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_clientes habilita_editar pointer ml-3"></i>';
+                }
+                if (in_array(3, $this->permissoes_liberadas)){
+
+                    $excluir = '<i data-id="'.$row->id.'" id="excluir" title="Excluir" class="fa fa-solid fa-trash pointer ml-3"></i>';
+
+                }
+                if (in_array(4, $this->permissoes_liberadas)){
+
+                    $duplicar = '<i data-id="'.$row->id.'" id="duplicar" title="Duplicar" class="fa fa-solid fa-trash pointer ml-3"></i>';
+
+                }
+
                 return '
-                <i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Visualizar" class="fas fa-eye alterar_clientes desabilita_editar pointer"></i>
-                <i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Editar" class="fas fa-edit alterar_clientes habilita_editar pointer ml-3"></i>'.
-                        '<i data-id="'.$row->id.'" id="excluir" title="Excluir" class="fa fa-solid fa-trash pointer ml-3"></i>';
+                        <i data-id="'.$row->id.'" data-toggle="modal" data-target="#modal_alteracao" title="Visualizar" class="fas fa-eye alterar_clientes desabilita_editar pointer"></i>'.
+                        $alterar.
+                        $excluir.
+                        $duplicar;
             })
             ->rawColumns(['acoes'])
             ->make(true);
@@ -208,16 +232,16 @@ class ClientesController extends Controller
         $clientes->nome_empresa = $request->input('nome_empresa');
         $clientes->nome = $request->input('nome');
         $clientes->tipo_pessoa = !empty($request->input('tipo_pessoa')) ? $request->input('tipo_pessoa') : 'F';
-        $clientes->documento = DateHelpers::somenteNumeros($request->input('documento'));
+        $clientes->documento = Helpers::somenteNumeros($request->input('documento'));
         $clientes->endereco = $request->input('endereco');
         $clientes->complemento = $request->input('complemento');
         $clientes->numero = $request->input('numero');
-        $clientes->cep = DateHelpers::somenteNumeros($request->input('cep'));
+        $clientes->cep = Helpers::somenteNumeros($request->input('cep'));
         $clientes->bairro = $request->input('bairro');
         $clientes->cidade = $request->input('cidade');
         $clientes->estado = $request->input('estado');
-        $clientes->telefone_cliente = DateHelpers::somenteNumeros($request->input('telefone_cliente'));
-        $clientes->telefone = DateHelpers::somenteNumeros($request->input('telefone'));
+        $clientes->telefone_cliente = Helpers::somenteNumeros($request->input('telefone_cliente'));
+        $clientes->telefone = Helpers::somenteNumeros($request->input('telefone'));
         $clientes->email_cliente = $request->input('email_cliente');
         $clientes->email = $request->input('email');
         $clientes->observacoes = $request->input('observacoes');

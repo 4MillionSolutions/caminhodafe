@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\PerfilSubmenus;
 use App\Models\Perfis;
+use App\Models\PermissoesPerfis;
 use App\Models\SubMenus;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+
+use function PHPSTORM_META\map;
 
 class ValidaPermissaoAcessoController extends Controller
 {
@@ -69,6 +72,45 @@ class ValidaPermissaoAcessoController extends Controller
         }
 
         return false;
+    }
+
+    public function retornaPerfil() {
+
+        $user = Auth::user();
+        $users = new User();
+        $users = $users->where('id', '=', $user->id)->first();
+        $perfil = $users->perfil_acesso;
+        $perfis = new Perfis();
+        $perfis = $perfis->where('id', '=', $perfil)->first();
+
+        return $perfis->id;
+    }
+
+    /**
+     * ValidaAcaoLiberada
+     *
+     * @param [type] $menu_id
+     * @param [type] $perfil_id
+     * @param [type] $acao 'ex: Incluir, Alterar, Excluir'
+     */
+    public function validaAcaoLiberada($menu_id, $perfil) {
+
+        $perfis = new Perfis();
+        $perfis = $perfis->where('id', '=', $perfil)->first();
+
+        $perfis_acoes = new PermissoesPerfis();
+        $perfis_acoes = $perfis_acoes->select('acao_id as permissoes')->where('submenus_id', '=', $menu_id)
+                                     ->where('perfil_id', '=', $perfis->id)
+                                     ->pluck('permissoes')
+                                     ->toArray();
+
+
+        if(!empty($perfis_acoes)) {
+            return $perfis_acoes;
+        } else {
+            return false;
+        }
+
     }
 
 

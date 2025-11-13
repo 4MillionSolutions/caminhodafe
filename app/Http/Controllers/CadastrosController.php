@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Auth\ValidaPermissaoAcessoController;
 use Illuminate\Http\Request;
 
 class CadastrosController extends Controller
 {
+
+    public $permissoes_liberadas = [];
+
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -13,6 +18,8 @@ class CadastrosController extends Controller
 
     public function index(Request $request, $aba = null, $id = null)
     {
+
+        $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
 
         if(!empty($id)){
             $request->merge(['id' => $id]);
@@ -66,6 +73,7 @@ class CadastrosController extends Controller
             // retorna só os dados como JSON
             return response()->json($data);
         }
+        $data['permissoes_liberadas'] = $this->permissoes_liberadas;
         return view('cadastros', $data);
     }
 

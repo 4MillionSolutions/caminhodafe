@@ -12,7 +12,9 @@
             <div class="col-sm-4">
                 <p>
                     <button class="btn btn-outline-primary" type="button" data-toggle="collapse" data-target="#div_pesquisa" aria-expanded="false" aria-controls="div_pesquisa">Pesquisar</button>
-                    <button class="btn btn-outline-success acao_abrir_modal_incluir" type="button" data-toggle="modal" data-target="#modal_incluir" aria-expanded="false" aria-controls="modal_incluir">Adicionar</button>
+                    @if(in_array(1, $permissoes_liberadas))
+                        <button class="btn btn-outline-success acao_abrir_modal_incluir" type="button" data-toggle="modal" data-target="#modal_incluir" aria-expanded="false" aria-controls="modal_incluir">Adicionar</button>
+                    @endif
                 </p>
             </div>
         </div>

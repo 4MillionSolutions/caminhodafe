@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 
-class DateHelpers
+class Helpers
 {
     public static function formatFloatValue($value) {
         $value = preg_replace('/\,/', '.', preg_replace('/\./', '', $value));
