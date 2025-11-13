@@ -10,14 +10,18 @@ class AgendamentoAuditoria extends Model
     use HasFactory;
 
     protected $table = 'agendamento_auditoria';
+    public $timestamps = false;
     
     protected $fillable = [
         'agendamento_id',
         'usuario_id',
         'acao',
+        'descricao',
         'campo_alterado',
         'valor_anterior',
         'valor_novo',
+        'dados_anteriores',
+        'dados_novos',
         'data_acao'
     ];
 

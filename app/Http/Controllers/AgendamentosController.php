@@ -8,6 +8,7 @@ use App\Models\Agendamentos;
 use App\Models\Clientes;
 use App\Models\Imoveis;
 use App\Models\Prestadores;
+use App\Models\PrestadoresRegioes;
 use App\Models\Motivos;
 use App\Models\Servicos;
 use App\Models\AgendamentoAuditoria;
@@ -53,6 +54,7 @@ class AgendamentosController extends Controller
         $tela = 'pesquisa';
         $clientes = Clientes::where('ativo', true)->get();
         $prestadores = Prestadores::where('ativo', true)->get();
+        $servicos = Servicos::where('ativo', true)->get();
         
         $data = array(
             'tela' => $tela,
@@ -60,6 +62,7 @@ class AgendamentosController extends Controller
             'agendamentos'=> $agendamentos,
             'clientes'=> $clientes,
             'prestadores'=> $prestadores,
+            'servicos'=> $servicos,
             'request' => $request,
             'rotaIncluir' => 'incluir-agendamentos',
             'rotaAlterar' => 'alterar-agendamentos'
@@ -204,6 +207,7 @@ class AgendamentosController extends Controller
             $agendamentos->hora_inicio = $request->input('hora_inicio');
             $agendamentos->hora_fim = $request->input('hora_fim') ?? null;
             $agendamentos->prestador_id = $request->input('prestador_id') ?? null;
+            $agendamentos->servico_id = $request->input('servico_id') ?? null;
             $agendamentos->numero_contato = $request->input('numero_contato_formatted') ?? $request->input('numero_contato') ?? null;
             $agendamentos->contato_nome = $request->input('contato_nome') ?? null;
             $agendamentos->observacao_externa = $request->input('observacao_externa') ?? null;
@@ -393,7 +397,7 @@ class AgendamentosController extends Controller
 
     public function ajax()
     {
-        $agendamentos = Agendamentos::with(['cliente', 'imovel', 'prestador'])
+        $agendamentos = Agendamentos::with(['cliente', 'imovel', 'prestador', 'servico'])
             ->orderBy('id', 'desc')
             ->get();
 
@@ -403,18 +407,27 @@ class AgendamentosController extends Controller
             $cliente_nome = ($cliente ? ($cliente->nome ?? $cliente->nome_empresa ?? '-') : '-');
             $imovel_endereco = optional($agendamento->imovel)->endereco ?? '-';
             $prestador_nome = optional($agendamento->prestador)->nome ?? '-';
+            $servico_nome = optional($agendamento->servico)->nome ?? '-';
+            $deslocamento_valor = $agendamento->deslocamento_valor ?? 0;
+            
+            $deslocamento_badge = '';
+            if ($deslocamento_valor > 0) {
+                $deslocamento_badge = '<span class="badge badge-info">R$ ' . number_format($deslocamento_valor, 2, ',', '.') . '</span>';
+            }
             
             $dados[] = [
                 'id' => $agendamento->id,
                 'numero_sequencial' => $agendamento->numero_sequencial,
                 'cliente' => $cliente_nome,
-                'imovel' => $imovel_endereco, // Mostrar o endereço do imóvel como identificador
-                'endereco' => $imovel_endereco, // Repetir aqui também para consistência
-                'data' => $agendamento->data ? \Carbon\Carbon::parse($agendamento->data)->format('d/m/Y') : '-',
-                'hora_inicio' => $agendamento->hora_inicio ?? '-',
+                'imovel' => $imovel_endereco,
+                'endereco' => $imovel_endereco,
+                'data' => $agendamento->data_criacao_demanda ? \Carbon\Carbon::parse($agendamento->data_criacao_demanda)->format('d/m/Y') : '-',
+                'hora_inicio' => $agendamento->data_criacao_demanda ? '08:00' : '-',
+                'servico' => $servico_nome,
                 'prestador' => $prestador_nome,
-                'ativo' => $agendamento->ativo ? '<span class="badge badge-success">Ativo</span>' : '<span class="badge badge-danger">Inativo</span>',
-                'acoes' => '<button type="button" class="btn btn-sm btn-primary" data-action="editar" data-type="agendamento" data-id="' . $agendamento->id . '">Editar</button> <button type="button" class="btn btn-sm btn-danger" data-action="deletar" data-type="agendamento" data-id="' . $agendamento->id . '">Deletar</button>'
+                'deslocamento' => $deslocamento_badge ?: '-',
+                'ativo' => $agendamento->status == 'CRIADO' ? '<span class="badge badge-success">Ativo</span>' : '<span class="badge badge-secondary">' . ($agendamento->status ?? 'Indefinido') . '</span>',
+                'acoes' => '<button type="button" class="btn btn-sm btn-primary" onclick="editarAgendamento(' . $agendamento->id . ')"><i class="fas fa-edit"></i> Editar</button> <button type="button" class="btn btn-sm btn-danger" onclick="deletarAgendamento(' . $agendamento->id . ')"><i class="fas fa-trash"></i> Deletar</button>'
             ];
         }
 
@@ -669,38 +682,70 @@ class AgendamentosController extends Controller
     public function getPrestatoresRecomendados(Request $request)
     {
         try {
-            $imovelId = $request->input('imovel_id');
-            $imovel = Imoveis::find($imovelId);
-
-            if (!$imovel) {
+            $cep = $request->input('cep');
+            $estado = $request->input('estado');
+            $cidade = $request->input('cidade');
+            
+            Log::info('Buscando prestadores', ['cep' => $cep, 'estado' => $estado, 'cidade' => $cidade]);
+            
+            if (!$estado || !$cidade) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Imóvel não encontrado'
-                ], 404);
+                    'message' => 'Estado e cidade são obrigatórios'
+                ], 400);
             }
 
-            // Por enquanto, retorna todos os prestadores ativos (sem filtro de localização)
-            $prestadores = Prestadores::where('ativo', true)
-                ->orderBy('avaliacao', 'desc')
-                ->get()
-                ->map(function ($prestador) {
-                    return [
-                        'id' => $prestador->id,
-                        'nome' => $prestador->nome_completo,
-                        'localizacao' => $prestador->localizacao_atendimento ?? 'Sem informação',
-                        'valor_hora' => $prestador->valor_hora ?? 'N/A',
-                        'avaliacao' => $prestador->avaliacao ?? '0',
-                        'telefone' => $prestador->telefone_comercial ?? $prestador->telefone ?? 'Sem telefone',
-                        'whatsapp' => $prestador->whatsapp ?? null
-                    ];
-                });
+            // Buscar prestadores da região (estado + cidade)
+            try {
+                $prestadores = Prestadores::where('estado_atendimento', $estado)
+                    ->where('cidade_atendimento', $cidade)
+                    ->get()
+                    ->map(function ($prestador) {
+                        return [
+                            'id' => $prestador->id,
+                            'nome' => $prestador->nome,
+                            'localizacao' => $prestador->cidade_atendimento . ', ' . $prestador->estado_atendimento,
+                            'valor_hora' => $prestador->valor_hora ?? 'N/A',
+                            'avaliacao' => $prestador->avaliacao ?? '0',
+                            'telefone' => $prestador->telefone_comercial ?? $prestador->telefone ?? 'Sem telefone',
+                            'whatsapp' => $prestador->whatsapp ?? null,
+                        ];
+                    });
 
-            return response()->json([
-                'success' => true,
-                'data' => $prestadores->values()
-            ]);
+                if ($prestadores->isEmpty()) {
+                    // Se não encontrar na região, retornar todos os prestadores
+                    $prestadores = Prestadores::all()
+                        ->map(function ($prestador) {
+                            return [
+                                'id' => $prestador->id,
+                                'nome' => $prestador->nome,
+                                'localizacao' => $prestador->cidade_atendimento . ', ' . $prestador->estado_atendimento,
+                                'valor_hora' => $prestador->valor_hora ?? 'N/A',
+                                'avaliacao' => $prestador->avaliacao ?? '0',
+                                'telefone' => $prestador->telefone_comercial ?? $prestador->telefone ?? 'Sem telefone',
+                                'whatsapp' => $prestador->whatsapp ?? null,
+                            ];
+                        });
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $prestadores
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Erro ao buscar modelo Prestadores', [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                
+                // Fallback: retornar array vazio
+                return response()->json([
+                    'success' => true,
+                    'data' => []
+                ]);
+            }
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Erro ao buscar prestadores recomendados', [
+            Log::error('Erro ao buscar prestadores recomendados', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -709,6 +754,38 @@ class AgendamentosController extends Controller
                 'success' => false,
                 'message' => 'Erro ao buscar prestadores: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Obtém latitude e longitude de um CEP via ViaCEP
+     */
+    private function obterLatLngDoCep($cep)
+    {
+        try {
+            $url = "https://viacep.com.br/ws/$cep/json/";
+            $response = file_get_contents($url);
+            
+            if (!$response) {
+                return null;
+            }
+            
+            $dados = json_decode($response, true);
+            
+            if (isset($dados['erro'])) {
+                return null;
+            }
+            
+            // ViaCEP não retorna lat/lng diretamente, precisamos fazer geocoding reverso
+            // Por enquanto, retornar null e usar filtro por estado/cidade
+            return null;
+            
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Erro ao obter lat/lng do CEP', [
+                'cep' => $cep,
+                'message' => $e->getMessage()
+            ]);
+            return null;
         }
     }
 
@@ -1137,5 +1214,229 @@ class AgendamentosController extends Controller
             'usuario_id' => Auth::id(),
             'timestamp' => now()
         ]);
+    }
+
+    /**
+     * Carrega dados de um agendamento para edição
+     */
+    public function editar($id)
+    {
+        Log::info('AgendamentosController@editar chamado', ['id' => $id, 'user_id' => Auth::id()]);
+        try {
+            $agendamento = Agendamentos::with(['cliente', 'imovel', 'prestador', 'servico'])->find($id);
+            
+            if (!$agendamento) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Agendamento não encontrado'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $agendamento->id,
+                    'numero_sequencial' => $agendamento->numero_sequencial ?? $agendamento->os_interna,
+                    'cliente_nome' => $agendamento->cliente->nome ?? $agendamento->cliente->nome_empresa ?? '-',
+                    'cliente_id' => $agendamento->cliente_id,
+                    'imovel_endereco' => $agendamento->imovel->endereco ?? '-',
+                    'imovel_complemento' => $agendamento->imovel->complemento ?? '',
+                    'prestador_nome' => $agendamento->prestador->nome ?? '-',
+                    'servico_id' => $agendamento->servico_id ?? '',
+                    'data' => $agendamento->data_criacao_demanda ? \Carbon\Carbon::parse($agendamento->data_criacao_demanda)->format('Y-m-d') : date('Y-m-d'),
+                    'data_vencimento_sla' => $agendamento->data_vencimento_sla ? \Carbon\Carbon::parse($agendamento->data_vencimento_sla)->format('Y-m-d\TH:i') : '',
+                    'hora_inicio' => $agendamento->hora_inicio ?? '08:00',
+                    'hora_fim' => $agendamento->hora_fim ?? '17:00',
+                    'contato_nome' => $agendamento->contato_nome ?? '',
+                    'telefone_contato' => $agendamento->numero_contato_formatted ?? '',
+                    'deslocamento_valor' => $agendamento->deslocamento_valor ?? 0,
+                    'deslocamento_observacoes' => $agendamento->deslocamento_observacoes ?? '',
+                    'status' => $agendamento->status ?? 'CRIADO',
+                    'ativo' => 1
+                ]
+            ]);
+        } catch(\Exception $e) {
+            Log::error('Erro ao carregar agendamento para edição', [
+                'id' => $id,
+                'erro' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao carregar agendamento'
+            ], 500);
+        }
+    }
+
+    /**
+     * Atualiza dados de um agendamento
+     */
+    public function atualizar(Request $request, $id)
+    {
+        Log::info('AgendamentosController@atualizar chamado', ['id' => $id, 'user_id' => Auth::id(), 'input' => $request->all()]);
+        try {
+            $agendamento = Agendamentos::find($id);
+            
+            if (!$agendamento) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Agendamento não encontrado'
+                ], 404);
+            }
+
+            // Armazenar valores antigos para auditoria
+            $valoresAntigos = [
+                'cliente_id' => $agendamento->cliente_id,
+                'contato_nome' => $agendamento->contato_nome,
+                'numero_contato_formatted' => $agendamento->numero_contato_formatted,
+                'data_criacao_demanda' => $agendamento->data_criacao_demanda,
+                'data_vencimento_sla' => $agendamento->data_vencimento_sla,
+                'deslocamento_valor' => $agendamento->deslocamento_valor,
+                'deslocamento_observacoes' => $agendamento->deslocamento_observacoes,
+                'servico_id' => $agendamento->servico_id,
+                'status' => $agendamento->status
+            ];
+
+            // Atualizar campos
+            if ($request->has('cliente_id')) {
+                $agendamento->cliente_id = $request->input('cliente_id');
+            }
+            if ($request->has('contato_nome')) {
+                $agendamento->contato_nome = $request->input('contato_nome');
+            }
+            if ($request->has('telefone_contato')) {
+                $agendamento->numero_contato_formatted = $request->input('telefone_contato');
+            }
+            if ($request->has('data')) {
+                $agendamento->data_criacao_demanda = $request->input('data');
+            }
+            if ($request->has('data_vencimento_sla')) {
+                $agendamento->data_vencimento_sla = $request->input('data_vencimento_sla');
+            }
+            if ($request->has('hora_inicio')) {
+                $agendamento->hora_inicio = $request->input('hora_inicio');
+            }
+            if ($request->has('hora_fim')) {
+                $agendamento->hora_fim = $request->input('hora_fim');
+            }
+            if ($request->has('deslocamento_valor')) {
+                $agendamento->deslocamento_valor = $request->input('deslocamento_valor');
+            }
+            if ($request->has('deslocamento_observacoes')) {
+                $agendamento->deslocamento_observacoes = $request->input('deslocamento_observacoes');
+            }
+            if ($request->has('servico_id')) {
+                $agendamento->servico_id = $request->input('servico_id');
+            }
+            if ($request->has('status')) {
+                $agendamento->status = $request->input('status');
+            }
+            
+            // Atualizar complemento do imóvel se necessário
+            if ($request->has('imovel_complemento') && $agendamento->imovel_id) {
+                $agendamento->imovel->complemento = $request->input('imovel_complemento');
+                $agendamento->imovel->save();
+            }
+            
+            $agendamento->save();
+
+            // Registrar auditoria
+            $mudancas = [];
+            foreach($valoresAntigos as $campo => $valorAntigo) {
+                $valorNovo = $agendamento->$campo;
+                if ($valorAntigo != $valorNovo) {
+                    $mudancas[] = [
+                        'campo' => $campo,
+                        'valor_antigo' => $valorAntigo,
+                        'valor_novo' => $valorNovo
+                    ];
+                }
+            }
+
+            if (!empty($mudancas)) {
+                AgendamentoAuditoria::create([
+                    'agendamento_id' => $agendamento->id,
+                    'usuario_id' => Auth::id(),
+                    'acao' => 'atualizar',
+                    'descricao' => 'Agendamento atualizado',
+                    'dados_anteriores' => json_encode($valoresAntigos),
+                    'dados_novos' => json_encode([
+                        'cliente_id' => $agendamento->cliente_id,
+                        'contato_nome' => $agendamento->contato_nome,
+                        'numero_contato_formatted' => $agendamento->numero_contato_formatted,
+                        'data_criacao_demanda' => $agendamento->data_criacao_demanda,
+                        'data_vencimento_sla' => $agendamento->data_vencimento_sla,
+                        'deslocamento_valor' => $agendamento->deslocamento_valor,
+                        'deslocamento_observacoes' => $agendamento->deslocamento_observacoes,
+                        'servico_id' => $agendamento->servico_id,
+                        'status' => $agendamento->status
+                    ])
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Agendamento atualizado com sucesso!',
+                'data' => $agendamento
+            ]);
+        } catch(\Exception $e) {
+            Log::error('Erro ao atualizar agendamento', [
+                'id' => $id,
+                'erro' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao atualizar agendamento: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Deleta um agendamento
+     */
+    public function deletar(Request $request, $id)
+    {
+        Log::info('AgendamentosController@deletar chamado', ['id' => $id, 'user_id' => Auth::id(), 'input' => $request->all()]);
+        try {
+            $agendamento = Agendamentos::find($id);
+            
+            if (!$agendamento) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Agendamento não encontrado'
+                ], 404);
+            }
+
+            $numero_sequencial = $agendamento->numero_sequencial ?? $agendamento->os_interna;
+
+            // Registrar auditoria antes de deletar
+            AgendamentoAuditoria::create([
+                'agendamento_id' => $agendamento->id,
+                'usuario_id' => Auth::id(),
+                'acao' => 'deletar',
+                'descricao' => 'Agendamento deletado',
+                'dados_anteriores' => json_encode($agendamento->toArray()),
+                'dados_novos' => null
+            ]);
+
+            // Deletar agendamento
+            $agendamento->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Agendamento ' . $numero_sequencial . ' deletado com sucesso!'
+            ]);
+        } catch(\Exception $e) {
+            Log::error('Erro ao deletar agendamento', [
+                'id' => $id,
+                'erro' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao deletar agendamento: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

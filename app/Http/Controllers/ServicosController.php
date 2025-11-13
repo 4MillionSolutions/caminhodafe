@@ -163,12 +163,9 @@ class ServicosController extends Controller
     }
 
     public function salva($request) {
-
-
         $servicos = new Servicos();
         if($request->input('id')) {
-
-            $servicos = servicos::where('id', $request->input('id'))->first();
+            $servicos = Servicos::where('id', $request->input('id'))->first();
         }
 
         $ativo = ($request->input('status') == 'on') ? true : false;
@@ -188,5 +185,29 @@ class ServicosController extends Controller
         $query = $servicos->where('ativo', '=', 1);
 
         return $query->get();
+    }
+
+    public function getServico($id)
+    {
+        try {
+            $servico = Servicos::find($id);
+            
+            if (!$servico) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Serviço não encontrado'
+                ], 404);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'data' => $servico
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao buscar serviço: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
