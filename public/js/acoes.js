@@ -1,439 +1,66 @@
 $(function ($) {
 
+    calcular();
 
-    $(document).on('click', '.modal_nave', function (e) {
-        e.preventDefault();
-
-        $('.modal_nave').removeClass('active');
-        $(this).addClass('active');
-        $('.dados').hide();
-
-        var $link = $(this);
-        var target = $link.attr('href');
-        $(target).show();
+    $(document).on('click', '.calcular', function (e) {
+        calcular();
+    });
+    $(document).on('change', '.calcular', function (e) {
+        calcular();
     });
 
-    $(document).on('click', '.desabilita_editar', function (e) {
+    function calcular() {
 
-        $('#modal_alteracao .btn_desabilita_editar').hide();
-        // desabilita todos os imputs do modal
-        $('#modal_alteracao input, #modal_alteracao select, #modal_alteracao textarea').attr('disabled', true);
+        $table = $('#table_hospedagens tbody');
+        $dias_viagem = parseInt($('#dias_viagem').val());
+        $gastros_extras = parseFloat($('#gastros_extras').val().replace(',','.'));
 
-    });
-    $(document).on('click', '.habilita_editar', function (e) {
+        var soma_menor_valor = soma_maior_valor = soma_desconto_parceiro = soma_valor_cafe = total_com_desconto =0;
 
-        $('#modal_alteracao .btn_desabilita_editar').show();
+        $table.find('tr').each(function () {
+            $this = $(this);
 
-        $('#modal_alteracao input, #modal_alteracao select, #modal_alteracao textarea').attr('disabled', false);
-
-    });
-
-    $(document).on('click', '.acao_abrir_modal_incluir', function (e) {
-
-        $('.dados_incluir').click();
-
-    })
-
-
-
-    function getCsrf() {
-        return $('meta[name="csrf-token"]').attr('content');
-    }
-
-    function fetchResource(resource, id, cb) {
-        $.ajax({
-            type: "GET",
-            url: '/cadastros/' + resource + '/' + id,
-            data: {
-                id: id,
-                ajax: true,
-                _token: getCsrf(),
-            },
-            success: function (data) {
-                cb(null, data);
-            },
-            error: function (jqXHR) {
-                cb(jqXHR);
-            }
-        });
-    }
-
-    function collectModalData(modalSelector) {
-        const self = this;
-        const formEl = $('#modal_alteracao form')[0];
-        // console.log(formEl);
-
-        const formData = new FormData(formEl);
-        formData.set('_token', $('meta[name="csrf-token"]').attr('content'));
-        return formData;
-    }
-
-    function submitResource(resource, action, payload, idForUrl, done, fail) {
-        var url = '/cadastros/' + resource + '/' + action + (idForUrl ? ('/' + idForUrl) : '');
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: payload,
-            processData: false,
-            contentType: false,
-            success: function (data) {
-                if (typeof done === 'function') done(data);
-            },
-            error: function (jqXHR) {
-                if (typeof fail === 'function') fail(jqXHR);
-            }
-        });
-    }
-
-    // generic "alterar" button click (opens modal and fills fields)
-    $(document).on('click', '[class*="alterar_"]', function (e) {
-        e.preventDefault();
-        var $btn = $(this);
-
-        // find class like alterar_tecnicos or alterar_clientes
-        var cls = ($btn.attr('class') || '').split(/\s+/).find(function (c) {
-            return c.indexOf('alterar_') === 0;
-        });
-        if (!cls) return;
-        var resource = cls.replace('alterar_', '');
-
-        var id = $btn.data('id');
-        if (!id) return;
-
-
-        fetchResource(resource, id, function (err, data) {
-            if (err) {
-                alert('Erro ao obter dados: ' + (err.responseText || err.statusText));
+            if($this.find('.calcular').prop('checked') == false){
                 return;
             }
-            // expected shape: data[resource][0]
-            var obj = (data[resource] && data[resource][0]) || {};
 
-            setTimeout(function() {
-                // populate modal_alteracao fields that exist
-                Object.keys(obj).forEach(function (key) {
-                    var $el = $('#modal_alteracao #modal_' + key);
+            valor_cafe = $this.find('.valor_cafe').text().replace(',','.');
+            soma_valor_cafe = soma_valor_cafe + parseFloat(valor_cafe);
 
-                    if ('radio' === $el.attr('type') || 'checkbox' === $el.attr('type')) {
+            desconto_parceiro = $this.find('.desconto_parceiro').text().replace(',','.');
+            soma_desconto_parceiro = soma_desconto_parceiro + parseFloat(desconto_parceiro);
 
-                        $el.filter('[value="' + obj[key] + '"]').prop('checked', true);
+            maior_valor = $this.find('.maior_valor').text().replace(',','.');
+            soma_maior_valor = soma_maior_valor + parseFloat(maior_valor);
 
-
-                    } else {
-                        if ($el.length) {
-                            $el.val(obj[key]);
-                        }
-                    }
-
-
-                });
-            }, 500);
-
-            $('#modal_alteracao #table_regioes tbody').empty();
-
-
-            var array_latitude_longitude = obj.array_latitude_longitude || [];
-
-            array_latitude_longitude.forEach(function(latlng) {
-
-                marcarMapa(mapAlterar,  latlng.latitude, latlng.longitude, 'alterar');
-
-            });
-
-            $('#modal_alteracao #table_regioes tbody').append(obj.tabela_regioes);
-
-            $('.dados_alterar').trigger('click');
-
-
-            $('#modal_alteracao #arquivos_salvos').html(obj.arquivos_html);
-
-            setTimeout(function() {
-
-
-                $('#modal_alteracao .sonumeros').unmask();
-                $('#modal_alteracao .mask_minutos').unmask();
-                $('#modal_alteracao .mask_horas').unmask();
-                // $('#modal_alteracao .mask_valor').unmask();
-                $('#modal_alteracao .mask_date').unmask();
-                $('#modal_alteracao .mask_data_hora').unmask();
-                $('#modal_alteracao .cpf').unmask();
-                $('#modal_alteracao .cnpj').unmask();
-                $('#modal_alteracao .cep').unmask();
-                $('.mask_phone').unmask();
-                $('#modal_alteracao .cep').mask('00000-000');
-                $('#modal_alteracao .sonumeros').mask('000000000000');
-                $('#modal_alteracao .mask_minutos').mask('00:00');
-                $('#modal_alteracao .mask_horas').mask('00:00:00');
-                $('#modal_alteracao .mask_valor').mask('###.##0,00', {reverse: true});
-                $('#modal_alteracao .mask_valor').trigger('focus');
-                $('#modal_alteracao .mask_date').mask('00/00/0000');
-                $('#modal_alteracao .mask_data_hora').mask('00/00/0000 00:00:00');
-
-                var stipo_pessoa = $('#modal_alteracao .tipo_pessoa:checked').val();
-                if(stipo_pessoa === 'F') {
-                    $('.label_documento').text('CPF');
-                    $('#modal_alteracao #modal_documento').removeClass('cnpj').addClass('cpf');
-                    $('#modal_alteracao #modal_documento').unmask();
-                    $('#modal_alteracao #modal_documento').mask('000.000.000-00');
-
-                    $('#modal_incluir #modal_documento').removeClass('cnpj').addClass('cpf');
-                    $('#modal_incluir #modal_documento').unmask();
-                    $('#modal_incluir #modal_documento').mask('000.000.000-00');
-                } else {
-                    $('.label_documento').text('CNPJ');
-                    $('#modal_alteracao #modal_documento').removeClass('cpf').addClass('cnpj');
-                    $('#modal_alteracao #modal_documento').unmask();
-                    $('#modal_alteracao #modal_documento').mask('00.000.000/0000-00');
-                    $('#modal_incluir #modal_documento').removeClass('cpf').addClass('cnpj');
-                    $('#modal_incluir #modal_documento').unmask();
-                    $('#modal_incluir #modal_documento').mask('00.000.000/0000-00');
-                }
-
-                //se tipo_pessoa for 'F' esconder a aba Dados comerciais
-                if(stipo_pessoa === 'F') {
-                    $('.tab_dados_comerciais').hide();
-                }         else {
-                    $('.tab_dados_comerciais').show();
-                }
-
-                var behavior = function (val) {
-                    return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
-                },
-
-                options = {
-                    onKeyPress: function (val, e, field, options) {
-                        field.mask(behavior.apply({}, arguments), options);
-                    }
-                };
-                $('#modal_alteracao  .mask_phone').mask(behavior, options);
-                $('#modal_alteracao  #modal_created_at').attr('disabled', true);
-
-            }, 500);
-
+            menor_valor = $this.find('.menor_valor').text().replace(',','.');
+            soma_menor_valor = soma_menor_valor + parseFloat(menor_valor);
 
         });
-    });
 
-    $(document).on('click', '.adicionar_arquivo', function (e) {
-        e.preventDefault();
 
-        $modal_visivel = $(".modal.show"); // modal visível
 
-        var $divArquivos = $modal_visivel.find('.div_arquivos').last();
+        total_menor_valor_com_desconto = soma_menor_valor - (soma_menor_valor * (soma_desconto_parceiro / 100));
 
-        var $newdivArquivos = $divArquivos.clone();
-        $newdivArquivos.find('input[type="file"]').val('');
 
-        $divArquivos.after($newdivArquivos);
-        if ($newdivArquivos.find('.remover_arquivo').length === 0) {
-            $newdivArquivos.append(
-            '<button type="button" class="btn btn-secondary btn-sm remover_arquivo ms-2"><i class="fa fa-trash"></i></button>'
-            );
+        total_com_desconto = total_menor_valor_com_desconto + ($gastros_extras * $dias_viagem);
+
+        $('#total_menor_valor').text('R$ ' + floatToBR(soma_menor_valor));
+        $('#total_maior_valor').text('R$ ' + floatToBR(soma_maior_valor));
+        $('#total_menor_valor_com_desconto').text('R$ ' + floatToBR(total_menor_valor_com_desconto));
+        $('#total_com_desconto').text('R$ ' + floatToBR(total_com_desconto));
+
+    }
+
+    function floatToBR(valor) {
+        if (valor === null || valor === undefined || valor === "") {
+            return "";
         }
 
-        $divArquivos.after($newdivArquivos);
-
-
-
-
-    });
-
-    $(document).on('click', '.remover_arquivo', function () {
-
-
-        $(this).closest('.div_arquivos').remove();
-    });
-
-    // generic salvar handler for ids like salvar_tecnicos_alterar or salvar_clientes_incluir
-    $(document).on('click', '[id^="salvar_"]', function (e) {
-        e.preventDefault();
-        var parts = this.id.split('_'); // ["salvar", "tecnicos", "alterar"]
-        if (parts.length < 3) return;
-        var resource = parts[1];
-        var action = parts[2]; // 'alterar' or 'incluir'
-        var modalSelector = (action === 'alterar') ? '#modal_alteracao' : '#modal_incluir';
-        var payload = collectModalData(modalSelector);
-        var idForUrl = (action === 'alterar') ? payload.id || payload.modal_id || payload['id'] : null;
-        // ensure if modal had modal_id it's used as id param
-        if (payload.modal_id && !payload.id) {
-            payload.id = payload.modal_id;
-            delete payload.modal_id;
-        }
-
-        submitResource(resource, action, payload, idForUrl, function () {
-            var tableInstance = window['table_' + resource];
-            if (tableInstance && tableInstance.ajax) {
-                tableInstance.ajax.reload(null, false);
-                alert('Registro salvo com sucesso!');
-            }
-            // close modal
-            var fechar = (action === 'alterar') ? '#fechar_modal_alteracao' : '#fechar_modal_incluir';
-            $(fechar).click();
-        }, function (jqXHR) {
-            alert('Erro ao processar requisição: ' + (jqXHR.responseText || jqXHR.statusText));
-        });
-    });
-
-
-    //função generica para deletar
-    $(document).on('click', '[id="excluir"]', function (e) {
-        e.preventDefault();
-        var $btn = $(this);
-        if (!confirm('Confirma a exclusão deste registro?')) {
-            return;
-        }
-
-        //pega o id da Table onde o botão está localizado
-        var $table = $btn.closest('table');
-        if (!$table.length) return;
-        var tableId = $table.attr('id');
-        var resource = tableId.replace('table_', '');
-
-        var id = $btn.data('id');
-
-        if (!id) return;
-
-        $.ajax({
-            type: "POST",
-            url: '/cadastros/' + resource + '/excluir/' + id,
-            data: {
-                id: id,
-                ajax: true,
-                _token: getCsrf(),
-            },
-            success: function () {
-                var tableInstance = window['table_' + resource];
-                if (tableInstance && tableInstance.ajax) {
-                    tableInstance.ajax.reload(null, false);
-                    alert('Registro excluido!');
-                }
-            },
-            error: function (jqXHR) {
-                alert('Erro ao processar requisição: ' + (jqXHR.responseText || jqXHR.statusText));
-            }
-        });
-
-    });
-
-    $(document).on('click', '#adicionar_regiao', function() {
-
-        let modalId = $(".modal.show").attr("id"); // pega o modal visível
-        let acao = $(".modal.show").data("acao");
-        let estado = $('#' + modalId + ' #modal_estado_regiao_' + acao).find(':selected').text();
-        let estado_codigo = $('#' + modalId + ' #modal_estado_regiao_' + acao).find(':selected').val();
-        let longitude = $('#modal_tabela_longitude').val();
-        let latitude = $('#modal_tabela_latitude').val();
-        let cidade = $('#' + modalId + ' #modal_cidades_regiao_' + acao).find(':selected').text();
-
-        let raio = $('#' + modalId + ' #raio_' + acao).val();
-        let valor = $('#' + modalId + ' #modal_valor_' + acao).val();
-        let servicos = $('#' + modalId + ' #modal_servico_regiao_' + acao).find(':selected').map(function () {
-            return $(this).text(); // nomes dos serviços
-        }).get();
-
-        let servico_codigos = $('#' + modalId + ' #modal_servico_regiao_' + acao).val(); // ids dos serviços
-
-        let campos_servico = [];
-
-        servico_codigos.forEach(function (codigo, i) {
-            let nome = servicos[i];
-            campos_servico.push(`<span title="${nome}">${codigo}</span>`);
-        });
-
-        campos_servico = campos_servico.join(', ');
-
-        $('#' + modalId + ' #table_regioes tbody').append('<tr><td>'+
-            estado +' <input type="hidden" name="modal_tabela_stados[]" value="'+ estado_codigo +'"></td><td>'+
-            cidade +' <input type="hidden" name="modal_tabela_cidades[]" value="'+ cidade +'"><input type="hidden" name="modal_tabela_latitude[]" value="'+ latitude +'"><input type="hidden" name="modal_tabela_longitude[]" value="'+ longitude +'"></td><td>'+
-            raio +' <input type="hidden" name="modal_tabela_raios[]" value="'+ raio +'"></td><td>'+
-            campos_servico +' <input type="hidden" name="modal_tabela_servicos[]" value="'+ servico_codigos +'"></td><td>'+
-            valor +' <input type="hidden" name="modal_tabela_valores[]" value="'+ valor +'"></td></tr>');
-
-        $('#' + modalId + ' #servico').val('');
-        $('#' + modalId + ' #valor').val('');
-    })
-
-    document.getElementById("modal_estado_regiao_alterar").addEventListener("change", async function() {
-        const estadoId = this.value;
-
-        const cidadeSelect = document.getElementById("modal_cidades_regiao_alterar");
-
-        const sigla = this.options[this.selectedIndex].getAttribute('data-sigla');
-
-        cidadeSelect.innerHTML = '<option value="0">Carregando...</option>';
-
-        if (estadoId === "0") {
-            cidadeSelect.innerHTML = '<option value="0">Selecione</option>';
-            return;
-        }
-
-        try {
-
-            await buscaDadosIBGE(sigla, cidadeSelect);
-        } catch (error) {
-            console.error("Erro ao buscar cidades:", error);
-            cidadeSelect.innerHTML = '<option value="0">Erro ao carregar</option>';
-        }
-    });
-
-    document.getElementById("modal_estado_regiao_alterar").addEventListener("change", async function() {
-        const estadoId = this.value;
-        const cidadeSelect = document.getElementById("modal_cidades_regiao_alterar");
-
-        const sigla = this.options[this.selectedIndex].getAttribute('data-sigla');
-
-        cidadeSelect.innerHTML = '<option value="0">Carregando...</option>';
-
-        if (estadoId === "0") {
-            cidadeSelect.innerHTML = '<option value="0">Selecione</option>';
-            return;
-        }
-
-        try {
-
-            await buscaDadosIBGE(sigla, cidadeSelect);
-        } catch (error) {
-            console.error("Erro ao buscar cidades:", error);
-            cidadeSelect.innerHTML = '<option value="0">Erro ao carregar</option>';
-        }
-    });
-
-
-    document.getElementById("modal_estado_regiao_incluir").addEventListener("change", async function() {
-        const estadoId = this.value;
-        const cidadeSelect = document.getElementById("modal_cidades_regiao_incluir");
-
-        const sigla = this.options[this.selectedIndex].getAttribute('data-sigla');
-
-        cidadeSelect.innerHTML = '<option value="0">Carregando...</option>';
-
-        if (estadoId === "0") {
-            cidadeSelect.innerHTML = '<option value="0">Selecione</option>';
-            return;
-        }
-
-        try {
-
-            await buscaDadosIBGE(sigla, cidadeSelect);
-        } catch (error) {
-            console.error("Erro ao buscar cidades:", error);
-            cidadeSelect.innerHTML = '<option value="0">Erro ao carregar</option>';
-        }
-    });
-
-    async function buscaDadosIBGE(siglaEstado, cidadeSelect) {
-
-        const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${siglaEstado}/municipios`);
-            const cidades = await response.json();
-
-            cidadeSelect.innerHTML = '<option value="0">Selecione</option>';
-            cidades.forEach(cidade => {
-
-                const option = document.createElement("option");
-                option.value = cidade.id;
-                option.textContent = cidade.nome;
-                cidadeSelect.appendChild(option);
-            });
+        return parseFloat(valor)
+            .toFixed(2)               // 1710 → 1710.00
+            .replace('.', ',')        // troca decimal
+            .replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // milhares
     }
 
 }); // fecha function($)

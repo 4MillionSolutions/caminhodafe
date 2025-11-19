@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'Projearte',
+    'title' => 'Entre passos',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -63,12 +63,12 @@ return [
     |
     */
 
-    'logo' => '<b>Projearte</b> Engenharia',
+    'logo' => '<b>Entre passos</b> e propósitos',
     'logo_img' => 'img/img_logo.png',
     'logo_img_class' => 'text-black brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Projearte Engenharia',
+    'logo_img_alt' => 'Entre passos Engenharia',
 
     /*
     |--------------------------------------------------------------------------
@@ -110,7 +110,7 @@ return [
         'enabled' => true,
         'img' => [
             'path' => 'img/img_logo.png',
-            'alt' => 'Projearte Engenharia',
+            'alt' => 'Entre passos Engenharia',
             'effect' => 'animation__shake',
             'width' => 60,
             'height' => 60,

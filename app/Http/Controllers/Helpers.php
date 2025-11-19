@@ -205,6 +205,27 @@ class Helpers
         return preg_replace('/\D+/', '', $telefone);
     }
 
+    /**
+     * Transforma valor para salvar no banco como float 10,00 para 10.00
+     *
+     * @param string $numero
+     * @return string
+     */
+    public static function formataSalvarFloat($valor)
+    {
+        if (is_null($valor) || $valor === '') {
+            return null;
+        }
+
+        $valor = trim($valor);
+
+        $valor = str_replace('.', '', $valor);
+
+        $valor = str_replace(',', '.', $valor);
+
+        return (float) $valor;
+
+    }
 
     public static function formatBytes($bytes, $precision = 2) {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];

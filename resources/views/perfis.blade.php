@@ -76,7 +76,7 @@
                             <tr>
 
                               <th scope="row">
-                                @if(in_array(2, $permissoes_liberadas))
+                                @if(!empty($permissoes_liberadas) && in_array(2, $permissoes_liberadas))
                                     <a href={{ URL::route($rotaAlterar, array('id' => $perfil->id )) }}>{{$perfil->id}}</a>
                                 @else
                                     {{$perfil->id}}
@@ -132,7 +132,7 @@
                                     @foreach ($acoes as $acao)
                                         <div class="form-check row">
                                             <input class="form-check-input" name="permissoes[]" value="{{$tela->id}}_{{$acao->id}}" type="checkbox"
-                                                @if(!empty($permissoes[$perfis[0]->id][$tela->id]['acoes']) && in_array($acao->id, $permissoes[$perfis[0]->id][$tela->id]['acoes'])) {{'checked'}} @endif/>
+                                                @if(!empty($perfis[0]->id) && !empty($permissoes[$perfis[0]->id][$tela->id]['acoes']) && in_array($acao->id, $permissoes[$perfis[0]->id][$tela->id]['acoes'])) {{'checked'}} @endif/>
                                             <label class="form-check-label" for="{{$acao->id}}">{{$acao->nome}}</label>
                                         </div>
                                     @endforeach

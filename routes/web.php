@@ -49,11 +49,6 @@ Route::get('/google/callback', function (\Illuminate\Http\Request $request) {
     return "Autorização concluída!";
 })->name('google.callback');
 
-Route::get('/drive', [App\Http\Controllers\DriveController::class, 'listFiles'])->name('drive.index');
-Route::post('/drive/upload', [App\Http\Controllers\DriveController::class, 'upload'])->name('drive.upload');
-Route::get('/drive/download/{id}', [App\Http\Controllers\DriveController::class, 'download'])->name('drive.download.id');
-Route::get('/drive/download/{id}/{name}', [App\Http\Controllers\DriveController::class, 'download'])->name('drive.download.name');
-Route::delete('/drive/delete/{id}', [App\Http\Controllers\DriveController::class, 'delete'])->name('drive.delete');
 
 Route::match(['get', 'post'],'/perfis', [App\Http\Controllers\PerfisController::class, 'index'])->name('perfis')->middleware('afterAuth:perfis');
 Route::match(['get', 'post'],'/alterar-perfis', [App\Http\Controllers\PerfisController::class, 'alterar'])->name('alterar-perfis')->middleware('afterAuth:perfis');
@@ -64,73 +59,8 @@ Route::get('admin/settings', [App\Http\Controllers\SettingsController::class, 'i
 Route::post('admin/alterar-senha', [App\Http\Controllers\SettingsController::class, 'edit'])->name('alterar-senha');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::get('/cadastros/{aba?}/{id?}', [App\Http\Controllers\CadastrosController::class, 'index'])->name('cadastros.id'); //->middleware('afterAuth:cadastros');
-Route::post('/cadastros/{aba}/{acao}', [App\Http\Controllers\CadastrosController::class, 'acao'])->name('cadastros.acao'); //->middleware('afterAuth:cadastros');
-Route::post('/cadastros/{aba}/{acao}/{id}', [App\Http\Controllers\CadastrosController::class, 'acao'])->name('cadastros.buscar'); //->middleware('afterAuth:cadastros');
 
-Route::get('/ajax/clientes', [App\Http\Controllers\ClientesController::class, 'getData'])->name('clientes.data');
-Route::get('/ajax/tecnicos', [App\Http\Controllers\TecnicosController::class, 'getData'])->name('tecnicos.data');
-Route::get('/ajax/servicos', [App\Http\Controllers\ServicosController::class, 'getData'])->name('servicos.data');
-Route::get('/ajax/operacoes', [App\Http\Controllers\OperacoesController::class, 'getData'])->name('operacoes.data');
-Route::get('/ajax/imoveis', [App\Http\Controllers\ImoveisController::class, 'getData'])->name('imoveis.data');
-Route::get('/ajax/prestadores', [App\Http\Controllers\PrestadoresController::class, 'getData'])->name('prestadores.data');
-Route::get('/ajax/agendamentos', [App\Http\Controllers\AgendamentosController::class, 'ajax'])->name('agendamentos.data')->middleware('auth');
+Route::match(['get', 'post'], '/hospedagens', [App\Http\Controllers\HospedagensController::class, 'index'])->name('hospedagens')->middleware('afterAuth:hospedagens');
+Route::match(['get', 'post'], '/alterar-hospedagens', [App\Http\Controllers\HospedagensController::class, 'alterar'])->name('alterar-hospedagens')->middleware('afterAuth:hospedagens');
+Route::match(['get', 'post'], '/incluir-hospedagens', [App\Http\Controllers\HospedagensController::class, 'incluir'])->name('incluir-hospedagens')->middleware('afterAuth:hospedagens');
 
-
-Route::get('/clientes', [App\Http\Controllers\ClientesController::class, 'index'])->name('clientes')->middleware('afterAuth:clientes');
-Route::match(['get', 'post'],'/alterar-clientes', [App\Http\Controllers\ClientesController::class, 'alterar'])->name('alterar-clientes')->middleware('afterAuth:clientes');
-Route::match(['get', 'post'],'/incluir-clientes', [App\Http\Controllers\ClientesController::class, 'incluir'])->name('incluir-clientes')->middleware('afterAuth:clientes');
-
-Route::get('/motivos', [App\Http\Controllers\MotivosChamadosController::class, 'index'])->name('motivos')->middleware('afterAuth:motivos');
-Route::match(['get', 'post'],'/alterar-motivos', [App\Http\Controllers\MotivosChamadosController::class, 'alterar'])->name('alterar-motivos')->middleware('afterAuth:motivos');
-Route::match(['get', 'post'],'/incluir-motivos', [App\Http\Controllers\MotivosChamadosController::class, 'incluir'])->name('incluir-motivos')->middleware('afterAuth:motivos');
-
-Route::get('/tecnicos', [App\Http\Controllers\TecnicosController::class, 'index'])->name('tecnicos')->middleware('afterAuth:tecnicos');
-Route::match(['get', 'post'],'/alterar-tecnicos', [App\Http\Controllers\TecnicosController::class, 'alterar'])->name('alterar-tecnicos')->middleware('afterAuth:tecnicos');
-Route::match(['get', 'post'],'/incluir-tecnicos', [App\Http\Controllers\TecnicosController::class, 'incluir'])->name('incluir-tecnicos')->middleware('afterAuth:tecnicos');
-
-Route::get('/servicos', [App\Http\Controllers\ServicosController::class, 'index'])->name('servicos')->middleware('afterAuth:servicos');
-Route::match(['get', 'post'],'/alterar-servicos', [App\Http\Controllers\ServicosController::class, 'alterar'])->name('alterar-servicos')->middleware('afterAuth:servicos');
-Route::match(['get', 'post'],'/incluir-servicos', [App\Http\Controllers\ServicosController::class, 'incluir'])->name('incluir-servicos')->middleware('afterAuth:servicos');
-
-Route::get('/operacoes', [App\Http\Controllers\OperacoesController::class, 'index'])->name('operacoes')->middleware('afterAuth:operacoes');
-Route::match(['get', 'post'],'/alterar-operacoes', [App\Http\Controllers\OperacoesController::class, 'alterar'])->name('alterar-operacoes')->middleware('afterAuth:operacoes');
-Route::match(['get', 'post'],'/incluir-operacoes', [App\Http\Controllers\OperacoesController::class, 'incluir'])->name('incluir-operacoes')->middleware('afterAuth:operacoes');
-
-// Rotas específicas (mais específicas primeiro!)
-Route::post('/agendamentos/consultar-cep', [App\Http\Controllers\AgendamentosController::class, 'consultarViaCep'])->name('agendamentos.consultar-cep')->middleware('auth');
-Route::post('/agendamentos/cadastrar-imovel', [App\Http\Controllers\AgendamentosController::class, 'cadastrarImovel'])->name('agendamentos.cadastrar-imovel')->middleware('auth');
-Route::post('/agendamentos/salva', [App\Http\Controllers\AgendamentosController::class, 'salvaAgendamento'])->name('agendamentos.salva')->middleware('auth');
-Route::get('/agendamentos/prestadores-recomendados', [App\Http\Controllers\AgendamentosController::class, 'getPrestatoresRecomendados'])->name('agendamentos.prestadores-recomendados')->middleware('auth');
-Route::post('/agendamentos/atribuir-prestador', [App\Http\Controllers\AgendamentosController::class, 'atribuirAoPrestador'])->name('agendamentos.atribuir-prestador')->middleware('auth');
-Route::post('/agendamentos/enviar-producao', [App\Http\Controllers\AgendamentosController::class, 'enviarParaProducao'])->name('agendamentos.enviar-producao')->middleware('auth');
-Route::post('/agendamentos/reagendar', [App\Http\Controllers\AgendamentosController::class, 'reagendar'])->name('agendamentos.reagendar')->middleware('auth');
-Route::post('/agendamentos/retorno', [App\Http\Controllers\AgendamentosController::class, 'retorno'])->name('agendamentos.retorno')->middleware('auth');
-Route::post('/agendamentos/reavaliacao', [App\Http\Controllers\AgendamentosController::class, 'reavaliacao'])->name('agendamentos.reavaliacao')->middleware('auth');
-Route::get('/agendamentos/servico/{id}', [App\Http\Controllers\ServicosController::class, 'getServico'])->name('agendamentos.servico')->middleware('auth');
-
-// Rotas com {id} mais específicas
-Route::get('/agendamentos/auditoria/{id}', [App\Http\Controllers\AgendamentosController::class, 'getAuditoriaAgendamento'])->name('agendamentos.auditoria')->middleware('auth');
-Route::get('/agendamentos/{id}/editar', [App\Http\Controllers\AgendamentosController::class, 'editar'])->name('agendamentos.editar')->middleware('auth');
-Route::post('/agendamentos/{id}/atualizar', [App\Http\Controllers\AgendamentosController::class, 'atualizar'])->name('agendamentos.atualizar')->middleware('auth');
-Route::post('/agendamentos/{id}/deletar', [App\Http\Controllers\AgendamentosController::class, 'deletar'])->name('agendamentos.deletar')->middleware('auth');
-
-// Rota genérica (por último!)
-Route::get('/agendamentos', [App\Http\Controllers\AgendamentosController::class, 'index'])->name('agendamentos')->middleware('auth');
-Route::get('/agendamentos/{id}', [App\Http\Controllers\AgendamentosController::class, 'getAgendamento'])->name('agendamentos.get')->middleware('auth');
-
-Route::post('/imoveis/salva', [App\Http\Controllers\AgendamentosController::class, 'salvaImovel'])->name('imoveis.salva')->middleware('auth');
-Route::post('/imoveis/deletar', [App\Http\Controllers\AgendamentosController::class, 'deletaImovel'])->name('imoveis.deletar')->middleware('auth');
-Route::get('/imoveis/{id}', [App\Http\Controllers\AgendamentosController::class, 'getImovel'])->name('imoveis.get')->middleware('auth');
-Route::get('/api/imoveis-cliente/{clienteId}', [App\Http\Controllers\AgendamentosController::class, 'getImovelsByCliente'])->name('api.imoveis-cliente')->middleware('auth');
-Route::get('/ajax/imoveis', [App\Http\Controllers\AgendamentosController::class, 'ajaxImoveis'])->name('ajax.imoveis')->middleware('auth');
-
-Route::resource('controle-laudos', App\Http\Controllers\ControleLaudosController::class)->middleware('auth');
-Route::get('/controle-laudos/exportar', [App\Http\Controllers\ControleLaudosController::class, 'exportar'])->name('controle-laudos.exportar')->middleware('auth');
-
-Route::get('/producao', [App\Http\Controllers\ProducaoController::class, 'index'])->name('producao')->middleware('afterAuth:producao');
-Route::match(['get', 'post'],'/alterar-producao', [App\Http\Controllers\ProducaoController::class, 'alterar'])->name('alterar-producao')->middleware('afterAuth:producao');
-Route::match(['get', 'post'],'/incluir-producao', [App\Http\Controllers\ProducaoController::class, 'incluir'])->name('incluir-producao')->middleware('afterAuth:producao');
-
-
-Route::get('/download/{id}', [App\Http\Controllers\ArquivosController::class, 'download'])->name('arquivos.download');
