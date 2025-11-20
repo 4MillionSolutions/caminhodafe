@@ -162,12 +162,14 @@ class PeregrinosController extends Controller
         $users->id = $peregrinos->id;
         $users->name = $request->input('nome');
         $users->email = $request->input('email');
-        $users->perfil_acesso = 2;
-        if($alterar && $request->input('senha') != '') {
 
+
+        if($alterar && $request->input('senha') != '') {
+            $users->perfil_acesso = $users->perfil_acesso;
             $users->password = Hash::make($request->input('senha'));
 
         } else {
+            $users->perfil_acesso = 2;
             $users->password = Hash::make($request->input('senha'));
         }
         $users->save();

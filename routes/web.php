@@ -32,6 +32,6 @@ Route::match(['get', 'post'], '/hospedagens', [App\Http\Controllers\HospedagensC
 Route::match(['get', 'post'], '/alterar-hospedagens', [App\Http\Controllers\HospedagensController::class, 'alterar'])->name('alterar-hospedagens')->middleware('afterAuth:hospedagens');
 Route::match(['get', 'post'], '/incluir-hospedagens', [App\Http\Controllers\HospedagensController::class, 'incluir'])->name('incluir-hospedagens')->middleware('afterAuth:hospedagens');
 
-Route::match(['get', 'post'], '/peregrinos', [App\Http\Controllers\PeregrinosController::class, 'index'])->name('peregrinos')->middleware('afterAuth:peregrinos');
-Route::match(['get', 'post'], '/alterar-peregrinos', [App\Http\Controllers\PeregrinosController::class, 'alterar'])->name('alterar-peregrinos')->middleware('afterAuth:peregrinos');
-Route::match(['get', 'post'], '/incluir-peregrinos', [App\Http\Controllers\PeregrinosController::class, 'incluir'])->name('incluir-peregrinos')->middleware('afterAuth:peregrinos');
+Route::match(['get', 'post'], '/peregrinos', [App\Http\Controllers\PeregrinosController::class, 'index'])->name('peregrinos');
+Route::match(['get', 'post'], '/alterar-peregrinos', [App\Http\Controllers\PeregrinosController::class, 'alterar'])->name('alterar-peregrinos');
+Route::match(['get', 'post'], '/incluir-peregrinos', [App\Http\Controllers\PeregrinosController::class, 'incluir'])->name('incluir-peregrinos');
