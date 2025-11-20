@@ -155,7 +155,7 @@ class PeregrinosController extends Controller
         $peregrinos->save();
 
         $users = new User();
-        $users = $users->where('email', '=', $request->input('email'))->first();
+        $users = $users->where('id', '=', $peregrinos->id)->first();
         if(empty($users)) {
             $users = new User();
         }
