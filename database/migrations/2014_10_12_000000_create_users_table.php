@@ -35,7 +35,7 @@ return new class extends Migration
                 'perfil_acesso' => 1,
                 'password' => '$2y$10$W8aQ3AC1YCe4lg0bvio1AOQkBK4xRjLyeH0SvxkyqZcFFhjVq9Gxi'
             ]
-    ]);
+        ]);
     }
 
     /**

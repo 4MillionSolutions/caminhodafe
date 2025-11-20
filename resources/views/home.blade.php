@@ -48,7 +48,7 @@
                 <p>Menor Valor de hospedagem</p>
               </div>
               <div class="icon">
-                <i class="ion ion-stats-bars"></i>
+                <i class="fa fa-bed"></i>
               </div>
             </div>
           </div>
@@ -61,7 +61,7 @@
                 <p>Maior Valor de hospedagem</p>
               </div>
               <div class="icon">
-                <i class="ion ion-stats-bars"></i>
+                <i class="fa fa-bed"></i>
               </div>
             </div>
           </div>
@@ -74,7 +74,7 @@
                 <p>Menor Valor com desconto</p>
               </div>
               <div class="icon">
-                <i class="ion ion-stats-bars"></i>
+                <i class="fa fa-gift"></i>
               </div>
             </div>
           </div>
@@ -86,7 +86,7 @@
                 <h3 id='total_com_desconto'>R$ 190,00<sup style="font-size: 20px"></sup></h3>
               </div>
               <div class="icon">
-                <i class="ion ion-stats-bars"></i>
+                <i class="fa fa-star"></i>
               </div>
             </div>
           </div>
@@ -109,7 +109,6 @@
                   <thead>
                     <tr>
                       <th title="Selecione as hospedagens">Selecione</th>
-                      <th>Cidade</th>
                       <th>Pousada</th>
                       <th>Menor Valor</th>
                       <th>Maior Valor</th>
@@ -119,26 +118,30 @@
                       <th>Telefone</th>
                       <th>Telefone 2</th>
                       <th>Observações</th>
-                      <th>Ativo</th>
                     </tr>
                   </thead>
                   <tbody>
                   @if(isset($hospedagens))
                         @foreach ($hospedagens as $hospedagenl)
                             <tr>
-                              <th scope="row"><input type="checkbox" name="id[]" class="calcular" value="{{$hospedagenl->id}}"></th>
-                              <td>{{$cidades[$hospedagenl->cidade]}}</td>
-                              <td>{{$hospedagenl->nome}}</td>
+                              <th scope="row">
+                                    @if($hospedagenl->desconto_parceiro > '0.00')
+                                        <i  class="fa fa-tag text-warning fa-2x ml-3" title="Contém Desconto de {{number_format($hospedagenl->desconto_parceiro, 2, ',','')}}% com nosso cupom do Entre passos e Propósitos" aria-hidden="true"></i>
+                                    @else
+                                        <i  class=" text-warning fa-2x ml-5" aria-hidden="true"></i>
+                                    @endif
+                                    <input type="checkbox" name="id[]" class="form-check-input ml-3 calcular" value="{{$hospedagenl->id}}">
+
+                                </th>
+                              <td>{{$hospedagenl->nome}} - {{$cidades[$hospedagenl->cidade]}}</td>
                               <td class="menor_valor">{{number_format($hospedagenl->menor_valor, 2, ',','')}}</td>
                               <td class="maior_valor">{{number_format(empty($hospedagenl->maior_valor) ? $hospedagenl->menor_valor : $hospedagenl->maior_valor, 2, ',','')}}</td>
                               <td class="valor_cafe">{{number_format($hospedagenl->valor_cafe, 2, ',','')}}</td>
-                              <td class="desconto_parceiro">{{number_format($hospedagenl->desconto_parceiro, 2, ',','')}}%</td>
+                              <td class="desconto_parceiro">@if($hospedagenl->desconto_parceiro > '0.00') {{number_format($hospedagenl->desconto_parceiro, 2, ',','')}}% <i class="fa fa-tag text-warning fa-2x" aria-hidden="true"></i> @endif </td>
                               <td>{{$hospedagenl->email}}</td>
                               <td>{{$hospedagenl->telefone}}</td>
                               <td>{{$hospedagenl->telefone2}}</td>
                               <td>{{$hospedagenl->observacoes}}</td>
-                              <td>{{$hospedagenl->ativo == '1' ? 'Ativo' : 'Inativo'}}</td>
-
                               </tr>
                         @endforeach
                     @endif

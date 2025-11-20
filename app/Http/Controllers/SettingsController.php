@@ -72,10 +72,6 @@ class SettingsController extends Controller
     		$user = new User();
     		$user = User::find($id);
     		$user->name = $request->input('nome');
-            $user->name = $request->input('nome');
-            $user->telefone = preg_replace("/[^0-9]/", "", $request->input('telefone'));
-            $documento = preg_replace("/[^0-9]/", "", $request->input('documento'));
-            $user->documento = $documento;
             $user->numero = $request->input('numero');
             $user->complemento = $request->input('complemento');
             $user->telefone = preg_replace("/[^0-9]/", "", $request->input('telefone'));

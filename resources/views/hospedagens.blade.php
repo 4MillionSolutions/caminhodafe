@@ -30,7 +30,7 @@
 @extends('layouts.extra-content')
 @if(isset($tela) and $tela == 'pesquisa')
     <div class="right_col" role="main">
-        <form id="filtro" action="hospedagenss" method="get" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="">
+        <form id="filtro" action="hospedagens" method="get" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="">
             <div class="form-group row">
                 <label for="nome" class="col-sm-2 col-form-label text-right">Nome</label>
                 <div class="col-sm-3">

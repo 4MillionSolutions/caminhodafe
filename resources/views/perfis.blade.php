@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'CRM Projearte')
+@section('title', 'CRM')
 
 <script src="../vendor/jquery/jquery.min.js"></script>
 <script src="js/jquery.mask.js"></script>
@@ -76,7 +76,7 @@
                             <tr>
 
                               <th scope="row">
-                                @if(!empty($permissoes_liberadas) && in_array(2, $permissoes_liberadas))
+                                @if(!empty($permissoes_liberadas) && in_array(1, $permissoes_liberadas))
                                     <a href={{ URL::route($rotaAlterar, array('id' => $perfil->id )) }}>{{$perfil->id}}</a>
                                 @else
                                     {{$perfil->id}}
@@ -143,15 +143,7 @@
                 </div>
             </div>
 
-            <div class="row mt-1">
-                <div class="col-md-2">
-                    <label for="ativo" class="form-label">Situação</label>
-                    <select class="form-control" id="ativo" name="ativo">
-                        <option value="0" {{ isset($motivos[0]->ativo) && $motivos[0]->ativo == '0' ? 'selected' : '' }}>Inativo</option>
-                        <option value="1" {{ isset($motivos[0]->ativo) && $motivos[0]->ativo == '1' ? 'selected' : '' }}>Ativo</option>
-                    </select>
-                </div>
-            </div>
+
             <div class="form-group row">
                 <div class="col-sm-5">
                     <button class="btn btn-danger" onclick="window.history.back();" type="button">Cancelar</button>
