@@ -110,6 +110,7 @@
                     <tr>
                       <th title="Selecione as hospedagens">Selecione</th>
                       <th>Pousada</th>
+                      <th>Cidade</th>
                       <th>Menor Valor</th>
                       <th>Maior Valor</th>
                       <th>Valor Café</th>
@@ -133,7 +134,8 @@
                                     <input type="checkbox" name="id[]" class="form-check-input ml-3 calcular" value="{{$hospedagenl->id}}">
 
                                 </th>
-                              <td>{{$hospedagenl->nome}} - {{$cidades[$hospedagenl->cidade]}}</td>
+                                <td>{{$hospedagenl->nome}}</td>
+                                <td>{{$cidades[$hospedagenl->cidade]}}</td>
                               <td class="menor_valor">{{number_format($hospedagenl->menor_valor, 2, ',','')}}</td>
                               <td class="maior_valor">{{number_format(empty($hospedagenl->maior_valor) ? $hospedagenl->menor_valor : $hospedagenl->maior_valor, 2, ',','')}}</td>
                               <td class="valor_cafe">{{number_format($hospedagenl->valor_cafe, 2, ',','')}}</td>
