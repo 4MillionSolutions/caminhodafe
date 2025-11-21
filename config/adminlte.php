@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'Entre passos',
+    'title' => 'Bahia Testes',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -63,12 +63,12 @@ return [
     |
     */
 
-    'logo' => '<b>Entre passos</b> e propósitos',
+    'logo' => '<b>Bahia</b> Testes',
     'logo_img' => 'img/img_logo.png',
     'logo_img_class' => 'text-black brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Entre passos Engenharia',
+    'logo_img_alt' => 'Bahia testes',
 
     /*
     |--------------------------------------------------------------------------

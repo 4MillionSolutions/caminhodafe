@@ -28,10 +28,10 @@ Route::match(['get', 'post'],'/incluir-perfis', [App\Http\Controllers\PerfisCont
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::match(['get', 'post'], '/hospedagens', [App\Http\Controllers\HospedagensController::class, 'index'])->name('hospedagens')->middleware('afterAuth:hospedagens');
-Route::match(['get', 'post'], '/alterar-hospedagens', [App\Http\Controllers\HospedagensController::class, 'alterar'])->name('alterar-hospedagens')->middleware('afterAuth:hospedagens');
-Route::match(['get', 'post'], '/incluir-hospedagens', [App\Http\Controllers\HospedagensController::class, 'incluir'])->name('incluir-hospedagens')->middleware('afterAuth:hospedagens');
+Route::match(['get', 'post'], '/clientes', [App\Http\Controllers\ClientesController::class, 'index'])->name('clientes')->middleware('afterAuth:clientes');
+Route::match(['get', 'post'], '/alterar-clientes', [App\Http\Controllers\ClientesController::class, 'alterar'])->name('alterar-clientes')->middleware('afterAuth:clientes');
+Route::match(['get', 'post'], '/incluir-clientes', [App\Http\Controllers\ClientesController::class, 'incluir'])->name('incluir-clientes')->middleware('afterAuth:clientes');
 
-Route::match(['get', 'post'], '/peregrinos', [App\Http\Controllers\PeregrinosController::class, 'index'])->name('peregrinos');
-Route::match(['get', 'post'], '/alterar-peregrinos', [App\Http\Controllers\PeregrinosController::class, 'alterar'])->name('alterar-peregrinos');
-Route::match(['get', 'post'], '/incluir-peregrinos', [App\Http\Controllers\PeregrinosController::class, 'incluir'])->name('incluir-peregrinos');
+Route::match(['get', 'post'], '/laudos', [App\Http\Controllers\LaudosController::class, 'index'])->name('laudos');
+Route::match(['get', 'post'], '/alterar-laudos', [App\Http\Controllers\LaudosController::class, 'alterar'])->name('alterar-laudos');
+Route::match(['get', 'post'], '/incluir-laudos', [App\Http\Controllers\LaudosController::class, 'incluir'])->name('incluir-laudos');
