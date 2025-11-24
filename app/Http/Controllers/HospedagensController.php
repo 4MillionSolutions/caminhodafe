@@ -10,28 +10,7 @@ use Illuminate\Http\Request;
 class HospedagensController extends Controller
 {
     public $permissoes_liberadas = [];
-    public $cidades = [
-            1  => 'Águas da Prata',
-            2  => 'Andradas',
-            3  => 'Serra dos Lima',
-            4  => 'Barra',
-            5  => 'Crisólia',
-            6  => 'Ouro Fino',
-            7  => 'Inconfidentes',
-            8  => 'Borda da Mata',
-            9  => 'Tocos do Moji',
-            10 => 'Estiva',
-            11 => 'Consolação',
-            12 => 'Paraisópolis',
-            13 => 'Canta Galo',
-            14 => 'Luminosa',
-            15 => 'Campista',
-            16 => 'Campos do Jordão',
-            17 => 'Piracuama',
-            18 => 'Distrito Mandu',
-            19 => 'Pindamonhangaba',
-            20 => 'Roseira',
-        ];
+    public $cidades = [];
 
     /**
      * Create a new controller instance.
@@ -41,6 +20,7 @@ class HospedagensController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->cidades = (new \App\Models\Cidades())->all()->pluck('nome', 'id')->toArray();
     }
 
 

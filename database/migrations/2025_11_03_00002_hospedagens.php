@@ -12,16 +12,16 @@ return new class extends Migration
         Schema::create('hospedagens', function (Blueprint $table) {
             $table->id();
             $table->integer('cidade');
-            $table->string('nome', 80)->unique();
+            $table->string('nome', 150);
             $table->float('menor_valor', 11,2)->nullable();
             $table->float('maior_valor', 11,2)->nullable();
             $table->float('valor_cafe', 11,2)->nullable();
             $table->float('desconto_parceiro', 11,2)->nullable();
-            $table->boolean('parceiro')->default(true);
-            $table->string('email', 80)->default(true);
+            $table->boolean('parceiro')->nullable();
+            $table->string('email', 80)->nullable();
             $table->string('telefone', 11)->nullable();
             $table->string('telefone2', 11)->nullable();
-            $table->string('observacoes', 50)->nullable();
+            $table->text('observacoes')->nullable();
             $table->boolean('ativo')->default(true);
             $table->timestamps();
         });
