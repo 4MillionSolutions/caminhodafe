@@ -21,6 +21,9 @@ class SettingsController extends Controller
         $id = \Auth::user()->id;
         $user = User::find($id);
 
+        //se perfil_acesso for 1, exibe todas as pessoas cadastradas, senão exibe apenas as pessoas vinculadas ao usuário logado
+        dd('aqui');
+
         $data = array(
             'user' => $user,
         );

@@ -51,6 +51,14 @@ class PeregrinosController extends Controller
             $peregrinos = $peregrinos->where('status', '=', 'A');
         }
 
+        //se perfil_acesso for 1, exibe todas as pessoas cadastradas, senão exibe apenas as pessoas vinculadas ao usuário logado
+
+        $perfil = (new ValidaPermissaoAcessoController())->retornaPerfil();
+        if($perfil != 1) {
+            $peregrinos = $peregrinos->where('id', '=', \Auth::user()->id);
+        }
+
+
         $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
 
         $peregrinos = $peregrinos->get();
@@ -108,6 +116,14 @@ class PeregrinosController extends Controller
     public function alterar(Request $request)
     {
         $peregrinos = new Peregrinos();
+
+        $perfil = (new ValidaPermissaoAcessoController())->retornaPerfil();
+        if($perfil != 1) {
+            if($request->input('id') != \Auth::user()->id) {
+                return redirect()->route('peregrinos');
+            }
+
+        }
 
 
         $peregrinos= $peregrinos->where('id', '=', $request->input('id'))->get();

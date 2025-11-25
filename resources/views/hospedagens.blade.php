@@ -11,10 +11,6 @@
             </div>
         </div>
     @endif
-    <script src="../vendor/jquery/jquery.min.js?cache={{time()}}"></script>
-    <script src="js/jquery.mask.js?cache={{time()}}"></script>
-    <script src="js/main_custom.js?cache={{time()}}"></script>
-    {{-- <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script> --}}
 
 @stop
 
@@ -214,6 +210,11 @@
 @endif
 @stop
 
-@section('scripts')
+@section('js')
     <script src="../vendor/jquery/jquery.min.js"></script>
-@endsection
+    <script src="js/jquery.mask.js"></script>
+    {{-- <script src="js/bootstrap.4.6.2.js"></script> --}}
+    <script src="js/select2.min.js"></script>
+    <script src="js/main_custom.js"></script>
+    <script src="js/acoes.js"></script>
+@stop

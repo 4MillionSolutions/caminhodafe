@@ -74,6 +74,11 @@ class HospedagensController extends Controller
      */
     public function incluir(Request $request)
     {
+        $perfil = (new ValidaPermissaoAcessoController())->retornaPerfil();
+        if($perfil != 1) {
+                return redirect()->route('hospedagens');
+        }
+
         $metodo = $request->method();
 
     	if ($metodo == 'POST') {
@@ -115,6 +120,10 @@ class HospedagensController extends Controller
 
         $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
 
+        $perfil = (new ValidaPermissaoAcessoController())->retornaPerfil();
+        if($perfil != 1) {
+                return redirect()->route('hospedagens');
+        }
         $hospedagens = new Hospedagens();
 
 

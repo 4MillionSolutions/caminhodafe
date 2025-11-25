@@ -47,6 +47,7 @@ class HomeController extends Controller
 
         $acoes =new Acoes();
         $acoes = $acoes->get();
+
         $hospedagens = $hospedagens->get();
         $tela = 'pesquisa';
     	$data = array(

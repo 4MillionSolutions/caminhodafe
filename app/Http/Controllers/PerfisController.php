@@ -34,7 +34,10 @@ class PerfisController extends Controller
     {
 
         $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
-        info($this->permissoes_liberadas);
+        $perfil = (new ValidaPermissaoAcessoController())->retornaPerfil();
+        if($perfil != 1) {
+                return redirect()->route('perfis');
+        }
         $perfis = new Perfis();
 
         $id = !empty($request->input('id')) ? ($request->input('id')) : ( !empty($id) ? $id : false );
@@ -74,6 +77,10 @@ class PerfisController extends Controller
      */
     public function incluir(Request $request)
     {
+        $perfil = (new ValidaPermissaoAcessoController())->retornaPerfil();
+        if($perfil != 1) {
+                return redirect()->route('perfis');
+        }
         $metodo = $request->method();
 
     	if ($metodo == 'POST') {
@@ -117,6 +124,10 @@ class PerfisController extends Controller
     public function alterar(Request $request)
     {
 
+        $perfil = (new ValidaPermissaoAcessoController())->retornaPerfil();
+        if($perfil != 1) {
+                return redirect()->route('perfis');
+        }
         $perfis = new Perfis();
 
 

@@ -1,9 +1,6 @@
 @extends('adminlte::page')
 
 @section('title', 'CRM')
-<script src="../vendor/jquery/jquery.min.js"></script>
-<script src="js/jquery.mask.js"></script>
-<script src="js/main_custom.js"></script>
 
 @section('adminlte_css')
     <link rel="stylesheet" href="{{ asset('css/adminlte-custom.css') }}">
@@ -145,7 +142,7 @@
             <div class="form-group row">
                 <label for="telefone" class="col-sm-2 col-form-label">Telefone</label>
                 <div class="col-sm-2">
-                <input type="text" class="form-control is-invalid mask_phone" required id="telefone" name="telefone" value="@if (isset($peregrinos[0]->telefone)){{$peregrinos[0]->telefone}}@else{{''}}@endif">
+                <input type="text" class="form-control mask_phone" id="telefone" name="telefone" value="@if (isset($peregrinos[0]->telefone)){{$peregrinos[0]->telefone}}@else{{''}}@endif">
                 </div>
             </div>
             <div class="form-group row">
@@ -180,3 +177,10 @@
 
     @stop
 @endif
+@section('js')
+    <script src="../vendor/jquery/jquery.min.js"></script>
+    <script src="js/jquery.mask.js"></script>
+    <script src="js/select2.min.js"></script>
+    <script src="js/main_custom.js"></script>
+    <script src="js/acoes.js"></script>
+@stop

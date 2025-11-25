@@ -2,13 +2,6 @@
 
 @section('title', 'CRM')
 
-<script src="../vendor/jquery/jquery.min.js"></script>
-<script src="js/jquery.mask.js"></script>
-<script src="js/bootstrap.4.6.2.js"></script>
-<script src="js/select2.min.js"></script>
-<script src="js/main_custom.js"></script>
-    {{-- <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script> --}}
-
 @section('adminlte_css')
     <link rel="stylesheet" href="{{ asset('css/adminlte-custom.css') }}">
 @stop
@@ -156,3 +149,11 @@
 
     @stop
 @endif
+@section('js')
+    <script src="../vendor/jquery/jquery.min.js"></script>
+    <script src="js/jquery.mask.js"></script>
+    {{-- <script src="js/bootstrap.4.6.2.js"></script> --}}
+    <script src="js/select2.min.js"></script>
+    <script src="js/main_custom.js"></script>
+    <script src="js/acoes.js"></script>
+@stop
