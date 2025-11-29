@@ -90,7 +90,7 @@
     <form id="{{ $tela }}" action="{{ $tela == 'alterar' ? $rotaAlterar : $rotaIncluir }}" method="post">
         @csrf
         @if($tela == 'alterar')
-            <input type="hidden" name="id" value="{{ $hospedagenss[0]->id ?? '' }}">
+            <input type="text" name="id" value="{{ $hospedagens->id ?? '' }}">
         @endif
         <div class="container">
 

@@ -118,6 +118,7 @@ class HospedagensController extends Controller
     public function alterar(Request $request)
     {
 
+        // dd($request->all());
         $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
 
         $perfil = (new ValidaPermissaoAcessoController())->retornaPerfil();
@@ -127,7 +128,7 @@ class HospedagensController extends Controller
         $hospedagens = new Hospedagens();
 
 
-        $hospedagens= $hospedagens->where('id', '=', $request->input('id'))->get();
+        $hospedagens= $hospedagens->where('id', '=', $request->input('id'))->first();
 
 		$metodo = $request->method();
 		if ($metodo == 'POST') {
