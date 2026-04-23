@@ -48,7 +48,8 @@ class AppServiceProvider extends ServiceProvider
                             'key' => 'menu_'.$menus->id,
                             'text' => $menus->nome,
                             'icon' => $menus->icon,
-                            'icon_color' => 'cyan'
+                            'icon_color' => 'cyan',
+                            'expanded' => true
                         ]
                 );
             });
@@ -66,6 +67,9 @@ class AppServiceProvider extends ServiceProvider
                     return [];
                 }
 
+                // Check if this is the current route
+                $isActive = request()->route()?->getName() === $submenus->rota;
+
                 return $event->menu->addin('menu_'.$submenus->menu_id,
                     [
                         'key' => 'submenu_'.$submenus->id,
@@ -73,6 +77,7 @@ class AppServiceProvider extends ServiceProvider
                         'url'  => $submenus->rota,
                         'icon' => $submenus->icon,
                         'icon_color' => $submenus->icon_color,
+                        'active' => $isActive,
                         //'label' => '',
                     ]
                 );

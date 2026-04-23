@@ -1,5 +1,3 @@
 <div class="form-group row">
-    <a href="{{ $rotaIncluir }}">
-        <button type="submit" class="btn btn-success">Novo</button>
-    </a>
+    <a href="{{ route($rotaIncluir) }}" class="btn btn-success">Novo</a>
 </div>

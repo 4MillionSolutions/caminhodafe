@@ -24,7 +24,9 @@ return new class extends Migration
         DB::table('perfis')->insert(
             [
                 [ 'id' => '1','nome' => 'Admin'],
-                [ 'id' => '2','nome' => 'Peregrino'],
+                [ 'id' => '2','nome' => 'Advogado'],
+                [ 'id' => '3','nome' => 'Secretário'],
+                [ 'id' => '4','nome' => 'Estagiário'],
 
             ]
         );

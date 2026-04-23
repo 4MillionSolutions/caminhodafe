@@ -36,14 +36,77 @@
 //   });
 
 // Disable the sidebar accordion
-// document.addEventListener('DOMContentLoaded', function () {
-//     const sidebar = document.querySelector('[data-widget="treeview"]');
-//     if (sidebar) {
-//         sidebar.setAttribute('data-accordion', 'false');
-//     }
-// });
+document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.querySelector('[data-widget="treeview"]');
+    if (sidebar) {
+        sidebar.setAttribute('data-accordion', 'false');
+    }
+
+    // Desabilitar o comportamento de accordion do AdminLTE
+    $('[data-widget="treeview"]').each(function () {
+        $(this).Treeview({accordion: false});
+    });
+});
 
 $(function ($) {
+
+    function manterMenusAbertos() {
+        const menusFixos = ['Cadastros', 'Controles', 'Configurações'];
+        const submenusFixos = ['Home', 'Cadastro de Perfis', 'Clientes', 'Filiais', 'Processos', 'Documentos', 'Tipos de Ação', 'Usuários'];
+
+        $('.nav-sidebar > .nav-item').each(function () {
+            const $item = $(this);
+            const $linkPai = $item.children('.nav-link');
+            const $tree = $item.children('.nav-treeview');
+
+            if (!$tree.length) {
+                return;
+            }
+
+            const textoMenu = $linkPai.find('p').clone().children().remove().end().text().trim();
+
+            if (!menusFixos.includes(textoMenu)) {
+                return;
+            }
+
+            $item.addClass('menu-open');
+            $tree.css('display', 'block');
+
+            // Impedir que o link pai feche o submenu
+            $linkPai.off('click.treeview').off('click.menuFixo').on('click.menuFixo', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                $item.addClass('menu-open');
+                $tree.css('display', 'block');
+                return false;
+            });
+        });
+
+        // Garantir que submenus fixos estejam sempre visíveis
+        $('.nav-sidebar .nav-link').each(function() {
+            const $link = $(this);
+            const textoSubmenu = $link.find('p').clone().children().remove().end().text().trim();
+
+            if (submenusFixos.includes(textoSubmenu)) {
+                const $item = $link.parent();
+                $item.addClass('nav-item-fixed');
+                $item.addClass('menu-open');
+                $item.children('.nav-treeview').css('display', 'block');
+            }
+        });
+    }
+
+    // Chamar a função após um pequeno delay para garantir que o AdminLTE foi inicializado
+    setTimeout(manterMenusAbertos, 100);
+
+    $(document).on('collapsed.lte.treeview', '.nav-sidebar', function () {
+        manterMenusAbertos();
+    });
+
+    $(document).on('expanded.lte.treeview', '.nav-sidebar', function () {
+        manterMenusAbertos();
+    });
 
 
     //var baseUrl = '/proeffect/public'

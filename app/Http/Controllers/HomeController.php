@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Auth\ValidaPermissaoAcessoController;
-use App\Models\Acoes;
-use App\Models\Hospedagens;
-use Symfony\Component\HttpFoundation\Request;
+use App\Models\Andamento;
+use App\Models\Cliente;
+use App\Models\Documento;
+use App\Models\Processo;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public $permissoes_liberadas = [];
-    public $cidades = [];
-
     /**
      * Create a new controller instance.
      *
@@ -20,8 +18,6 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->cidades = (new \App\Models\Cidades())->all()->pluck( 'nome', 'id')->toArray();
-
     }
 
     /**
@@ -31,37 +27,29 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        $this->permissoes_liberadas = (new ValidaPermissaoAcessoController())->validaAcaoLiberada(1, (new ValidaPermissaoAcessoController())->retornaPerfil());
-        $hospedagens = new Hospedagens();
+        $query = Processo::query()->with(['clientes', 'responsavel']);
 
-        $id = !empty($request->input('id')) ? ($request->input('id')) : ( !empty($id) ? $id : false );
-
-        if ($id) {
-            $hospedagens = $hospedagens->where('id', '=', $id);
+        if ($request->filled('cliente_id')) {
+            $clienteId = (int) $request->input('cliente_id');
+            $query->whereHas('clientes', fn ($q) => $q->where('clientes.id', $clienteId));
         }
 
-        if ($request->input('nome') != '') {
-        	$hospedagens = $hospedagens->where('nome', 'like', '%'.$request->input('nome').'%');
+        if ($request->filled('numero_processo')) {
+            $query->where('numero_processo', 'like', '%' . trim((string) $request->input('numero_processo')) . '%');
         }
 
-
-        $acoes =new Acoes();
-        $acoes = $acoes->get();
-
-        $hospedagens = $hospedagens->get();
-        $tela = 'pesquisa';
-    	$data = array(
-				'tela' => $tela,
-                'nome_tela' => 'hospedagens',
-                'acoes' => $acoes,
-                'cidades' => $this->cidades,
-                'permissoes_liberadas' => $this->permissoes_liberadas,
-				'hospedagens'=> $hospedagens,
-				'request' => $request,
-				'rotaIncluir' => 'incluir-hospedagens',
-				'rotaAlterar' => 'alterar-hospedagens'
-			);
-
-        return view('home', $data);
+        return view('home', [
+            'kpis' => [
+                'total_processos' => Processo::query()->count(),
+                'processos_ativos' => Processo::query()->where('status', 'ativo')->count(),
+                'processos_encerrados' => Processo::query()->where('status', 'encerrado')->count(),
+                'total_clientes' => Cliente::query()->count(),
+                'total_andamentos' => Andamento::query()->count(),
+                'total_documentos' => Documento::query()->count(),
+            ],
+            'clientesOptions' => Cliente::query()->orderBy('nome')->pluck('nome', 'id'),
+            'processos' => $query->orderByDesc('id')->limit(30)->get(),
+            'request' => $request,
+        ]);
     }
 }

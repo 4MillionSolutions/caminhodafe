@@ -1,160 +1,215 @@
 @extends('adminlte::page')
 
-@section('title', 'CRM Projearte')
+@section('title', env('APP_NAME'))
 
 @section('adminlte_css')
-    <link rel="stylesheet" href="{{ asset('css/adminlte-custom.css') }}">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <link rel="stylesheet" href="{{ asset('css/adminlte-custom.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}">
 @stop
 
 @section('content_top_nav_left')
-    @include('layouts.navbar_left')
+  @include('layouts.navbar_left')
 @stop
 
-@if(isset($tela) and $tela == 'pesquisa')
-    @section('content_header')
-    <div class="form-group row">
+@section('content_header')
+  <h1 class="m-0 text-dark">Dashboard Jurídico</h1>
+@stop
 
-        <div class="col-md-4">
-            <label for="dias_viagem" class="form-label">Dias de peregrinação</label>
-            <input type="number" class="form-control calcular" id="dias_viagem" name="dias_viagem"
-                value="10">
+@section('content')
+@extends('layouts.extra-content')
+  <div class="right_col" role="main">
+    <div class="row">
+      <div class="col-lg-2 col-md-4 col-sm-6 col-12">
+        <div class="small-box bg-primary">
+          <div class="inner">
+            <h3>{{ $kpis['total_processos'] ?? 0 }}</h3>
+            <p>Processos</p>
+          </div>
+          <div class="icon"><i class="fa fa-balance-scale"></i></div>
         </div>
-        <div class="col-md-4">
-            <label for="gastros_extras" class="form-label">Gastos extras</label>
-            <select class="form-control calcular" id="gastros_extras" name="gastros_extras">
-                <option value="0" >Sem gastos extras</option>
-                <option value="30" >R$ 30/dia (mínimo essencial) </option>
-                <option value="50" >R$ 50/dia (média realista para a maioria dos peregrinos) </option>
-                <option value="80" >R$ 80/dia (cenário confortável, considerando possíveis extras)</option>
-            </select>
+      </div>
+      <div class="col-lg-2 col-md-4 col-sm-6 col-12">
+        <div class="small-box bg-success">
+          <div class="inner">
+            <h3>{{ $kpis['processos_ativos'] ?? 0 }}</h3>
+            <p>Ativos</p>
+          </div>
+          <div class="icon"><i class="fa fa-folder-open"></i></div>
         </div>
-        <div class="col-md-4">
-                <img src="img/img_logo.png" alt="" style="width: 110px; height:110px" class="img-fluid">
+      </div>
+      <div class="col-lg-2 col-md-4 col-sm-6 col-12">
+        <div class="small-box bg-danger">
+          <div class="inner">
+            <h3>{{ $kpis['processos_encerrados'] ?? 0 }}</h3>
+            <p>Encerrados</p>
+          </div>
+          <div class="icon"><i class="fa fa-folder"></i></div>
         </div>
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-primary">
-              <div class="inner">
-                <h3 id='total_menor_valor'>R$ 200,00<sup style="font-size: 20px"></sup></h3>
-
-                <p>Menor Valor de hospedagem</p>
-              </div>
-              <div class="icon">
-                <i class="fa fa-bed"></i>
-              </div>
-            </div>
+      </div>
+      <div class="col-lg-2 col-md-4 col-sm-6 col-12">
+        <div class="small-box bg-info">
+          <div class="inner">
+            <h3>{{ $kpis['total_clientes'] ?? 0 }}</h3>
+            <p>Clientes</p>
           </div>
-          <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-danger">
-              <div class="inner">
-                <h3 id='total_maior_valor'>R$ 220,00<sup style="font-size: 20px"></sup></h3>
-
-                <p>Maior Valor de hospedagem</p>
-              </div>
-              <div class="icon">
-                <i class="fa fa-bed"></i>
-              </div>
-            </div>
+          <div class="icon"><i class="fa fa-users"></i></div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 col-sm-6 col-12">
+        <div class="small-box bg-warning">
+          <div class="inner">
+            <h3>{{ $kpis['total_andamentos'] ?? 0 }}</h3>
+            <p>Andamentos</p>
           </div>
-          <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-success">
-              <div class="inner">
-                <h3 id='total_menor_valor_com_desconto'>R$ 190,00<sup style="font-size: 20px"></sup></h3>
-
-                <p>Menor Valor com desconto</p>
-              </div>
-              <div class="icon">
-                <i class="fa fa-gift"></i>
-              </div>
-            </div>
+          <div class="icon"><i class="fa fa-clock-o"></i></div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 col-sm-6 col-12">
+        <div class="small-box bg-secondary">
+          <div class="inner">
+            <h3>{{ $kpis['total_documentos'] ?? 0 }}</h3>
+            <p>Documentos</p>
           </div>
-          <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-warning">
-              <div class="inner">
-                 <p>Valor total de peregrinação</p>
-                <h3 id='total_com_desconto'>R$ 190,00<sup style="font-size: 20px"></sup></h3>
-              </div>
-              <div class="icon">
-                <i class="fa fa-star"></i>
-              </div>
-            </div>
-          </div>
-
-
+          <div class="icon"><i class="fa fa-file-text-o"></i></div>
+        </div>
+      </div>
     </div>
-    @stop
-    @section('content')
-    @extends('layouts.extra-content')
-    <div class="right_col" role="main">
-        <div class="form-group">
-          <label class="control-label col-md-3 col-sm-3 col-xs-12" for=""></label>
-          <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel">
-              <div class="x_title">
-                <div class="clearfix"></div>
-              </div>
-              <div class="x_content">
-                <table id='table_hospedagens' class="table table-striped text-center">
-                  <thead>
-                    <tr>
-                      <th title="Selecione as hospedagens">Selecione</th>
-                      <th>Pousada</th>
-                      <th>Cidade</th>
-                      <th>Menor Valor</th>
-                      <th>Maior Valor</th>
-                      <th>Valor Café</th>
-                      <th>Desconto Parceiro</th>
-                      <th>Email</th>
-                      <th>Telefone</th>
-                      <th>Telefone 2</th>
-                      <th>Observações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  @if(isset($hospedagens))
-                        @foreach ($hospedagens as $hospedagenl)
-                            <tr>
-                              <th scope="row">
-                                    @if($hospedagenl->desconto_parceiro > '0.00')
-                                        <i  class="fa fa-tag text-warning fa-2x ml-3" title="Contém Desconto de {{number_format($hospedagenl->desconto_parceiro, 2, ',','')}}% com nosso cupom do Entre passos e Propósitos" aria-hidden="true"></i>
-                                    @else
-                                        <i  class=" text-warning fa-2x ml-5" aria-hidden="true"></i>
-                                    @endif
-                                    <input type="checkbox" name="id[]" class="form-check-input ml-3 calcular" value="{{$hospedagenl->id}}">
 
-                                </th>
-                                <td>{{$hospedagenl->nome}}</td>
-                                <td>{{$cidades[$hospedagenl->cidade]}}</td>
-                              <td class="menor_valor">{{number_format($hospedagenl->menor_valor, 2, ',','')}}</td>
-                              <td class="maior_valor">{{number_format(empty($hospedagenl->maior_valor) ? $hospedagenl->menor_valor : $hospedagenl->maior_valor, 2, ',','')}}</td>
-                              <td class="valor_cafe">{{number_format($hospedagenl->valor_cafe, 2, ',','')}}</td>
-                              <td class="desconto_parceiro">@if($hospedagenl->desconto_parceiro > '0.00') {{number_format($hospedagenl->desconto_parceiro, 2, ',','')}}% <i class="fa fa-tag text-warning fa-2x" aria-hidden="true"></i> @endif </td>
-                              <td>{{$hospedagenl->email}}</td>
-                              <td>{{$hospedagenl->telefone}}</td>
-                              <td>{{$hospedagenl->telefone2}}</td>
-                              <td>{{$hospedagenl->observacoes}}</td>
-                              </tr>
-                        @endforeach
+    <div class="row mb-3">
+      <div class="col-12">
+        <div class="card bg-light">
+          <div class="card-body">
+            <h5 class="card-title mb-3">Acessos Rápidos</h5>
+            <a href="{{ route('incluir-clientes') }}" class="btn btn-success mr-2">
+              <i class="fa fa-plus"></i> Novo Cliente
+            </a>
+            <a href="{{ route('incluir-processos') }}" class="btn btn-primary mr-2">
+              <i class="fa fa-plus"></i> Novo Processo
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="x_panel">
+      <div class="x_title">
+        <h4>Acesso rápido - Consulta de processos</h4>
+        <div class="clearfix"></div>
+      </div>
+      <div class="x_content">
+        <form action="{{ route('home') }}" method="get" class="form-horizontal form-label-left" novalidate>
+          <div class="form-group row">
+            <label for="cliente_id" class="col-sm-2 col-form-label text-right">Cliente</label>
+            <div class="col-sm-4">
+              <select class="form-control select2-ajax-clientes" id="cliente_id" name="cliente_id" style="width: 100%;">
+                <option value="">Todos</option>
+                @if($request->filled('cliente_id'))
+                    @php
+                        $clienteSelecionado = \App\Models\Cliente::find($request->input('cliente_id'));
+                    @endphp
+                    @if($clienteSelecionado)
+                        <option value="{{ $clienteSelecionado->id }}" selected>
+                            {{ $clienteSelecionado->nome }}{{ $clienteSelecionado->cpf ? ' (CPF: ' . $clienteSelecionado->cpf . ')' : '' }}
+                        </option>
                     @endif
-                  </tbody>
-                </table>
-              </div>
+                @endif
+              </select>
+            </div>
+
+            <label for="numero_processo" class="col-sm-2 col-form-label text-right">Nº Processo</label>
+            <div class="col-sm-4">
+                            <input type="text" id="numero_processo" name="numero_processo" class="form-control mask_numero_processo" maxlength="25" value="{{ $request->input('numero_processo') ?? '' }}">
             </div>
           </div>
-        </div>
-    </div>
 
-    @stop
-@endif
+          <div class="form-group row">
+            <div class="col-sm-12 text-right">
+              <button type="submit" class="btn btn-primary">Consultar</button>
+            </div>
+          </div>
+        </form>
+
+        <table class="table table-striped text-center">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Número</th>
+              <th>Status</th>
+              <th>Cliente(s)</th>
+              <th>Responsável</th>
+            </tr>
+          </thead>
+          <tbody>
+            @forelse(($processos ?? []) as $processo)
+              <tr>
+                <th scope="row"><a href="{{ route('alterar-processos', ['id' => $processo->id]) }}">{{ $processo->id }}</a></th>
+                <td>{{ $processo->numero_processo }}</td>
+                <td>{{ ucfirst($processo->status) }}</td>
+                <td>{{ $processo->clientes->pluck('nome')->implode(', ') }}</td>
+                <td>{{ $processo->responsavel->name ?? '-' }}</td>
+              </tr>
+            @empty
+              <tr>
+                <td colspan="5">Nenhum processo encontrado para os filtros informados.</td>
+              </tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+@stop
 
 @section('js')
-    <script src="../vendor/jquery/jquery.min.js"></script>
-    <script src="js/jquery.mask.js"></script>
-    {{-- <script src="js/bootstrap.4.6.2.js"></script> --}}
-    <script src="js/select2.min.js"></script>
-    <script src="js/main_custom.js"></script>
-    <script src="js/acoes.js"></script>
+  <script src="../vendor/jquery/jquery.min.js"></script>
+  <script src="js/jquery.mask.js"></script>
+  <script src="js/select2.min.js"></script>
+  <script src="js/main_custom.js"></script>
+  <script>
+    // Configurar cabeçalho CSRF para todas requisições AJAX
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $(function () {
+      $('.mask_numero_processo').mask('0000000-00.0000.0.00.0000');
+
+      // Inicializar Select2 AJAX para clientes
+      $('.select2-ajax-clientes').select2({
+          ajax: {
+              url: '{{ route("api.clientes.search") }}',
+              dataType: 'json',
+              xhrFields: {
+                  withCredentials: true
+              },
+              delay: 250,
+              data: function (params) {
+                  return {
+                      q: params.term,
+                      page: params.page || 1
+                  };
+              },
+              processResults: function (data) {
+                  return {
+                      results: data.results,
+                      pagination: data.pagination
+                  };
+              },
+              cache: true
+          },
+          minimumInputLength: 0,
+          placeholder: 'Digite para buscar cliente',
+          allowClear: true,
+          language: {
+              inputTooShort: function() { return 'Digite para buscar'; },
+              noResults: function() { return 'Nenhum cliente encontrado'; },
+              searching: function() { return 'Buscando...'; },
+              loadingMore: function() { return 'Carregando mais resultados...'; }
+          }
+      });
+    });
+  </script>
 @stop

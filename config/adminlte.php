@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'Entre passos',
+    'title' => 'Gestão Jurídica',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -63,12 +63,12 @@ return [
     |
     */
 
-    'logo' => '<b>Entre passos</b> e propósitos',
+    'logo' => '<b>Gestão</b> Jurídica',
     'logo_img' => 'img/img_logo.png',
     'logo_img_class' => 'text-black brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Entre passos Engenharia',
+    'logo_img_alt' => 'Gestão Jurídica',
 
     /*
     |--------------------------------------------------------------------------
@@ -87,7 +87,7 @@ return [
         'enabled' => false,
         'img' => [
             'path' => 'img/img_logo.png',
-            'alt' => 'Auth Logo',
+            'alt' => 'Gestão Jurídica',
             'class' => '',
             'width' => 50,
             'height' => 50,
@@ -110,7 +110,7 @@ return [
         'enabled' => true,
         'img' => [
             'path' => 'img/img_logo.png',
-            'alt' => 'Entre passos Engenharia',
+            'alt' => 'Gestão Jurídica',
             'effect' => 'animation__shake',
             'width' => 60,
             'height' => 60,
